@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    {% load static %}
+    <script type="module" src="{% static 'visualizer/networkBehavior.js' %}"></script>
+    <script type="module" src="{% static 'visualizer/networkDataManagement.js' %}"></script>
+    <script type="module" src="{% static 'visualizer/networkSimulation.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'visualizer/style.css' %}">
+    <title>Comedy Bang Bang Network Visualizer</title>
+    <style>
+
+    </style>
+</head>
+<body>
+    <h1>Comedy Bang Bang Network Visualizer</h1>
+    <p>Welcome to the Comedy Bang Bang Network Visualizer.</p>
+    <select id="componentSelector">
+        <!-- Options will be dynamically filled based on available components -->
+    </select>
+    <div id="characterDetails" class="sidebar">
+        <div class="resizer"></div>
+        <h3>Character Details</h3>
+        <div id="characterName"></div>
+        <div id="playedBy"></div>
+        <table id="characterTable">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Episode Number</th>
+                    <th>Release Date</th>
+                </tr>
+            </thead>
+            <tbody id="episodeList">
+                <!--Episodes added here dynamically-->
+            </tbody>
+        </table>
+    </div>
+    <div id="guestDetails" class="sidebar">
+        <div class="resizer"></div>
+        <h3>Guest Details</h3>
+        <div id="guestName"></div>
+        <table id="guestTable">
+            <thead>
+                <tr>
+                    <th>Title</th>
+                    <th>Episode Number</th>
+                    <th>Release Date</th>
+                </tr>
+            </thead>
+            <tbody id="guestEpisodeList">
+                <!--Episodes added here dynamically-->
+            </tbody>
+        </table>
+    </div>
+    <div id="toolbar">
+        <button id="toggleSimulation">Toggle Simulation</button>
+        <button id="centerOnGraph">Center On Graph</button>
+        <label for="linkDistance">Link Distance:</label>
+        <input type="range" id="linkDistance" min="10" max="5000" value="1000">
+        <label for="chargeStrength">Charge Strength:</label>
+        <input type="range" id="chargeStrength" min="0" max="10000" value="1000">
+        <select id="centralitySelector">
+            <option value="degree">Degree Centrality</option>
+            <option value="closeness">Closeness Centrality</option>
+            <option value="betweenness">Betweenness Centrality</option>
+            <option value="eigenvector">Eigenvector Centrality</option>
+        </select>
+        <label>
+            <input type="checkbox" id="toggleNames" checked>Show Node Names
+        </label>
+        <label for="nodeScale">Node Scale: </label>
+        <input type="range" id="nodeScale" min="0.5" max="25" step="0.1" value="1">
+        <span id="scaleValue">1x</span>
+
+    </div>
+    <div class="tabs">
+        <button id="tab-characters" class="tab selected">Characters</button>
+        <button id="tab-guests" class="tab">Guests</button>
+    </div>
+    <div id="network"></div>
+    <script type="module">
+        import { setupVisualization, fetchAndDisplayComponent, switchEntityType, populateComponentSelector } from "{% static 'visualizer/networkDataManagement.js' %}";
+        import { highlightNode } from "{% static 'visualizer/networkBehavior.js' %}";
+        import { resizeSidebar } from "{% static 'visualizer/menuBehavior.js' %}";
+        import { setupEventListeners } from "{% static 'visualizer/eventHandling.js' %}";
+        document.addEventListener('DOMContentLoaded', async function() {
+            let entityType = 'characters';
+
+            // Setup the visualization area
+            setupVisualization('network');
+
+            populateComponentSelector(entityType);
+
+            // Initially fetch and display the largest component (which is the first component since we sorted these in the backend)
+            fetchAndDisplayComponent(0); 
+
+
+        });
+    
+        // You can keep this in your networkDataManagement.js if used across multiple components
+        // function colorByGroup(d) {
+        //     return d.group === 1 ? "red" : "blue";
+        // }
+    </script>
+    
+</body>
+</html>
