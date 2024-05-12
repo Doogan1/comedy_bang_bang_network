@@ -18,3 +18,6 @@ class FrontendAppView(View):
                 """,
                 status=501,
             )
+        
+def index(request):
+    return render(request, 'index.html')
