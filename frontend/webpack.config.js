@@ -39,9 +39,6 @@ module.exports = {
     static: './dist',
     hot: true,
     port: 3000, // You can specify a port that doesn't conflict with Django
-    proxy: {
-        '/api': 'http://localhost:8000', // Assuming Django runs on 8000 and all API routes are prefixed with /api
-    }
 },
 
   plugins: [
