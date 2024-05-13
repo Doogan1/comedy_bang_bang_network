@@ -1,12 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
-import charactersReducer from '../features/charactersSlice';
-import guestsReducer from '../features/guestsSlice';
-import uiReducer from '../features/uiSlice';
+import characterReducer from '../features/characters/characterSlice';
+import guestReducer from '../features/guests/guestSlice';
+import uiReducer from '../features/ui/uiSlice';
 
 export const store = configureStore({
     reducer: {
-        characters: charactersReducer,
-        guests: guestsReducer,
+        characters: characterReducer,
+        guests: guestReducer,
         ui: uiReducer
     }
 });
