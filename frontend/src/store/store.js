@@ -1,10 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit';
-import entityReducer from './entitySlice';
+import charactersReducer from '../features/charactersSlice';
+import guestsReducer from '../features/guestsSlice';
+import uiReducer from '../features/uiSlice';
 
-const store = configureStore({
+export const store = configureStore({
     reducer: {
-        entity: entityReducer
-    },
+        characters: charactersReducer,
+        guests: guestsReducer,
+        ui: uiReducer
+    }
 });
-
-export default store;
