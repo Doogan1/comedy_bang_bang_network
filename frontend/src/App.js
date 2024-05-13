@@ -1,20 +1,16 @@
-import React, { useState, useEffect } from 'react';
+import React from 'react';
+import Visualizer from './components/Visualizer';
+import Sidebar from './components/Sidebar';
+import Controls from './components/Controls';
 
-function App() {
-    const [count, setCount] = useState(0);
-
-    useEffect(() => {
-        document.title = `You clicked ${count} times`;
-    });
-
+const App = () => {
     return (
-        <div>
-            <p>You clicked {count} times</p>
-            <button onClick={() => setCount(count + 1)}>
-                Click me
-            </button>
+        <div className="app-container">
+            <Visualizer />
+            <Sidebar />
+            <Controls />
         </div>
     );
-}
+};
 
 export default App;
