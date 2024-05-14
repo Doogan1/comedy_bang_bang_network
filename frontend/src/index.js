@@ -1,7 +1,14 @@
 import React from 'react';
 import { createRoot } from 'react-dom/client';
-import App from './App.js';  // Assuming you have an App component
+import App from './App';
+import { Provider } from 'react-redux';
+import { store } from './store/store';
 
-const container = document.getElementById('root'); // Assuming there's a div with id='root' in your index.html
-const root = createRoot(container); // Create a root.
-root.render(<App />); // Initial render
+const container = document.getElementById('root');
+const root = createRoot(container);
+
+root.render(
+    <Provider store={store}>
+        <App />
+    </Provider>
+);

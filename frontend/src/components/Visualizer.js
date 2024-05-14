@@ -1,10 +1,11 @@
 import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
-import { selectNode } from '../../features/ui/uiSlice'; 
-import { fetchCharacters } from '../../features/ui/characterSlice';
+import { selectNode } from '../features/ui/uiSlice'; 
+import { fetchCharacters } from '../features/characters/characterSlice';
 
 const Visualizer = () => {
+    console.log('Visualizer is loading');
     const svgRef = useRef(null);
     const dispatch = useDispatch();
 

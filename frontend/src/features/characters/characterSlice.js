@@ -12,15 +12,20 @@ export const fetchCharacters = createAsyncThunk(
     'characters/fetchCharacters',
     async (_, { rejectWithValue }) => {
       try {
-        const response = await fetch('http://localhost:8000/api/characters/');
-        if (!response.ok) throw new Error('Network response was not ok');
+        const response = await fetch('http://localhost:8000/api/network/characters');
+        console.log("Response Status:", response.status);
+        console.log("Response Status Text:", response.statusText);
+        if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
         const data = await response.json();
+        console.log("Data received:", data);
         return data;
       } catch (error) {
+        console.error("Error fetching characters:", error);
         return rejectWithValue(error.message);
       }
     }
-  );
+);
+
 
 export const characterSlice = createSlice({
     name: 'characters',
