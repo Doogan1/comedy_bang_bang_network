@@ -8,35 +8,25 @@ from django.http import Http404
 
 class NetworkData(APIView):
     def get(self, request, entity_type, format=None):
-        print("Hello from networkdata apiview!")
-        data = {'message': 'Hello from API'}
-        return Response(data)
+        # Validate entity_type
+        if entity_type not in ['characters', 'guests']:
+            return Response({'error': 'Invalid entity type'}, status=400)
 
-class TestData(APIView):
-    def get(self, request, format=None):
-        print("Hello from networkdata apiview!")
-        data = {'message': 'Hello from API'}
-        return Response(data)
-    # def get(self, request, entity_type, format=None):
-    #     # Validate entity_type
-    #     if entity_type not in ['characters', 'guests']:
-    #         return Response({'error': 'Invalid entity type'}, status=400)
+        file_path = os.path.join(settings.NETWORK_DATA_DIR, f'{entity_type}_components.json')
 
-    #     file_path = os.path.join(settings.NETWORK_DATA_DIR, f'{entity_type}_components.json')
+        try:
+            with open(file_path, 'r') as file:
+                components = json.load(file)
+        except FileNotFoundError:
+            return Response({'error': 'Data file not found'}, status=404)
 
-    #     try:
-    #         with open(file_path, 'r') as file:
-    #             components = json.load(file)
-    #     except FileNotFoundError:
-    #         return Response({'error': 'Data file not found'}, status=404)
+        if 'count' in request.query_params:
+            return Response({'count': len(components)})
 
-    #     if 'count' in request.query_params:
-    #         return Response({'count': len(components)})
+        component_index = int(request.query_params.get('component', 0))
+        component_data = components[component_index] if component_index < len(components) else {'nodes': [], 'edges': []}
 
-    #     component_index = int(request.query_params.get('component', 0))
-    #     component_data = components[component_index] if component_index < len(components) else {'nodes': [], 'edges': []}
-
-    #     return Response(component_data)
+        return Response(component_data)
 
 class ComponentsSummary(APIView):
     def get(self, request, entity_type, format=None):
