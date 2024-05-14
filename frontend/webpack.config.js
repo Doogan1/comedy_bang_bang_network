@@ -39,6 +39,13 @@ module.exports = {
     static: './dist',
     hot: true,
     port: 3000, // You can specify a port that doesn't conflict with Django
+    historyApiFallback: true, // This option is useful for single-page applications, redirects all to index.html
+    proxy: [{
+        context: ['/api'],  // Proxy paths that start with /api
+        target: 'http://localhost:8000', // Django server
+        secure: false, // Set to false if https is not used for localhost
+        changeOrigin: true // Necessary for virtual hosted sites
+    }]
 },
 
   plugins: [
