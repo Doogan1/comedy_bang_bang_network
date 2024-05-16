@@ -2,7 +2,7 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  // Entry point of your application
+  // Entry point of application
   entry: './src/index.js',
 
   // Where to output the bundle

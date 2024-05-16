@@ -14,15 +14,18 @@ from pathlib import Path
 import os
 from django.conf import settings
 
+from dotenv import load_dotenv
+import os
+
+load_dotenv()
+secret_key = os.getenv("SECRET_KEY")
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 NETWORK_DATA_DIR = os.path.join(settings.BASE_DIR, 'network_data')
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
-
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-++3=smt*h37=vhqqu$(i^=n@s^w2kd4b&=j17hjk!(69p)09tt'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -125,7 +128,7 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend/dist'),  # Assuming this is where your Webpack output goes
+    os.path.join(BASE_DIR, 'frontend/dist'),  
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -136,3 +139,5 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 CORS_ALLOW_ALL_ORIGINS = True  # For development only, adjust accordingly for production
+
+
