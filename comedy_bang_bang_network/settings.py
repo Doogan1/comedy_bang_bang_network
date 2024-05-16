@@ -14,11 +14,11 @@ from pathlib import Path
 import os
 from django.conf import settings
 
-from dotenv import load_dotenv
+from decouple import config
 import os
 
-load_dotenv()
-secret_key = os.getenv("SECRET_KEY")
+
+SECRET_KEY = config('SECRET_KEY')
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
