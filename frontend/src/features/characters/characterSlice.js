@@ -12,7 +12,7 @@ export const fetchCharacters = createAsyncThunk(
     'characters/fetchCharacters',
     async (_, { rejectWithValue }) => {
       try {
-        const response = await fetch('http://localhost:8000/api/network/characters');
+        const response = await fetch('http://localhost:8000/api/network/characters/?component=0');
         console.log("Response Status:", response.status);
         console.log("Response Status Text:", response.statusText);
         if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
@@ -30,14 +30,15 @@ export const fetchCharacters = createAsyncThunk(
 export const characterSlice = createSlice({
     name: 'characters',
     initialState: {
-        entities: [],
+        nodes: [],
+        edges: [],
         loading: false,
         error: null,
     },
     reducers: {
         setCharactersData: (state, action) => {
             state.nodes = action.payload.nodes;
-            state.links = action.payload.links;
+            state.edges = action.payload.edges;
             state.isFetched = true;
         },
         updateCharacterPosition: (state, action) => {
@@ -51,7 +52,8 @@ export const characterSlice = createSlice({
             state.loading = true;
           })
           .addCase(fetchCharacters.fulfilled, (state, action) => {
-            state.entities = action.payload;
+            state.nodes = action.payload.nodes;
+            state.edges = action.payload.edges;
             state.loading = false;
           })
           .addCase(fetchCharacters.rejected, (state, action) => {
