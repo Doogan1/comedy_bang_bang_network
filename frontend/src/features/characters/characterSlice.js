@@ -43,6 +43,20 @@ export const fetchComponentsSummary = createAsyncThunk(
   }
 );
 
+export const fetchCharacterDetails = createAsyncThunk(
+  'characters/fetchCharacterDetails',
+  async (characterId, { rejectWithValue }) => {
+      try {
+          const response = await fetch(`http://localhost:8000/api/characters/${characterId}/`);
+          if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+          const data = await response.json();
+          return data;
+      } catch (error) {
+          return rejectWithValue(error.message);
+      }
+  }
+);
+
 
 export const characterSlice = createSlice({
     name: 'characters',
@@ -85,8 +99,18 @@ export const characterSlice = createSlice({
         .addCase(fetchComponentsSummary.rejected, (state, action) => {
             state.error = action.payload;
             state.loading = false;
+        })
+        .addCase(fetchCharacterDetails.pending, (state) => {
+          state.loading = true;
+        })
+        .addCase(fetchCharacterDetails.fulfilled, (state, action) => {
+            state.loading = false;
+        })
+        .addCase(fetchCharacterDetails.rejected, (state, action) => {
+            state.error = action.payload;
+            state.loading = false;
         });
-      }
+    },
 });
 
 export const { setSelectedComponent } = characterSlice.actions;

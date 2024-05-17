@@ -4,8 +4,8 @@ import * as d3 from 'd3';
 import { selectNode } from '../features/ui/uiSlice'; 
 import { fetchCharacters } from '../features/characters/characterSlice';
 
+
 const Visualizer = () => {
-    console.log('Visualizer is loading');
     const svgRef = useRef(null);
     const dispatch = useDispatch();
 
@@ -67,9 +67,12 @@ const Visualizer = () => {
                 .on("drag", dragging)
                 .on("end", dragEnd))
             .on("click", (event, d) => {
+                event.stopPropagation();
                 dispatch(selectNode(d.id));
             });
-
+        
+        nodeElements.append("title").text(d => d.name);
+        
         function dragStart(event, d) {
             if (!event.active) simulation.alphaTarget(0.3).restart();
             d.fx = d.x;
