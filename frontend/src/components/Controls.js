@@ -11,7 +11,7 @@ const Controls = ({ selectedComponent, setSelectedComponent, componentsSummary }
             >
                 {componentsSummary.map((comp) => (
                     <option key={comp.index} value={comp.index}>
-                        Component {comp.index} - Size: {comp.size} ({comp.percentage.toFixed(2)}%)
+                        Component {comp.index} - Order: {comp.size} ({comp.percentage.toFixed(2)}%)
                     </option>
                 ))}
             </select>

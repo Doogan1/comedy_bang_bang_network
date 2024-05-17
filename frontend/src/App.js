@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCharacters, setSelectedComponent, fetchComponentsSummary } from './features/characters/characterSlice';
+import { selectNode } from './features/ui/uiSlice';
 import Visualizer from './components/Visualizer';
 import Sidebar from './components/Sidebar';
 import Controls from './components/Controls';
@@ -25,7 +26,22 @@ const App = () => {
             dispatch(fetchCharacters(0));
         }
     }, [componentsSummary, dispatch, selectedComponent]);
-    
+
+    useEffect(() => {
+        // Add event listener to handle clicks outside the sidebar
+        const handleClickOutside = (event) => {
+            if (!event.target.closest('.sidebar') && !event.target.closest('circle')) {
+                dispatch(selectNode(null)); // Deselect node
+            }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, [dispatch]);
+
     const handleComponentChange = (component) => {
         dispatch(setSelectedComponent(component));
         dispatch(fetchCharacters(component));
@@ -39,6 +55,7 @@ const App = () => {
                 componentsSummary={componentsSummary}
             />
             <Visualizer nodes={nodes} edges={edges} />
+            <Sidebar />
         </div>
     );
 };
