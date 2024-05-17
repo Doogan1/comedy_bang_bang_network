@@ -71,7 +71,7 @@ circle {
 #characterDetails th, #characterDetails td {
     border-radius: 5px;
     padding: 8px;
-    text-align: left;
+    text-align: center;
     border-bottom: 1px solid #ddd; /* Add horizontal line between rows */
     border-left: 1px solid #ddd;
     border-right: 1px solid #ddd;
