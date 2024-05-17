@@ -4,47 +4,76 @@ const initialState = {
     nodes: [],
     links: [],
     positions: {},
-    isFetched: false
+    isFetched: false,
+    loading: false,
+    error: null,
+    selectedComponent: 0,
+    componentsSummary: [],
 };
 
 // Define a thunk for fetching characters
 export const fetchCharacters = createAsyncThunk(
-    'characters/fetchCharacters',
-    async (_, { rejectWithValue }) => {
-      try {
-        const response = await fetch('http://localhost:8000/api/network/characters/?component=0');
-        console.log("Response Status:", response.status);
-        console.log("Response Status Text:", response.statusText);
-        if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
-        const data = await response.json();
-        console.log("Data received:", data);
-        return data;
-      } catch (error) {
-        console.error("Error fetching characters:", error);
-        return rejectWithValue(error.message);
+  'characters/fetchCharacters',
+  async (component, { rejectWithValue }) => {
+      if (component === undefined) {
+        return rejectWithValue('Component is undefined');
       }
-    }
+      try {
+          const response = await fetch(`http://localhost:8000/api/network/characters/?component=${component}`);
+          if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+          const data = await response.json();
+          return data;
+      } catch (error) {
+          return rejectWithValue(error.message);
+      }
+  }
+);
+
+export const fetchComponentsSummary = createAsyncThunk(
+  'characters/fetchComponentsSummary',
+  async (entityType, { rejectWithValue }) => {
+      try {
+          const response = await fetch(`http://localhost:8000/api/components-summary/${entityType}/`);
+          if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+          const data = await response.json();
+          return data;
+      } catch (error) {
+          return rejectWithValue(error.message);
+      }
+  }
+);
+
+export const fetchCharacterDetails = createAsyncThunk(
+  'characters/fetchCharacterDetails',
+  async (characterId, { rejectWithValue }) => {
+      try {
+          const response = await fetch(`http://localhost:8000/api/characters/${characterId}/`);
+          if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+          const data = await response.json();
+          return data;
+      } catch (error) {
+          return rejectWithValue(error.message);
+      }
+  }
 );
 
 
 export const characterSlice = createSlice({
     name: 'characters',
-    initialState: {
-        nodes: [],
-        edges: [],
-        loading: false,
-        error: null,
-    },
+    initialState,
     reducers: {
-        setCharactersData: (state, action) => {
-            state.nodes = action.payload.nodes;
-            state.edges = action.payload.edges;
-            state.isFetched = true;
+        setSelectedComponent: (state, action) => {
+          state.selectedComponent = action.payload;
         },
-        updateCharacterPosition: (state, action) => {
-            const { nodeId, position } = action.payload;
-            state.positions[nodeId] = position;
-        }
+        // setCharactersData: (state, action) => {
+        //     state.nodes = action.payload.nodes;
+        //     state.edges = action.payload.edges;
+        //     state.isFetched = true;
+        // },
+        // updateCharacterPosition: (state, action) => {
+        //     const { nodeId, position } = action.payload;
+        //     state.positions[nodeId] = position;
+        // }
     },
     extraReducers: (builder) => {
         builder
@@ -59,10 +88,31 @@ export const characterSlice = createSlice({
           .addCase(fetchCharacters.rejected, (state, action) => {
             state.error = action.payload;
             state.loading = false;
-          });
-      }
+          })
+          .addCase(fetchComponentsSummary.pending, (state) => {
+            state.loading = true;
+        })
+        .addCase(fetchComponentsSummary.fulfilled, (state, action) => {
+            state.componentsSummary = action.payload;
+            state.loading = false;
+        })
+        .addCase(fetchComponentsSummary.rejected, (state, action) => {
+            state.error = action.payload;
+            state.loading = false;
+        })
+        .addCase(fetchCharacterDetails.pending, (state) => {
+          state.loading = true;
+        })
+        .addCase(fetchCharacterDetails.fulfilled, (state, action) => {
+            state.loading = false;
+        })
+        .addCase(fetchCharacterDetails.rejected, (state, action) => {
+            state.error = action.payload;
+            state.loading = false;
+        });
+    },
 });
 
-export const { setCharactersData, updateCharacterPosition } = characterSlice.actions;
+export const { setSelectedComponent } = characterSlice.actions;
 
 export default characterSlice.reducer;
