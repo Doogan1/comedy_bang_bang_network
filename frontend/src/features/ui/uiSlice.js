@@ -9,7 +9,8 @@ const initialState = {
         name: '',
         episodes: []
     },
-    sidebarWidth: 300
+    sidebarWidth: 300,
+    forceStrength: 250,
 };
 
 export const uiSlice = createSlice({
@@ -32,10 +33,13 @@ export const uiSlice = createSlice({
         },
         setSidebarWidth: (state, action) => {
             state.sidebarWidth = action.payload;
+        },
+        setForceStrength: (state, action) => {
+            state.forceStrength = action.payload;
         }
     }
 });
 
-export const { switchEntityType, setZoomLevel, selectNode , setEntityDetails , setSidebarWidth } = uiSlice.actions;
+export const { switchEntityType, setZoomLevel, selectNode , setEntityDetails , setSidebarWidth , setForceStrength} = uiSlice.actions;
 
 export default uiSlice.reducer;

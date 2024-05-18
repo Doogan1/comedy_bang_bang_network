@@ -1,6 +1,18 @@
-import React from 'react';
+import React, { useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { setForceStrength } from '../features/ui/uiSlice';
 
 const Controls = ({ selectedComponent, setSelectedComponent, componentsSummary }) => {
+    const dispatch = useDispatch();
+    const forceStrength = useSelector(state => state.ui.forceStrength);
+    const [sliderValue, setSliderValue] = useState(forceStrength);
+
+    const handleSliderChange = (e) => {
+        const value = Number(e.target.value);
+        setSliderValue(value);
+        dispatch(setForceStrength(value));
+    };
+
     return (
         <div>
             <label htmlFor="component-selector">Select Component:</label>
@@ -15,6 +27,16 @@ const Controls = ({ selectedComponent, setSelectedComponent, componentsSummary }
                     </option>
                 ))}
             </select>
+            <label htmlFor="chargeStrength">Charge Strength:</label>
+            <input
+                type="range"
+                id="chargeStrength"
+                min="0"
+                max="10000"
+                value={sliderValue}
+                onChange={handleSliderChange}
+            />
+            <span>{sliderValue}</span>
         </div>
     );
 };

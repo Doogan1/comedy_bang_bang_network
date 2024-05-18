@@ -2,7 +2,7 @@ import { createSlice , createAsyncThunk} from '@reduxjs/toolkit';
 
 const initialState = {
     nodes: [],
-    links: [],
+    edges: [],
     positions: {},
     isFetched: false,
     loading: false,
@@ -65,6 +65,10 @@ export const characterSlice = createSlice({
         setSelectedComponent: (state, action) => {
           state.selectedComponent = action.payload;
         },
+        updateCharacterPosition: (state, action) => {
+          const { nodeId, position } = action.payload;
+          state.positions[nodeId] = position;
+        },
         // setCharactersData: (state, action) => {
         //     state.nodes = action.payload.nodes;
         //     state.edges = action.payload.edges;
@@ -84,6 +88,13 @@ export const characterSlice = createSlice({
             state.nodes = action.payload.nodes;
             state.edges = action.payload.edges;
             state.loading = false;
+
+            // Initialize positions if they don't exist
+            action.payload.nodes.forEach(node => {
+                if (!state.positions[node.id]) {
+                    state.positions[node.id] = { x: node.position[0], y: node.position[1] };
+                }
+            });
           })
           .addCase(fetchCharacters.rejected, (state, action) => {
             state.error = action.payload;
@@ -91,25 +102,25 @@ export const characterSlice = createSlice({
           })
           .addCase(fetchComponentsSummary.pending, (state) => {
             state.loading = true;
-        })
-        .addCase(fetchComponentsSummary.fulfilled, (state, action) => {
-            state.componentsSummary = action.payload;
-            state.loading = false;
-        })
-        .addCase(fetchComponentsSummary.rejected, (state, action) => {
-            state.error = action.payload;
-            state.loading = false;
-        })
-        .addCase(fetchCharacterDetails.pending, (state) => {
-          state.loading = true;
-        })
-        .addCase(fetchCharacterDetails.fulfilled, (state, action) => {
-            state.loading = false;
-        })
-        .addCase(fetchCharacterDetails.rejected, (state, action) => {
-            state.error = action.payload;
-            state.loading = false;
-        });
+          })
+          .addCase(fetchComponentsSummary.fulfilled, (state, action) => {
+              state.componentsSummary = action.payload;
+              state.loading = false;
+          })
+          .addCase(fetchComponentsSummary.rejected, (state, action) => {
+              state.error = action.payload;
+              state.loading = false;
+          })
+          .addCase(fetchCharacterDetails.pending, (state) => {
+            state.loading = true;
+          })
+          .addCase(fetchCharacterDetails.fulfilled, (state, action) => {
+              state.loading = false;
+          })
+          .addCase(fetchCharacterDetails.rejected, (state, action) => {
+              state.error = action.payload;
+              state.loading = false;
+          });
     },
 });
 

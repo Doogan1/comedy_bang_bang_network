@@ -8,6 +8,8 @@ import { fetchCharacters } from '../features/characters/characterSlice';
 const Visualizer = () => {
     const svgRef = useRef(null);
     const dispatch = useDispatch();
+    const forceStrength = useSelector(state => state.ui.forceStrength);
+    const zoomRef = useRef(d3.zoomIdentity); // Ref to store zoom state
 
     // Fetch character data when component mounts
     useEffect(() => {
@@ -15,9 +17,8 @@ const Visualizer = () => {
     }, [dispatch]);
     
     // Pulling nodes and edges from Redux state
-    const nodes = useSelector(state => state.characters.nodes);  // Adjust according to your state structure
-    const edges = useSelector(state => state.characters.edges);  // Adjust according to your state structure
-    const currentZoomLevel = useSelector(state => state.ui.currentZoomHLevel);
+    const nodes = useSelector(state => state.characters.nodes);
+    const edges = useSelector(state => state.characters.edges);
 
     useEffect(() => {
         if (!nodes || !edges) return;
@@ -26,18 +27,16 @@ const Visualizer = () => {
         const mutableNodes = nodes.map(node => ({ ...node }));
         const mutableEdges = edges.map(link => ({ ...link }));
 
-        
-
         // Select the SVG element
         const svg = d3.select(svgRef.current);
         svg.selectAll("*").remove(); // Clear SVG to prevent duplicates
 
         const { width, height } = svgRef.current.getBoundingClientRect();
-        // Initally calculate the coordinates of the nodes from the backend position
-        mutableNodes.forEach(node => {
-                    node.x = node.position[0] * width;
-                    node.y = node.position[1] * height;
-                });
+        // // Initally calculate the coordinates of the nodes from the backend position
+        // mutableNodes.forEach(node => {
+        //             node.x = node.position[0] * width;
+        //             node.y = node.position[1] * height;
+        //         });
 
         // Append a group to hold all content
         const contentGroup = svg.append("g");
@@ -47,9 +46,16 @@ const Visualizer = () => {
             .scaleExtent([0.1, 4])
             .on("zoom", (event) => {
                 contentGroup.attr("transform", event.transform);
+                zoomRef.current = event.transform;
             });
         
         svg.call(zoom);
+        
+
+        // // Apply the stored zoom transform if it exists
+        // if (zoomRef.current) {
+        //     svg.call(zoom.transform, d3.zoomIdentity.translate(zoomRef.current.x, zoomRef.current.y).scale(zoomRef.current.k));
+        // }
 
         // Initialize nodes and edges
         const edgeElements = contentGroup.selectAll("line")
@@ -60,7 +66,7 @@ const Visualizer = () => {
         const nodeElements = contentGroup.selectAll("circle")
             .data(mutableNodes)
             .enter().append("circle")
-            .attr("r", 10)
+            .attr("r", 30)
             .attr("fill", "blue")
             .call(d3.drag() 
                 .on("start", dragStart)
@@ -93,7 +99,7 @@ const Visualizer = () => {
         // Define simulation
         const simulation = d3.forceSimulation(mutableNodes)
             .force("link", d3.forceLink(mutableEdges).id(d => d.id))
-            .force("charge", d3.forceManyBody().strength(-500))
+            .force("charge", d3.forceManyBody().strength(-forceStrength))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .on("tick", () => {
                 edgeElements
@@ -106,13 +112,21 @@ const Visualizer = () => {
                     .attr("cx", d => d.x)
                     .attr("cy", d => d.y);
             });
+        
+        // Function to update the force strength in the simulation
+        const updateForceStrength = () => {
+            simulation.force('charge').strength(-forceStrength);
+            simulation.alpha(1).restart(); // Restart the simulation with new force strength
+        };
+
+        updateForceStrength();
 
         return () => {
             simulation.stop(); // Cleanup on component unmount
             svg.on('.zoom', null); // Remove zoom listener
         };
 
-    }, [nodes, edges, currentZoomLevel, dispatch]);
+    }, [nodes, edges, forceStrength, dispatch]);
 
     return (
         <div id="visualizer-container">

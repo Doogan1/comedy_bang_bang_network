@@ -19,10 +19,13 @@ body {
 
 line {
     stroke-width: 5px;
+    stroke: #7ae2e9;
 }
 
 circle {
     stroke-width: 5px;
+    stroke: #333;
+    fill: rgb(255, 153, 0);
 }
 
 .sidebar {
