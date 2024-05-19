@@ -2,14 +2,16 @@ import React, { useEffect, useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
 import { selectNode } from '../features/ui/uiSlice'; 
-import { fetchCharacters } from '../features/characters/characterSlice';
+import { fetchCharacters} from '../features/characters/characterSlice';
 
 
 const Visualizer = () => {
     const svgRef = useRef(null);
     const dispatch = useDispatch();
     const forceStrength = useSelector(state => state.ui.forceStrength);
+    const linkDistance = useSelector(state => state.ui.linkDistance);
     const zoomRef = useRef(d3.zoomIdentity); // Ref to store zoom state
+    const simulationRef = useRef(null);
 
     // Fetch character data when component mounts
     useEffect(() => {
@@ -19,14 +21,23 @@ const Visualizer = () => {
     // Pulling nodes and edges from Redux state
     const nodes = useSelector(state => state.characters.nodes);
     const edges = useSelector(state => state.characters.edges);
+    const positions = useSelector(state => state.characters.positions);
+    
+    // mutableNodes.forEach(node => {
+    //     node.x = positions[node.id].x;
+    //     node.y = positions[node.id].y;
+    //     console.log(positions[node.id].x);
+    // });
 
     useEffect(() => {
         if (!nodes || !edges) return;
 
-        // Create mutable copies of nodes and edges
         const mutableNodes = nodes.map(node => ({ ...node }));
         const mutableEdges = edges.map(link => ({ ...link }));
-
+        // // Create mutable copies of nodes and edges
+        // const mutableNodes = nodes.map(node => ({ ...node }));
+        // const mutableEdges = edges.map(link => ({ ...link }));
+        
         // Select the SVG element
         const svg = d3.select(svgRef.current);
         svg.selectAll("*").remove(); // Clear SVG to prevent duplicates
@@ -43,7 +54,7 @@ const Visualizer = () => {
 
         // Set up zoom functionality
         const zoom = d3.zoom()
-            .scaleExtent([0.1, 4])
+            .scaleExtent([0.01, 4])
             .on("zoom", (event) => {
                 contentGroup.attr("transform", event.transform);
                 zoomRef.current = event.transform;
@@ -52,10 +63,10 @@ const Visualizer = () => {
         svg.call(zoom);
         
 
-        // // Apply the stored zoom transform if it exists
-        // if (zoomRef.current) {
-        //     svg.call(zoom.transform, d3.zoomIdentity.translate(zoomRef.current.x, zoomRef.current.y).scale(zoomRef.current.k));
-        // }
+        // Apply the stored zoom transform if it exists
+        if (zoomRef.current) {
+            svg.call(zoom.transform, d3.zoomIdentity.translate(zoomRef.current.x, zoomRef.current.y).scale(zoomRef.current.k));
+        }
 
         // Initialize nodes and edges
         const edgeElements = contentGroup.selectAll("line")
@@ -80,7 +91,7 @@ const Visualizer = () => {
         nodeElements.append("title").text(d => d.name);
         
         function dragStart(event, d) {
-            if (!event.active) simulation.alphaTarget(0.3).restart();
+            if (!event.active) simulationRef.current.alphaTarget(0.3).restart();
             d.fx = d.x;
             d.fy = d.y;
         }
@@ -91,13 +102,13 @@ const Visualizer = () => {
         }
 
         function dragEnd(event, d) {
-            if (!event.active) simulation.alphaTarget(0);
+            if (!event.active) simulationRef.current.alphaTarget(0);
             d.fx = null;
             d.fy = null;
         }
 
         // Define simulation
-        const simulation = d3.forceSimulation(mutableNodes)
+        simulationRef.current = d3.forceSimulation(mutableNodes)
             .force("link", d3.forceLink(mutableEdges).id(d => d.id))
             .force("charge", d3.forceManyBody().strength(-forceStrength))
             .force("center", d3.forceCenter(width / 2, height / 2))
@@ -112,25 +123,34 @@ const Visualizer = () => {
                     .attr("cx", d => d.x)
                     .attr("cy", d => d.y);
             });
-        
-        // Function to update the force strength in the simulation
-        const updateForceStrength = () => {
-            simulation.force('charge').strength(-forceStrength);
-            simulation.alpha(1).restart(); // Restart the simulation with new force strength
-        };
-
-        updateForceStrength();
 
         return () => {
-            simulation.stop(); // Cleanup on component unmount
+            simulationRef.current.stop(); // Cleanup on component unmount
             svg.on('.zoom', null); // Remove zoom listener
         };
 
-    }, [nodes, edges, forceStrength, dispatch]);
+    }, [nodes, edges, dispatch]);
+
+    // Separate useEffect for updating force strength
+    useEffect(() => {
+        if (simulationRef.current) {
+            simulationRef.current.force("charge").strength(-forceStrength);
+            simulationRef.current.alpha(1).restart(); // Restart the simulation with new force strength
+        }
+    }, [forceStrength]);
+
+
+    // Separate useEffect for updating link distance
+    useEffect(() => {
+        if (simulationRef.current) {
+            simulationRef.current.force("link").distance(linkDistance);
+            simulationRef.current.alpha(1).restart(); // Restart the simulation with new link distance
+        }
+    }, [linkDistance]);
 
     return (
         <div id="visualizer-container">
-            <svg id='network' ref={svgRef} style={{ width: '100%', height: '600px' }}></svg>
+            <svg id='network' ref={svgRef} width='1000px' height='600px'></svg>
         </div>
     );
 };
