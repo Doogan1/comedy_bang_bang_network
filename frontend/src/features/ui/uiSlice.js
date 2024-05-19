@@ -11,6 +11,7 @@ const initialState = {
     },
     sidebarWidth: 300,
     forceStrength: 250,
+    linkDistance: 250,
 };
 
 export const uiSlice = createSlice({
@@ -36,10 +37,13 @@ export const uiSlice = createSlice({
         },
         setForceStrength: (state, action) => {
             state.forceStrength = action.payload;
+        },
+        setLinkDistance: (state, action) => {
+            state.linkDistance = action.payload;
         }
     }
 });
 
-export const { switchEntityType, setZoomLevel, selectNode , setEntityDetails , setSidebarWidth , setForceStrength} = uiSlice.actions;
+export const { switchEntityType, setZoomLevel, selectNode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance} = uiSlice.actions;
 
 export default uiSlice.reducer;

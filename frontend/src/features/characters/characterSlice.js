@@ -67,6 +67,7 @@ export const characterSlice = createSlice({
         },
         updateCharacterPosition: (state, action) => {
           const { nodeId, position } = action.payload;
+          // console.log(`Updating position of node ${nodeId} to position ${position}`);
           state.positions[nodeId] = position;
         },
         // setCharactersData: (state, action) => {
@@ -124,6 +125,6 @@ export const characterSlice = createSlice({
     },
 });
 
-export const { setSelectedComponent } = characterSlice.actions;
+export const { setSelectedComponent , updateCharacterPosition} = characterSlice.actions;
 
 export default characterSlice.reducer;
