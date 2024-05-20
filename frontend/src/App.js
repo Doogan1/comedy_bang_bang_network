@@ -51,7 +51,7 @@ const App = () => {
         <div style={mainLayoutStyles.container}>
             <ControlsSidebar
                 selectedComponent={selectedComponent}
-                setSelectedComponent={setSelectedComponent}
+                setSelectedComponent={handleComponentChange}
                 componentsSummary={componentsSummary}
             />
             <div style={mainLayoutStyles.visualizerContainer}>

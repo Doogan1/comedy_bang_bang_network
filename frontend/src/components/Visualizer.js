@@ -150,7 +150,7 @@ const Visualizer = () => {
 
     return (
         <div id="visualizer-container">
-            <svg id='network' ref={svgRef} width='1000px' height='600px'></svg>
+            <svg id='network' ref={svgRef} width='1000px' height='1000px'></svg>
         </div>
     );
 };
