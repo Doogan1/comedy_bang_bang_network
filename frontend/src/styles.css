@@ -32,7 +32,7 @@ line {
 circle {
     stroke-width: 5px;
     stroke: #000000;
-    fill: rgb(255, 153, 0);
+    fill: rgb(0, 183, 255);
 }
 
 .sidebar {
@@ -189,6 +189,13 @@ circle {
 
 .tab.active {
     border-bottom: 2px solid blue;
+}
+
+.slider-range-container {
+    -webkit-user-select: none; /* Chrome/Safari/Opera */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera, Firefox, Safari */
 }
 
 

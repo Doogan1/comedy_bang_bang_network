@@ -14,11 +14,9 @@ const Visualizer = () => {
     const zoomRef = useRef(d3.zoomIdentity); // Ref to store zoom state
     const simulationRef = useRef(null); // Ref to store simulation
     const nodeElementsRef = useRef(null); // Ref to store node elements
+    const labelsRef = useRef(null); // Ref to store labels
     const radiusRange = useSelector(state => state.ui.radiusRange);
 
-    useEffect(() => {
-        console.log(radiusRange);
-    }, [radiusRange]);
 
     // Fetch character data when component mounts
     useEffect(() => {
@@ -70,6 +68,8 @@ const Visualizer = () => {
         if (nodeElementsRef.current) {
             nodeElementsRef.current
                 .attr("r", (d, i) => nodeRadii[i]);
+            labelsRef.current
+                .style("font-size", (d, i) => `${Math.max(30, nodeRadii[i])}px`);
         }
     }, [nodes, currentCentrality, radiusRange]);
 
@@ -144,6 +144,8 @@ const Visualizer = () => {
             .style("display", "block")
             .style("font-size", d => `${Math.max(10, 25)}px`)
             .attr("opacity", 1); 
+        
+        labelsRef.current = labels;
 
         nodeElements.append("title").text(d => d.name);
         
@@ -182,8 +184,7 @@ const Visualizer = () => {
                 
                 labels
                     .attr("x", d => d.x)
-                    .attr("y", d => d.y - 25)
-                    .style("font-size", d => 100);
+                    .attr("y", d => d.y - 25);
             });
 
         return () => {
