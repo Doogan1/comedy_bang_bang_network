@@ -88,6 +88,17 @@ const Visualizer = () => {
                 dispatch(selectNode(d.id));
             });
         
+        const labels = contentGroup.selectAll(".node-label")
+            .data(mutableNodes)
+            .enter().append("text")
+            .attr("class", "node-label")
+            .attr("x", d => d.position[0] * width)
+            .attr("y", d => (d.position[1] * height) - 10)
+            .text(d => d.name)
+            .style("display", "block")
+            .style("font-size", d => `${Math.max(10, 25)}px`)
+            .attr("opacity", 1); 
+
         nodeElements.append("title").text(d => d.name);
         
         function dragStart(event, d) {
@@ -122,6 +133,11 @@ const Visualizer = () => {
                 nodeElements
                     .attr("cx", d => d.x)
                     .attr("cy", d => d.y);
+                
+                labels
+                    .attr("x", d => d.x)
+                    .attr("y", d => d.y - 25)
+                    .style("font-size", d => 50);
             });
 
         return () => {

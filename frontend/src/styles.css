@@ -13,13 +13,13 @@ body {
 }
 
 .node-label {
-    fill: #fff9f9;
+    fill: #fa13fa;
     pointer-events: none; /* Prevents labels from interfering with node interaction */
 }
 
 line {
     stroke-width: 5px;
-    stroke: #7ae2e9;
+    stroke: #00eeff95;
 }
 
 circle {
