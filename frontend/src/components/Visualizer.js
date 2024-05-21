@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef , useState} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
 import { selectNode } from '../features/ui/uiSlice'; 
@@ -10,8 +10,12 @@ const Visualizer = () => {
     const dispatch = useDispatch();
     const forceStrength = useSelector(state => state.ui.forceStrength);
     const linkDistance = useSelector(state => state.ui.linkDistance);
+    const currentCentrality = useSelector(state => state.ui.currentCentrality);
     const zoomRef = useRef(d3.zoomIdentity); // Ref to store zoom state
-    const simulationRef = useRef(null);
+    const simulationRef = useRef(null); // Ref to store simulation
+    const nodeElementsRef = useRef(null); // Ref to store node elements
+    const [minRadius, setMinRadius] = useState(10);
+    const [maxRadius, setMaxRadius] = useState(30);
 
     // Fetch character data when component mounts
     useEffect(() => {
@@ -22,12 +26,49 @@ const Visualizer = () => {
     const nodes = useSelector(state => state.characters.nodes);
     const edges = useSelector(state => state.characters.edges);
     const positions = useSelector(state => state.characters.positions);
+
     
     // mutableNodes.forEach(node => {
     //     node.x = positions[node.id].x;
     //     node.y = positions[node.id].y;
     //     console.log(positions[node.id].x);
     // });
+
+    // Normalizes an array of scores to the range [0, 1]
+    const normalizeScores = (scores) => {
+        const min = Math.min(...scores);
+        const max = Math.max(...scores);
+        if (max === min) {
+            return scores;
+        }
+        return scores.map(score => (score - min) / (max - min));
+    };
+
+    const mapScoresToRadii = (normalizedScores, minRadius, maxRadius) => {
+        return normalizedScores.map(score => minRadius + score * (maxRadius - minRadius));
+    };
+
+
+
+    useEffect(() => {
+        if (!nodes) return;
+
+        const centralityScores = {
+            degree: nodes.map(node => node.degree),
+            betweenness: nodes.map(node => node.betweenness),
+            eigenvector: nodes.map(node => node.eigenvector),
+            closeness: nodes.map(node => node.closeness),
+            none: nodes.map(() => 1) // Default size for 'none'
+        };
+        
+        const normalizedScores = normalizeScores(centralityScores[currentCentrality]);
+        const nodeRadii = mapScoresToRadii(normalizedScores, minRadius, maxRadius);
+
+        if (nodeElementsRef.current) {
+            nodeElementsRef.current
+                .attr("r", (d, i) => nodeRadii[i]);
+        }
+    }, [nodes, currentCentrality, minRadius, maxRadius]);
 
     useEffect(() => {
         if (!nodes || !edges) return;
@@ -88,6 +129,8 @@ const Visualizer = () => {
                 dispatch(selectNode(d.id));
             });
         
+        nodeElementsRef.current = nodeElements;
+
         const labels = contentGroup.selectAll(".node-label")
             .data(mutableNodes)
             .enter().append("text")
