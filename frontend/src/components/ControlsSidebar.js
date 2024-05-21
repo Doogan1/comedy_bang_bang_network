@@ -180,7 +180,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                         <label htmlFor="closeness">Closeness</label>
                     </div>
                 </div>
-                <div>
+                <div className="slider-range-container">
                     <label>Node Radius Range</label>
                     <Slider range
                         min={1}
