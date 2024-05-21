@@ -14,8 +14,11 @@ const Visualizer = () => {
     const zoomRef = useRef(d3.zoomIdentity); // Ref to store zoom state
     const simulationRef = useRef(null); // Ref to store simulation
     const nodeElementsRef = useRef(null); // Ref to store node elements
-    const [minRadius, setMinRadius] = useState(10);
-    const [maxRadius, setMaxRadius] = useState(30);
+    const radiusRange = useSelector(state => state.ui.radiusRange);
+
+    useEffect(() => {
+        console.log(radiusRange);
+    }, [radiusRange]);
 
     // Fetch character data when component mounts
     useEffect(() => {
@@ -62,13 +65,13 @@ const Visualizer = () => {
         };
         
         const normalizedScores = normalizeScores(centralityScores[currentCentrality]);
-        const nodeRadii = mapScoresToRadii(normalizedScores, minRadius, maxRadius);
+        const nodeRadii = mapScoresToRadii(normalizedScores, radiusRange.minRadius, radiusRange.maxRadius);
 
         if (nodeElementsRef.current) {
             nodeElementsRef.current
                 .attr("r", (d, i) => nodeRadii[i]);
         }
-    }, [nodes, currentCentrality, minRadius, maxRadius]);
+    }, [nodes, currentCentrality, radiusRange]);
 
     useEffect(() => {
         if (!nodes || !edges) return;

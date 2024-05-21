@@ -13,6 +13,10 @@ const initialState = {
     forceStrength: 5000,
     linkDistance: 500,
     currentCentrality: 'none',
+    radiusRange: {
+        minRadius: 1,
+        maxRadius: 100
+    }
 };
 
 export const uiSlice = createSlice({
@@ -45,9 +49,13 @@ export const uiSlice = createSlice({
         setCentrality: (state, action) => {
             state.currentCentrality = action.payload;
         },
+        setRadiusRange: (state, action) => {
+            state.radiusRange.minRadius = action.payload[0];
+            state.radiusRange.maxRadius = action.payload[1];
+        },
     }
 });
 
-export const { switchEntityType, setZoomLevel, selectNode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance, setCentrality} = uiSlice.actions;
+export const { switchEntityType, setZoomLevel, selectNode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance, setCentrality, setRadiusRange} = uiSlice.actions;
 
 export default uiSlice.reducer;
