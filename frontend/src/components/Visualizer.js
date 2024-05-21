@@ -93,7 +93,7 @@ const Visualizer = () => {
             .enter().append("text")
             .attr("class", "node-label")
             .attr("x", d => d.position[0] * width)
-            .attr("y", d => (d.position[1] * height) - 10)
+            .attr("y", d => (d.position[1] * height) - 15)
             .text(d => d.name)
             .style("display", "block")
             .style("font-size", d => `${Math.max(10, 25)}px`)
@@ -137,7 +137,7 @@ const Visualizer = () => {
                 labels
                     .attr("x", d => d.x)
                     .attr("y", d => d.y - 25)
-                    .style("font-size", d => 50);
+                    .style("font-size", d => 100);
             });
 
         return () => {
@@ -166,7 +166,8 @@ const Visualizer = () => {
 
     return (
         <div id="visualizer-container">
-            <svg id='network' ref={svgRef} width='1000px' height='1000px'></svg>
+            <svg id='network' ref={svgRef} width='1000px' height='1000px'>
+            </svg>
         </div>
     );
 };
