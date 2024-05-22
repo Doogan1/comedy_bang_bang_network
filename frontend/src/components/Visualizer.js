@@ -1,7 +1,7 @@
-import React, { useEffect, useRef , useState} from 'react';
+import React, { useEffect, useRef , useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
-import { selectNode } from '../features/ui/uiSlice'; 
+import { selectNode , updateZoomCache, setTriggerZoomToFit} from '../features/ui/uiSlice'; 
 import { fetchCharacters , updatePositions } from '../features/characters/characterSlice';
 
 
@@ -17,6 +17,8 @@ const Visualizer = () => {
     const labelsRef = useRef(null); // Ref to store labels
     const radiusRange = useSelector(state => state.ui.radiusRange);
     const selectedComponent = useSelector(state => state.characters.selectedComponent);
+    const zoomCache = useSelector(state => state.ui.zoomCache);
+    const triggerZoomToFit = useSelector(state => state.ui.triggerZoomToFit);
 
 
     // Fetch character data when component mounts
@@ -49,7 +51,43 @@ const Visualizer = () => {
         return normalizedScores.map(score => minRadius + score * (maxRadius - minRadius));
     };
 
+    const calculateGraphBounds = (positions, width, height) => {
+        const positionValues = Object.values(positions);
+        const minX = d3.min(positionValues, d => d.x);
+        const maxX = d3.max(positionValues, d => d.x);
+        const minY = d3.min(positionValues, d => d.y);
+        const maxY = d3.max(positionValues, d => d.y);
 
+        return {
+            x: minX,
+            y: minY,
+            width: maxX - minX,
+            height: maxY - minY
+        };
+    };
+
+    const adjustView = (positions, svg, zoom) => {
+        if (!positions || Object.keys(positions).length === 0) return;
+
+        const bounds = calculateGraphBounds(positions, svgRef.current.clientWidth, svgRef.current.clientHeight);
+
+        const scale = 0.95 / Math.max(bounds.width / svgRef.current.clientWidth, bounds.height / svgRef.current.clientHeight);
+        const translate = [
+            (svgRef.current.clientWidth / 2) - scale * (bounds.x + bounds.width / 2),
+            (svgRef.current.clientHeight / 2) - scale * (bounds.y + bounds.height / 2)
+        ];
+
+        const transform = d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale);
+        console.log(zoom);
+        console.log(transform);
+        svg.transition()
+            .duration(500) // Smooth transition
+            .call(zoom.transform, transform);
+        zoomRef.current = transform;
+
+        // Save the zoom level to zoomCache
+        dispatch(updateZoomCache({ component: selectedComponent, zoom: { k: transform.k, x: transform.x, y: transform.y } }));
+    };
 
     useEffect(() => {
         if (!nodes) return;
@@ -110,11 +148,18 @@ const Visualizer = () => {
         
         svg.call(zoom);
         
-
-        // Apply the stored zoom transform if it exists
-        if (zoomRef.current) {
-            svg.call(zoom.transform, d3.zoomIdentity.translate(zoomRef.current.x, zoomRef.current.y).scale(zoomRef.current.k));
+        if (zoomCache[selectedComponent]) {
+            const { k, x, y } = zoomCache[selectedComponent];
+            const transform = d3.zoomIdentity.translate(x, y).scale(k);
+            svg.call(zoom.transform, transform); // Use cached zoom level if available
+            zoomRef.current = transform;
+        } else {
+            adjustView(positions, svg, zoom); // Adjust view on initial load if no cache
         }
+        // Apply the stored zoom transform if it exists
+        // if (zoomRef.current) {
+        //     svg.call(zoom.transform, d3.zoomIdentity.translate(zoomRef.current.x, zoomRef.current.y).scale(zoomRef.current.k));
+        // }
 
         // Initialize nodes and edges
         const edgeElements = contentGroup.selectAll("line")
@@ -176,7 +221,6 @@ const Visualizer = () => {
             .force("charge", d3.forceManyBody().strength(-forceStrength))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .on("tick", () => {
-                console.log(mutableNodes[0]?.x);
                 edgeElements
                     .attr("x1", d => d.source.x)
                     .attr("y1", d => d.source.y)
@@ -192,13 +236,19 @@ const Visualizer = () => {
                     .attr("y", d => d.y - 25);
             });
 
+        if (triggerZoomToFit) {
+            adjustView(positions, svg, zoom);
+            dispatch(setTriggerZoomToFit(false));
+        }
+
         return () => {
             dispatch(updatePositions({ component: selectedComponent, positions: mutableNodes.reduce((acc, node) => ({ ...acc, [node.id]: { x: node.x, y: node.y } }), {}) }));
+            dispatch(updateZoomCache({ component: selectedComponent, zoom: { k: zoomRef.current.k, x: zoomRef.current.x, y: zoomRef.current.y } }));
             simulationRef.current.stop(); // Cleanup on component unmount
             svg.on('.zoom', null); // Remove zoom listener
         };
 
-    }, [nodes, edges, dispatch]);
+    }, [nodes, edges, triggerZoomToFit, dispatch]);
 
     // Separate useEffect for updating force strength
     useEffect(() => {

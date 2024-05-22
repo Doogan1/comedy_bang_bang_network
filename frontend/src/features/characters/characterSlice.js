@@ -106,7 +106,6 @@ export const characterSlice = createSlice({
                   state.positions[selectedComponent] = {};
               }
               if (!state.positions[selectedComponent][node.id]) {
-                  console.log(`Position of node ${node.id} was not defined, so we are defining it to be x: ${node.position[0]}, y: ${node.position[1]}`);
                   state.positions[selectedComponent][node.id] = { x: node.position[0] * 1000, y: node.position[1] * 1000};
               }
             });
