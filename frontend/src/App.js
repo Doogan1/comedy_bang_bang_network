@@ -4,7 +4,7 @@ import { fetchCharacters, setSelectedComponent, fetchComponentsSummary } from '.
 import { selectNode } from './features/ui/uiSlice';
 import Visualizer from './components/Visualizer';
 import Sidebar from './components/Sidebar';
-import Controls from './components/Controls';
+import ControlsSidebar from './components/ControlsSidebar';
 import './styles.css';
 
 const App = () => {
@@ -48,16 +48,29 @@ const App = () => {
     };
 
     return (
-        <div>
-            <Controls
+        <div style={mainLayoutStyles.container}>
+            <ControlsSidebar
                 selectedComponent={selectedComponent}
                 setSelectedComponent={handleComponentChange}
                 componentsSummary={componentsSummary}
             />
-            <Visualizer nodes={nodes} edges={edges} />
+            <div style={mainLayoutStyles.visualizerContainer}>
+                <Visualizer />
+            </div>
             <Sidebar />
         </div>
     );
+};
+
+const mainLayoutStyles = {
+    container: {
+        display: 'flex',
+        height: '100vh',
+    },
+    visualizerContainer: {
+        flex: 1,
+        position: 'relative',
+    },
 };
 
 export default App;
