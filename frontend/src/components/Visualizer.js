@@ -28,7 +28,6 @@ const Visualizer = () => {
     const nodes = useSelector(state => state.characters.nodes);
     const edges = useSelector(state => state.characters.edges);
     const positions = useSelector(state => state.characters.positions[selectedComponent]);
-
     
     // mutableNodes.forEach(node => {
     //     node.x = positions[node.id].x;
@@ -177,6 +176,7 @@ const Visualizer = () => {
             .force("charge", d3.forceManyBody().strength(-forceStrength))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .on("tick", () => {
+                console.log(mutableNodes[0]?.x);
                 edgeElements
                     .attr("x1", d => d.source.x)
                     .attr("y1", d => d.source.y)
