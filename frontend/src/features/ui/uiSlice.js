@@ -3,7 +3,12 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
     currentEntityType: 'characters',
-    currentZoomLevel: 1,
+    currentZoomLevel: {
+        k: 1,
+        x: 0,
+        y: 0
+    },
+    zoomCache: {},
     selectedNodeId: null,
     entityDetails: {
         name: '',
@@ -16,7 +21,8 @@ const initialState = {
     radiusRange: {
         minRadius: 1,
         maxRadius: 30
-    }
+    },
+    triggerZoomToFit: false // Flag to trigger zoom-to-fit
 };
 
 export const uiSlice = createSlice({
@@ -28,8 +34,12 @@ export const uiSlice = createSlice({
             state.selectedNodeId = null;  // Reset selected node ID
             state.entityDetails = initialState.entityDetails;  // Reset entity details to initial state
         },
-        setZoomLevel: (state, action) => {
+        setCurrentZoomLevel: (state, action) => {
             state.currentZoomLevel = action.payload;
+        },
+        updateZoomCache: (state, action) => {
+            const { component, zoom } = action.payload;
+            state.zoomCache[component] = zoom;
         },
         selectNode: (state, action) => {
             state.selectedNodeId = action.payload;
@@ -53,9 +63,12 @@ export const uiSlice = createSlice({
             state.radiusRange.minRadius = action.payload[0];
             state.radiusRange.maxRadius = action.payload[1];
         },
+        setTriggerZoomToFit: (state, action) => { 
+            state.triggerZoomToFit = action.payload;
+        },
     }
 });
 
-export const { switchEntityType, setZoomLevel, selectNode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance, setCentrality, setRadiusRange} = uiSlice.actions;
+export const { switchEntityType, setCurrentZoomLevel, updateZoomCache, selectNode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit} = uiSlice.actions;
 
 export default uiSlice.reducer;
