@@ -2,7 +2,7 @@ import React, { useEffect, useRef , useState} from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
 import { selectNode } from '../features/ui/uiSlice'; 
-import { fetchCharacters} from '../features/characters/characterSlice';
+import { fetchCharacters , updatePositions } from '../features/characters/characterSlice';
 
 
 const Visualizer = () => {
@@ -16,17 +16,18 @@ const Visualizer = () => {
     const nodeElementsRef = useRef(null); // Ref to store node elements
     const labelsRef = useRef(null); // Ref to store labels
     const radiusRange = useSelector(state => state.ui.radiusRange);
+    const selectedComponent = useSelector(state => state.characters.selectedComponent);
 
 
     // Fetch character data when component mounts
     useEffect(() => {
-        dispatch(fetchCharacters());
-    }, [dispatch]);
+        dispatch(fetchCharacters(selectedComponent));
+    }, [dispatch, selectedComponent]);
     
     // Pulling nodes and edges from Redux state
     const nodes = useSelector(state => state.characters.nodes);
     const edges = useSelector(state => state.characters.edges);
-    const positions = useSelector(state => state.characters.positions);
+    const positions = useSelector(state => state.characters.positions[selectedComponent]);
 
     
     // mutableNodes.forEach(node => {
@@ -75,11 +76,15 @@ const Visualizer = () => {
 
     useEffect(() => {
         if (!nodes || !edges) return;
+        const mutableNodes = nodes.map(node => ({
+            ...node,
+            x: positions[node.id]?.x || node.x,
+            y: positions[node.id]?.y || node.y
+        }));
 
-        const mutableNodes = nodes.map(node => ({ ...node }));
         const mutableEdges = edges.map(link => ({ ...link }));
         // // Create mutable copies of nodes and edges
-        // const mutableNodes = nodes.map(node => ({ ...node }));
+        
         // const mutableEdges = edges.map(link => ({ ...link }));
         
         // Select the SVG element
@@ -142,7 +147,7 @@ const Visualizer = () => {
             .attr("y", d => (d.position[1] * height) - 15)
             .text(d => d.name)
             .style("display", "block")
-            .style("font-size", d => `${Math.max(10, 25)}px`)
+            .style("font-size", (d, i) => `30px`)
             .attr("opacity", 1); 
         
         labelsRef.current = labels;
@@ -188,6 +193,7 @@ const Visualizer = () => {
             });
 
         return () => {
+            dispatch(updatePositions({ component: selectedComponent, positions: mutableNodes.reduce((acc, node) => ({ ...acc, [node.id]: { x: node.x, y: node.y } }), {}) }));
             simulationRef.current.stop(); // Cleanup on component unmount
             svg.on('.zoom', null); // Remove zoom listener
         };

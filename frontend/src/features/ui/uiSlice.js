@@ -15,7 +15,7 @@ const initialState = {
     currentCentrality: 'none',
     radiusRange: {
         minRadius: 1,
-        maxRadius: 100
+        maxRadius: 30
     }
 };
 
