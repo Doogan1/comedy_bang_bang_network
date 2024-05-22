@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setForceStrength, setLinkDistance, setSidebarWidth , setCentrality , setRadiusRange} from '../features/ui/uiSlice';
+import { setForceStrength, setLinkDistance, setSidebarWidth , setCentrality , setRadiusRange, setTriggerZoomToFit} from '../features/ui/uiSlice';
 import  Slider, { Range } from 'rc-slider';
 import 'rc-slider/assets/index.css';
 
@@ -76,6 +76,10 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
             resizer.removeEventListener('mousedown', handleMouseDown);
         };
     }, [sidebarWidth, dispatch]);
+
+    const handleZoomToFit = () => {
+        dispatch(setTriggerZoomToFit(true));
+    };
 
     return (
         <div className="controls-sidebar" style={{ width: `${sidebarWidth}px` }}>
@@ -191,6 +195,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                     <div>Min Radius: {radiusRange.minRadius}</div>
                     <div>Max Radius: {radiusRange.maxRadius}</div>
                 </div>
+                <button onClick={handleZoomToFit} style={styles.button}>Zoom to Fit</button>
             </div>  
         </div>
     );

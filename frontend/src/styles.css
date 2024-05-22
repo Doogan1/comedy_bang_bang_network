@@ -35,6 +35,18 @@ circle {
     fill: rgb(0, 183, 255);
 }
 
+.slider-range-container {
+    border: 1px solid black;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.centrality-container {
+    border: 1px solid black;
+    padding: 10px;
+    border-radius: 5px;
+}
+
 .sidebar {
     border-radius: 5px;
     position: fixed;
