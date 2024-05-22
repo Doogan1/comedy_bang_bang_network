@@ -9,7 +9,14 @@ const initialState = {
         name: '',
         episodes: []
     },
-    sidebarWidth: 300
+    sidebarWidth: 300,
+    forceStrength: 5000,
+    linkDistance: 500,
+    currentCentrality: 'none',
+    radiusRange: {
+        minRadius: 1,
+        maxRadius: 30
+    }
 };
 
 export const uiSlice = createSlice({
@@ -32,10 +39,23 @@ export const uiSlice = createSlice({
         },
         setSidebarWidth: (state, action) => {
             state.sidebarWidth = action.payload;
-        }
+        },
+        setForceStrength: (state, action) => {
+            state.forceStrength = action.payload;
+        },
+        setLinkDistance: (state, action) => {
+            state.linkDistance = action.payload;
+        },
+        setCentrality: (state, action) => {
+            state.currentCentrality = action.payload;
+        },
+        setRadiusRange: (state, action) => {
+            state.radiusRange.minRadius = action.payload[0];
+            state.radiusRange.maxRadius = action.payload[1];
+        },
     }
 });
 
-export const { switchEntityType, setZoomLevel, selectNode , setEntityDetails , setSidebarWidth } = uiSlice.actions;
+export const { switchEntityType, setZoomLevel, selectNode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance, setCentrality, setRadiusRange} = uiSlice.actions;
 
 export default uiSlice.reducer;
