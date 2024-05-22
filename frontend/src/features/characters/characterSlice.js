@@ -4,6 +4,7 @@ const initialState = {
     nodes: [],
     edges: [],
     positions: {},
+    cache: {},
     isFetched: false,
     loading: false,
     error: null,
@@ -14,9 +15,12 @@ const initialState = {
 // Define a thunk for fetching characters
 export const fetchCharacters = createAsyncThunk(
   'characters/fetchCharacters',
-  async (component, { rejectWithValue }) => {
+  async (component, { getState, rejectWithValue }) => {
+    const state = getState();
       if (component === undefined) {
         return rejectWithValue('Component is undefined');
+      } else if (state.characters.cache[component]) {
+        return state.characters.cache[component];
       }
       try {
           const response = await fetch(`http://localhost:8000/api/network/characters/?component=${component}`);
@@ -65,11 +69,15 @@ export const characterSlice = createSlice({
         setSelectedComponent: (state, action) => {
           state.selectedComponent = action.payload;
         },
-        updateCharacterPosition: (state, action) => {
-          const { nodeId, position } = action.payload;
-          // console.log(`Updating position of node ${nodeId} to position ${position}`);
-          state.positions[nodeId] = position;
-        },
+        updatePositions: (state, action) => {
+          const { component, positions } = action.payload;
+          state.positions[component] = positions;
+        }
+        // updateCharacterPosition: (state, action) => {
+        //   const { nodeId, position } = action.payload;
+        //   // console.log(`Updating position of node ${nodeId} to position ${position}`);
+        //   state.positions[nodeId] = position;
+        // },
         // setCharactersData: (state, action) => {
         //     state.nodes = action.payload.nodes;
         //     state.edges = action.payload.edges;
@@ -88,14 +96,23 @@ export const characterSlice = createSlice({
           .addCase(fetchCharacters.fulfilled, (state, action) => {
             state.nodes = action.payload.nodes;
             state.edges = action.payload.edges;
+            const selectedComponent = state.selectedComponent;
+
             state.loading = false;
 
             // Initialize positions if they don't exist
             action.payload.nodes.forEach(node => {
-                if (!state.positions[node.id]) {
-                    state.positions[node.id] = { x: node.position[0], y: node.position[1] };
-                }
+              if (!state.positions[selectedComponent]) {
+                  state.positions[selectedComponent] = {};
+              }
+              if (!state.positions[selectedComponent][node.id]) {
+                  console.log(`Position of node ${node.id} was not defined, so we are defining it to be x: ${node.position[0]}, y: ${node.position[1]}`);
+                  state.positions[selectedComponent][node.id] = { x: node.position[0], y: node.position[1] };
+              }
             });
+
+            // Cache the fetched data
+            state.cache[selectedComponent] = action.payload;
           })
           .addCase(fetchCharacters.rejected, (state, action) => {
             state.error = action.payload;
@@ -125,6 +142,6 @@ export const characterSlice = createSlice({
     },
 });
 
-export const { setSelectedComponent , updateCharacterPosition} = characterSlice.actions;
+export const { setSelectedComponent , updatePositions} = characterSlice.actions;
 
 export default characterSlice.reducer;

@@ -184,7 +184,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                     <label>Node Radius Range</label>
                     <Slider range
                         min={1}
-                        max={100}
+                        max={200}
                         defaultValue={[radiusRange.minRadius, radiusRange.maxRadius]}
                         onChange={handleRadiusChange}
                     />
