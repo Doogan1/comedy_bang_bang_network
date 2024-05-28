@@ -10,6 +10,7 @@ const initialState = {
     error: null,
     selectedComponent: 0,
     componentsSummary: [],
+    isComponentChanged: false,
 };
 
 // Define a thunk for fetching characters
@@ -72,7 +73,11 @@ export const characterSlice = createSlice({
         updatePositions: (state, action) => {
           const { component, positions } = action.payload;
           state.positions[component] = positions;
-        }
+        },
+        setIsComponentChanged: (state, action) => {
+          const newVal = action.payload;
+          state.isComponentChanged = newVal;
+        },
         // updateCharacterPosition: (state, action) => {
         //   const { nodeId, position } = action.payload;
         //   // console.log(`Updating position of node ${nodeId} to position ${position}`);
@@ -141,6 +146,6 @@ export const characterSlice = createSlice({
     },
 });
 
-export const { setSelectedComponent , updatePositions} = characterSlice.actions;
+export const { setSelectedComponent , updatePositions , setIsComponentChanged} = characterSlice.actions;
 
 export default characterSlice.reducer;
