@@ -2,7 +2,7 @@ import React, { useEffect, useRef , useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
 import { selectNode , updateZoomCache, setTriggerZoomToFit} from '../features/ui/uiSlice'; 
-import { fetchCharacters , updatePositions } from '../features/characters/characterSlice';
+import { fetchCharacters , updatePositions , setIsComponentChanged} from '../features/characters/characterSlice';
 
 
 const Visualizer = () => {
@@ -19,11 +19,13 @@ const Visualizer = () => {
     const selectedComponent = useSelector(state => state.characters.selectedComponent);
     const zoomCache = useSelector(state => state.ui.zoomCache);
     const triggerZoomToFit = useSelector(state => state.ui.triggerZoomToFit);
+    const isComponentChanged = useSelector(state => state.characters.isComponentChanged);
 
 
     // Fetch character data when component mounts
     useEffect(() => {
         dispatch(fetchCharacters(selectedComponent));
+        dispatch(setIsComponentChanged(true));
     }, [dispatch, selectedComponent]);
     
     // Pulling nodes and edges from Redux state
@@ -109,7 +111,8 @@ const Visualizer = () => {
             labelsRef.current
                 .style("font-size", (d, i) => `${Math.max(30, nodeRadii[i])}px`);
         }
-    }, [nodes, currentCentrality, radiusRange]);
+        dispatch(setIsComponentChanged(false));
+    }, [nodes, currentCentrality, radiusRange, selectedComponent, isComponentChanged, dispatch]);
 
     useEffect(() => {
         if (!nodes || !edges) return;
@@ -167,6 +170,7 @@ const Visualizer = () => {
             .enter().append("line")
             .attr("stroke", "#ddd");
 
+        
         const nodeElements = contentGroup.selectAll("circle")
             .data(mutableNodes)
             .enter().append("circle")
@@ -180,8 +184,9 @@ const Visualizer = () => {
                 event.stopPropagation();
                 dispatch(selectNode(d.id));
             });
-        
+
         nodeElementsRef.current = nodeElements;
+        dispatch(setIsComponentChanged(true));
 
         const labels = contentGroup.selectAll(".node-label")
             .data(mutableNodes)
@@ -246,6 +251,7 @@ const Visualizer = () => {
             dispatch(updateZoomCache({ component: selectedComponent, zoom: { k: zoomRef.current.k, x: zoomRef.current.x, y: zoomRef.current.y } }));
             simulationRef.current.stop(); // Cleanup on component unmount
             svg.on('.zoom', null); // Remove zoom listener
+            dispatch(setIsComponentChanged(true));
         };
 
     }, [nodes, edges, triggerZoomToFit, dispatch]);
