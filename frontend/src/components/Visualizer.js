@@ -2,7 +2,7 @@ import React, { useEffect, useRef , useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
 import { selectNode , updateZoomCache, setTriggerZoomToFit} from '../features/ui/uiSlice'; 
-import { fetchCharacters , updatePositions , setIsComponentChanged} from '../features/characters/characterSlice';
+import { fetchCharacters , updatePositions , setIsComponentChanged, setHighlightEdges , setHighlightNodes } from '../features/characters/characterSlice';
 
 
 const Visualizer = () => {
@@ -14,6 +14,7 @@ const Visualizer = () => {
     const zoomRef = useRef(d3.zoomIdentity); // Ref to store zoom state
     const simulationRef = useRef(null); // Ref to store simulation
     const nodeElementsRef = useRef(null); // Ref to store node elements
+    const edgeElementsRef = useRef(null);
     const labelsRef = useRef(null); // Ref to store labels
     const positionsRef = useRef(null); // Ref to store positions
     const radiusRange = useSelector(state => state.ui.radiusRange);
@@ -21,6 +22,8 @@ const Visualizer = () => {
     const zoomCache = useSelector(state => state.ui.zoomCache);
     const triggerZoomToFit = useSelector(state => state.ui.triggerZoomToFit);
     const isComponentChanged = useSelector(state => state.characters.isComponentChanged);
+    const highlightNodes = useSelector(state => state.characters.highlightNodes);
+    const highlightEdges = useSelector(state => state.characters.highlightEdges);
     // Fetch character data when component mounts
     useEffect(() => {
         dispatch(fetchCharacters(selectedComponent));
@@ -50,6 +53,22 @@ const Visualizer = () => {
 
     const mapScoresToRadii = (normalizedScores, minRadius, maxRadius) => {
         return normalizedScores.map(score => minRadius + score * (maxRadius - minRadius));
+    };
+
+    const highlightNodeAndNeighbors = (nodeId) => {
+        const highlightedNodes = [nodeId];
+        const highlightedEdges = [];
+
+
+        edges.forEach(edge => {
+            if (edge.source === nodeId || edge.target === nodeId) {
+                highlightedEdges.push([edge.source, edge.target]);
+                highlightedNodes.push(edge.source === nodeId ? edge.target : edge.source);
+            }
+        });
+
+        dispatch(setHighlightNodes(highlightedNodes));
+        dispatch(setHighlightEdges(highlightedEdges));
     };
 
     const calculateGraphBounds = () => {
@@ -96,7 +115,7 @@ const Visualizer = () => {
         const transform = d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale);
 
         const svgSelection = d3.select(svgRef.current);
-        console.log(svgSelection);
+
         svgSelection.transition()
             .duration(500) // Smooth transition
             .call(zoom.transform, transform);
@@ -108,7 +127,7 @@ const Visualizer = () => {
             const node = d3.select(this);
             const currentRadius = d.currentRadius || node.attr('r'); // Use stored radius or current attribute value
             node.attr('r', currentRadius);
-            console.log(d.currentRadius);
+
         });
 
         labelsRef.current.each(function(d, i) {
@@ -178,12 +197,13 @@ const Visualizer = () => {
             .enter().append("line")
             .attr("stroke", "#ddd");
 
-        
+        edgeElementsRef.current = edgeElements;
         const nodeElements = contentGroup.selectAll("circle")
             .data(mutableNodes)
             .enter().append("circle")
-            .attr("r", 30)
-            .attr("fill", "blue")
+            .attr("r", d => d.currentRadius || 30)
+            .attr("fill", d => highlightNodes.includes(d) ? "red" : "blue")
+            .style("opacity", d => highlightNodes.includes(d) ? 1 : 0.2)
             .call(d3.drag() 
                 .on("start", dragStart)
                 .on("drag", dragging)
@@ -191,6 +211,7 @@ const Visualizer = () => {
             .on("click", (event, d) => {
                 event.stopPropagation();
                 dispatch(selectNode(d.id));
+                highlightNodeAndNeighbors(d.id);
             });
 
         nodeElementsRef.current = nodeElements;
@@ -277,7 +298,7 @@ const Visualizer = () => {
             dispatch(setIsComponentChanged(true));
         };
 
-    }, [nodes, edges, triggerZoomToFit, dispatch]);
+    }, [nodes, edges, triggerZoomToFit, highlightEdges, highlightNodes, dispatch]);
 
     useEffect(() => {
         if (!nodes) return;
@@ -297,13 +318,27 @@ const Visualizer = () => {
             nodeElementsRef.current
                 .attr("r", (d, i) => {
                     d.currentRadius = nodeRadii[i];
-                    console.log(d.currentRadius);
+
                     return nodeRadii[i]});
             labelsRef.current
                 .style("font-size", (d, i) => `${Math.max(30, nodeRadii[i])}px`);
         }
+
+        if (highlightNodes.length > 0) {
+            nodeElementsRef.current
+            .style("fill", d => highlightNodes.includes(d.id) ? "red" : "blue")
+            .style("opacity", d => highlightNodes.includes(d.id) ? 1 : 0.2);
+
+            edgeElementsRef.current
+            .attr("stroke", d => highlightEdges.includes([d.source, d.target]) ? "red" : "blue");
+        } else {
+            nodeElementsRef.current
+            .style("opacity", 1);
+        }
+
+
         dispatch(setIsComponentChanged(false));
-    }, [nodes, currentCentrality, radiusRange, selectedComponent, isComponentChanged, triggerZoomToFit, dispatch]);
+    }, [nodes, currentCentrality, radiusRange, selectedComponent, isComponentChanged, triggerZoomToFit, highlightEdges, highlightNodes, dispatch]);
     
     // Separate useEffect for updating force strength
     useEffect(() => {
@@ -322,6 +357,26 @@ const Visualizer = () => {
         }
     }, [linkDistance , triggerZoomToFit]);
 
+    useEffect(() => {
+        if (highlightNodes.length > 0) {
+            nodeElementsRef.current
+            .style("fill", d => highlightNodes.includes(d.id) ? "red" : "blue")
+            .style("opacity", d => highlightNodes.includes(d.id) ? 1 : 0.2);
+
+
+            edgeElementsRef.current
+            .style("opacity", d => {
+                const edge = [d.source.id, d.target.id];
+                return highlightEdges.some(highlightedEdge => (highlightedEdge[0] === edge[0] && highlightedEdge[1] === edge[1])) ? 1 : 0.2
+            });
+
+            labelsRef.current
+            .style("opacity", d => highlightNodes.includes(d.id) ? 1 : 0.2);
+        } else {
+            nodeElementsRef.current
+            .style("opacity", 1);
+        }
+    }, [highlightEdges , highlightNodes])
     return (
         <div id="visualizer-container">
             <svg id='network' ref={svgRef} width='1000px' height='1000px'>
