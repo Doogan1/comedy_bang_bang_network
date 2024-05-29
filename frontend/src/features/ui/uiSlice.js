@@ -63,7 +63,7 @@ export const uiSlice = createSlice({
             state.radiusRange.minRadius = action.payload[0];
             state.radiusRange.maxRadius = action.payload[1];
         },
-        setTriggerZoomToFit: (state, action) => { 
+        setTriggerZoomToFit: (state, action) => {
             state.triggerZoomToFit = action.payload;
         },
     }
