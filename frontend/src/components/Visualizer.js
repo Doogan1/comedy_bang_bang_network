@@ -21,7 +21,6 @@ const Visualizer = () => {
     const zoomCache = useSelector(state => state.ui.zoomCache);
     const triggerZoomToFit = useSelector(state => state.ui.triggerZoomToFit);
     const isComponentChanged = useSelector(state => state.characters.isComponentChanged);
-    console.log(zoomCache);
     // Fetch character data when component mounts
     useEffect(() => {
         dispatch(fetchCharacters(selectedComponent));
@@ -53,8 +52,8 @@ const Visualizer = () => {
         return normalizedScores.map(score => minRadius + score * (maxRadius - minRadius));
     };
 
-    const calculateGraphBounds = (positions, width, height) => {
-        console.log(positionsRef.current);
+    const calculateGraphBounds = () => {
+
         const positionValues = Object.values(positionsRef.current);
         
         const minX = d3.min(positionValues, d => d.x);
@@ -75,7 +74,6 @@ const Visualizer = () => {
 
             // Extract node data from nodeElementsRef
         const nodeData = nodeElementsRef.current.data();
-        console.log(nodeData);
 
             // Dispatch updatePositions action with the current positions of the nodes
         dispatch(updatePositions({
@@ -85,6 +83,7 @@ const Visualizer = () => {
                 [node.id]: { x: node.x, y: node.y }
             }), {})
         }));
+
         const bounds = calculateGraphBounds(positions, svgRef.current.clientWidth, svgRef.current.clientHeight);
 
         const scale = 0.95 / Math.max(bounds.width / svgRef.current.clientWidth, bounds.height / svgRef.current.clientHeight);
@@ -95,39 +94,33 @@ const Visualizer = () => {
         ];
 
         const transform = d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale);
-        console.log(zoom);
-        console.log(transform);
-        svg.transition()
+
+        const svgSelection = d3.select(svgRef.current);
+        console.log(svgSelection);
+        svgSelection.transition()
             .duration(500) // Smooth transition
             .call(zoom.transform, transform);
+
         zoomRef.current = transform;
 
+            // Reapply node sizes after the zoom transform
+        nodeElementsRef.current.each(function(d, i) {
+            const node = d3.select(this);
+            const currentRadius = d.currentRadius || node.attr('r'); // Use stored radius or current attribute value
+            node.attr('r', currentRadius);
+            console.log(d.currentRadius);
+        });
+
+        labelsRef.current.each(function(d, i) {
+            const label = d3.select(this);
+            const currentRadius = nodeElementsRef.current.data()[i].r;
+            label.style('font-size', `${Math.max(30, currentRadius)}px`);
+        });
         // Save the zoom level to zoomCache
         dispatch(updateZoomCache({ component: selectedComponent, zoom: { k: transform.k, x: transform.x, y: transform.y } }));
     };
 
-    useEffect(() => {
-        if (!nodes) return;
 
-        const centralityScores = {
-            degree: nodes.map(node => node.degree),
-            betweenness: nodes.map(node => node.betweenness),
-            eigenvector: nodes.map(node => node.eigenvector),
-            closeness: nodes.map(node => node.closeness),
-            none: nodes.map(() => 1) // Default size for 'none'
-        };
-        
-        const normalizedScores = normalizeScores(centralityScores[currentCentrality]);
-        const nodeRadii = mapScoresToRadii(normalizedScores, radiusRange.minRadius, radiusRange.maxRadius);
-
-        if (nodeElementsRef.current) {
-            nodeElementsRef.current
-                .attr("r", (d, i) => nodeRadii[i]);
-            labelsRef.current
-                .style("font-size", (d, i) => `${Math.max(30, nodeRadii[i])}px`);
-        }
-        dispatch(setIsComponentChanged(false));
-    }, [nodes, currentCentrality, radiusRange, selectedComponent, isComponentChanged, dispatch]);
 
     useEffect(() => {
         if (!nodes || !edges) return;
@@ -286,13 +279,39 @@ const Visualizer = () => {
 
     }, [nodes, edges, triggerZoomToFit, dispatch]);
 
+    useEffect(() => {
+        if (!nodes) return;
+
+        const centralityScores = {
+            degree: nodes.map(node => node.degree),
+            betweenness: nodes.map(node => node.betweenness),
+            eigenvector: nodes.map(node => node.eigenvector),
+            closeness: nodes.map(node => node.closeness),
+            none: nodes.map(() => 1) // Default size for 'none'
+        };
+        
+        const normalizedScores = normalizeScores(centralityScores[currentCentrality]);
+        const nodeRadii = mapScoresToRadii(normalizedScores, radiusRange.minRadius, radiusRange.maxRadius);
+
+        if (nodeElementsRef.current) {
+            nodeElementsRef.current
+                .attr("r", (d, i) => {
+                    d.currentRadius = nodeRadii[i];
+                    console.log(d.currentRadius);
+                    return nodeRadii[i]});
+            labelsRef.current
+                .style("font-size", (d, i) => `${Math.max(30, nodeRadii[i])}px`);
+        }
+        dispatch(setIsComponentChanged(false));
+    }, [nodes, currentCentrality, radiusRange, selectedComponent, isComponentChanged, triggerZoomToFit, dispatch]);
+    
     // Separate useEffect for updating force strength
     useEffect(() => {
         if (simulationRef.current) {
             simulationRef.current.force("charge").strength(-forceStrength);
             simulationRef.current.alpha(1).restart(); // Restart the simulation with new force strength
         }
-    }, [forceStrength]);
+    }, [forceStrength , triggerZoomToFit]);
 
 
     // Separate useEffect for updating link distance
@@ -301,7 +320,7 @@ const Visualizer = () => {
             simulationRef.current.force("link").distance(linkDistance);
             simulationRef.current.alpha(1).restart(); // Restart the simulation with new link distance
         }
-    }, [linkDistance]);
+    }, [linkDistance , triggerZoomToFit]);
 
     return (
         <div id="visualizer-container">
