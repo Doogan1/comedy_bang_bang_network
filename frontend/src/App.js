@@ -5,6 +5,7 @@ import { selectNode } from './features/ui/uiSlice';
 import Visualizer from './components/Visualizer';
 import Sidebar from './components/Sidebar';
 import ControlsSidebar from './components/ControlsSidebar';
+import NetworkSwitcher from './components/NetworkSwitcher';
 import './styles.css';
 
 const App = () => {
@@ -55,6 +56,7 @@ const App = () => {
                 componentsSummary={componentsSummary}
             />
             <div style={mainLayoutStyles.visualizerContainer}>
+                <NetworkSwitcher />
                 <Visualizer />
             </div>
             <Sidebar />
