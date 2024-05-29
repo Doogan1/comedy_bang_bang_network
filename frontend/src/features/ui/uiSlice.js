@@ -2,7 +2,7 @@
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    currentEntityType: 'characters',
+    currentNetwork: 'characters',
     currentZoomLevel: {
         k: 1,
         x: 0,
@@ -29,8 +29,8 @@ export const uiSlice = createSlice({
     name: 'ui',
     initialState,
     reducers: {
-        switchEntityType: (state, action) => {
-            state.currentEntityType = action.payload;
+        switchNetwork: (state, action) => {
+            state.currentNetwork = action.payload;
             state.selectedNodeId = null;  // Reset selected node ID
             state.entityDetails = initialState.entityDetails;  // Reset entity details to initial state
         },
@@ -69,6 +69,6 @@ export const uiSlice = createSlice({
     }
 });
 
-export const { switchEntityType, setCurrentZoomLevel, updateZoomCache, selectNode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit} = uiSlice.actions;
+export const { switchNetwork, setCurrentZoomLevel, updateZoomCache, selectNode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit} = uiSlice.actions;
 
 export default uiSlice.reducer;

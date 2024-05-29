@@ -83,7 +83,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
     };
 
     return (
-        <div className="controls-sidebar" style={{ width: `${sidebarWidth}px` }}>
+        <div className="controls-sidebar" style={{ width: `225px` }}>
             <div className="controls-resizer"></div>
             <div style={styles.container}>
                 <div style={styles.controlGroup}>
