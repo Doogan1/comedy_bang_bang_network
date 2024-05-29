@@ -24,6 +24,7 @@ const Visualizer = () => {
     const isComponentChanged = useSelector(state => state.characters.isComponentChanged);
     const highlightNodes = useSelector(state => state.characters.highlightNodes);
     const highlightEdges = useSelector(state => state.characters.highlightEdges);
+    const selectedNodeId = useSelector(state => state.ui.selectedNodeId);
     // Fetch character data when component mounts
     useEffect(() => {
         dispatch(fetchCharacters(selectedComponent));
@@ -202,7 +203,7 @@ const Visualizer = () => {
             .data(mutableNodes)
             .enter().append("circle")
             .attr("r", d => d.currentRadius || 30)
-            .attr("fill", d => highlightNodes.includes(d) ? "red" : "blue")
+            .attr("fill", d => highlightNodes.includes(d) ? "red" : "rgb(0, 183, 255)")
             .style("opacity", d => highlightNodes.includes(d) ? 1 : 0.2)
             .call(d3.drag() 
                 .on("start", dragStart)
@@ -298,7 +299,7 @@ const Visualizer = () => {
             dispatch(setIsComponentChanged(true));
         };
 
-    }, [nodes, edges, triggerZoomToFit, highlightEdges, highlightNodes, dispatch]);
+    }, [nodes, edges, triggerZoomToFit, dispatch]);
 
     useEffect(() => {
         if (!nodes) return;
@@ -326,11 +327,11 @@ const Visualizer = () => {
 
         if (highlightNodes.length > 0) {
             nodeElementsRef.current
-            .style("fill", d => highlightNodes.includes(d.id) ? "red" : "blue")
+            .style("fill", d => highlightNodes.includes(d.id) ? "red" : "rgb(0, 183, 255)")
             .style("opacity", d => highlightNodes.includes(d.id) ? 1 : 0.2);
 
             edgeElementsRef.current
-            .attr("stroke", d => highlightEdges.includes([d.source, d.target]) ? "red" : "blue");
+            .attr("stroke", d => highlightEdges.includes([d.source, d.target]) ? "red" : "rgb(0, 183, 255)");
         } else {
             nodeElementsRef.current
             .style("opacity", 1);
@@ -338,7 +339,7 @@ const Visualizer = () => {
 
 
         dispatch(setIsComponentChanged(false));
-    }, [nodes, currentCentrality, radiusRange, selectedComponent, isComponentChanged, triggerZoomToFit, highlightEdges, highlightNodes, dispatch]);
+    }, [nodes, currentCentrality, radiusRange, selectedComponent, isComponentChanged, triggerZoomToFit, dispatch]);
     
     // Separate useEffect for updating force strength
     useEffect(() => {
@@ -360,7 +361,7 @@ const Visualizer = () => {
     useEffect(() => {
         if (highlightNodes.length > 0) {
             nodeElementsRef.current
-            .style("fill", d => highlightNodes.includes(d.id) ? "red" : "blue")
+            .style("fill", d => highlightNodes.includes(d.id) ? "red" : "rgb(0, 183, 255)")
             .style("opacity", d => highlightNodes.includes(d.id) ? 1 : 0.2);
 
 
@@ -374,9 +375,24 @@ const Visualizer = () => {
             .style("opacity", d => highlightNodes.includes(d.id) ? 1 : 0.2);
         } else {
             nodeElementsRef.current
+            .style("opacity", 1)
+            .style("fill", "rgb(0, 183, 255)");
+
+            edgeElementsRef.current
+            .style("opacity", 1);
+
+            labelsRef.current
             .style("opacity", 1);
         }
     }, [highlightEdges , highlightNodes])
+
+    useEffect(() => {
+        if (selectedNodeId === null) {
+            dispatch(setHighlightNodes([]));
+            dispatch(setHighlightEdges([]));
+        }
+    }, [selectedNodeId, dispatch]);
+
     return (
         <div id="visualizer-container">
             <svg id='network' ref={svgRef} width='1000px' height='1000px'>
