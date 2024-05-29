@@ -146,6 +146,6 @@ export const characterSlice = createSlice({
     },
 });
 
-export const { setSelectedComponent , updatePositions , setIsComponentChanged} = characterSlice.actions;
+export const { setSelectedComponent , updatePositions , setIsComponentChanged } = characterSlice.actions;
 
 export default characterSlice.reducer;

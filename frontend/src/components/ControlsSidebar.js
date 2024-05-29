@@ -78,6 +78,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
     }, [sidebarWidth, dispatch]);
 
     const handleZoomToFit = () => {
+        console.log("Setting Trigger Zoom to Fit to true");
         dispatch(setTriggerZoomToFit(true));
     };
 

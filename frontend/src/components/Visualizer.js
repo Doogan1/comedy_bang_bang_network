@@ -15,13 +15,12 @@ const Visualizer = () => {
     const simulationRef = useRef(null); // Ref to store simulation
     const nodeElementsRef = useRef(null); // Ref to store node elements
     const labelsRef = useRef(null); // Ref to store labels
+    const positionsRef = useRef(null); // Ref to store positions
     const radiusRange = useSelector(state => state.ui.radiusRange);
     const selectedComponent = useSelector(state => state.characters.selectedComponent);
     const zoomCache = useSelector(state => state.ui.zoomCache);
     const triggerZoomToFit = useSelector(state => state.ui.triggerZoomToFit);
     const isComponentChanged = useSelector(state => state.characters.isComponentChanged);
-
-
     // Fetch character data when component mounts
     useEffect(() => {
         dispatch(fetchCharacters(selectedComponent));
@@ -32,7 +31,7 @@ const Visualizer = () => {
     const nodes = useSelector(state => state.characters.nodes);
     const edges = useSelector(state => state.characters.edges);
     const positions = useSelector(state => state.characters.positions[selectedComponent]);
-    
+    positionsRef.current = positions;
     // mutableNodes.forEach(node => {
     //     node.x = positions[node.id].x;
     //     node.y = positions[node.id].y;
@@ -53,8 +52,10 @@ const Visualizer = () => {
         return normalizedScores.map(score => minRadius + score * (maxRadius - minRadius));
     };
 
-    const calculateGraphBounds = (positions, width, height) => {
-        const positionValues = Object.values(positions);
+    const calculateGraphBounds = () => {
+
+        const positionValues = Object.values(positionsRef.current);
+        
         const minX = d3.min(positionValues, d => d.x);
         const maxX = d3.max(positionValues, d => d.x);
         const minY = d3.min(positionValues, d => d.y);
@@ -71,48 +72,55 @@ const Visualizer = () => {
     const adjustView = (positions, svg, zoom) => {
         if (!positions || Object.keys(positions).length === 0) return;
 
+            // Extract node data from nodeElementsRef
+        const nodeData = nodeElementsRef.current.data();
+
+            // Dispatch updatePositions action with the current positions of the nodes
+        dispatch(updatePositions({
+            component: selectedComponent,
+            positions: nodeData.reduce((acc, node) => ({
+                ...acc,
+                [node.id]: { x: node.x, y: node.y }
+            }), {})
+        }));
+
         const bounds = calculateGraphBounds(positions, svgRef.current.clientWidth, svgRef.current.clientHeight);
 
         const scale = 0.95 / Math.max(bounds.width / svgRef.current.clientWidth, bounds.height / svgRef.current.clientHeight);
+
         const translate = [
             (svgRef.current.clientWidth / 2) - scale * (bounds.x + bounds.width / 2),
             (svgRef.current.clientHeight / 2) - scale * (bounds.y + bounds.height / 2)
         ];
 
         const transform = d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale);
-        console.log(zoom);
-        console.log(transform);
-        svg.transition()
+
+        const svgSelection = d3.select(svgRef.current);
+        console.log(svgSelection);
+        svgSelection.transition()
             .duration(500) // Smooth transition
             .call(zoom.transform, transform);
+
         zoomRef.current = transform;
 
+            // Reapply node sizes after the zoom transform
+        nodeElementsRef.current.each(function(d, i) {
+            const node = d3.select(this);
+            const currentRadius = d.currentRadius || node.attr('r'); // Use stored radius or current attribute value
+            node.attr('r', currentRadius);
+            console.log(d.currentRadius);
+        });
+
+        labelsRef.current.each(function(d, i) {
+            const label = d3.select(this);
+            const currentRadius = nodeElementsRef.current.data()[i].r;
+            label.style('font-size', `${Math.max(30, currentRadius)}px`);
+        });
         // Save the zoom level to zoomCache
         dispatch(updateZoomCache({ component: selectedComponent, zoom: { k: transform.k, x: transform.x, y: transform.y } }));
     };
 
-    useEffect(() => {
-        if (!nodes) return;
 
-        const centralityScores = {
-            degree: nodes.map(node => node.degree),
-            betweenness: nodes.map(node => node.betweenness),
-            eigenvector: nodes.map(node => node.eigenvector),
-            closeness: nodes.map(node => node.closeness),
-            none: nodes.map(() => 1) // Default size for 'none'
-        };
-        
-        const normalizedScores = normalizeScores(centralityScores[currentCentrality]);
-        const nodeRadii = mapScoresToRadii(normalizedScores, radiusRange.minRadius, radiusRange.maxRadius);
-
-        if (nodeElementsRef.current) {
-            nodeElementsRef.current
-                .attr("r", (d, i) => nodeRadii[i]);
-            labelsRef.current
-                .style("font-size", (d, i) => `${Math.max(30, nodeRadii[i])}px`);
-        }
-        dispatch(setIsComponentChanged(false));
-    }, [nodes, currentCentrality, radiusRange, selectedComponent, isComponentChanged, dispatch]);
 
     useEffect(() => {
         if (!nodes || !edges) return;
@@ -220,6 +228,9 @@ const Visualizer = () => {
             d.fy = null;
         }
 
+        let tickCounter = 0;
+        const tickUpdateFrequency = 50;
+
         // Define simulation
         simulationRef.current = d3.forceSimulation(mutableNodes)
             .force("link", d3.forceLink(mutableEdges).id(d => d.id))
@@ -239,6 +250,18 @@ const Visualizer = () => {
                 labels
                     .attr("x", d => d.x)
                     .attr("y", d => d.y - 25);
+
+                tickCounter += 1;
+                if (tickCounter % tickUpdateFrequency === 0) {
+                    const nodeData = nodeElements.data();
+                    dispatch(updatePositions({
+                        component: selectedComponent,
+                        positions: nodeData.reduce((acc, node) => ({
+                            ...acc,
+                            [node.id]: { x: node.x, y: node.y }
+                        }), {})
+                    }));
+                }
             });
 
         if (triggerZoomToFit) {
@@ -256,13 +279,39 @@ const Visualizer = () => {
 
     }, [nodes, edges, triggerZoomToFit, dispatch]);
 
+    useEffect(() => {
+        if (!nodes) return;
+
+        const centralityScores = {
+            degree: nodes.map(node => node.degree),
+            betweenness: nodes.map(node => node.betweenness),
+            eigenvector: nodes.map(node => node.eigenvector),
+            closeness: nodes.map(node => node.closeness),
+            none: nodes.map(() => 1) // Default size for 'none'
+        };
+        
+        const normalizedScores = normalizeScores(centralityScores[currentCentrality]);
+        const nodeRadii = mapScoresToRadii(normalizedScores, radiusRange.minRadius, radiusRange.maxRadius);
+
+        if (nodeElementsRef.current) {
+            nodeElementsRef.current
+                .attr("r", (d, i) => {
+                    d.currentRadius = nodeRadii[i];
+                    console.log(d.currentRadius);
+                    return nodeRadii[i]});
+            labelsRef.current
+                .style("font-size", (d, i) => `${Math.max(30, nodeRadii[i])}px`);
+        }
+        dispatch(setIsComponentChanged(false));
+    }, [nodes, currentCentrality, radiusRange, selectedComponent, isComponentChanged, triggerZoomToFit, dispatch]);
+    
     // Separate useEffect for updating force strength
     useEffect(() => {
         if (simulationRef.current) {
             simulationRef.current.force("charge").strength(-forceStrength);
             simulationRef.current.alpha(1).restart(); // Restart the simulation with new force strength
         }
-    }, [forceStrength]);
+    }, [forceStrength , triggerZoomToFit]);
 
 
     // Separate useEffect for updating link distance
@@ -271,7 +320,7 @@ const Visualizer = () => {
             simulationRef.current.force("link").distance(linkDistance);
             simulationRef.current.alpha(1).restart(); // Restart the simulation with new link distance
         }
-    }, [linkDistance]);
+    }, [linkDistance , triggerZoomToFit]);
 
     return (
         <div id="visualizer-container">
