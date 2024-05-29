@@ -11,6 +11,8 @@ const initialState = {
     selectedComponent: 0,
     componentsSummary: [],
     isComponentChanged: false,
+    highlightNodes: [],
+    highlightEdges: [],
 };
 
 // Define a thunk for fetching characters
@@ -77,6 +79,12 @@ export const characterSlice = createSlice({
         setIsComponentChanged: (state, action) => {
           const newVal = action.payload;
           state.isComponentChanged = newVal;
+        },
+        setHighlightNodes: (state, action) => {
+          state.highlightNodes = action.payload;
+        },
+        setHighlightEdges: (state, action) => {
+          state.highlightEdges = action.payload;
         },
         // updateCharacterPosition: (state, action) => {
         //   const { nodeId, position } = action.payload;
@@ -146,6 +154,6 @@ export const characterSlice = createSlice({
     },
 });
 
-export const { setSelectedComponent , updatePositions , setIsComponentChanged } = characterSlice.actions;
+export const { setSelectedComponent , updatePositions , setIsComponentChanged , setHighlightEdges , setHighlightNodes } = characterSlice.actions;
 
 export default characterSlice.reducer;
