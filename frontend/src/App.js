@@ -35,7 +35,7 @@ const App = () => {
 
     useEffect(() => {
         const handleClickOutside = (event) => {
-            if (!event.target.closest('.sidebar') && !event.target.closest('circle')) {
+            if (!event.target.closest('.sidebar') && !event.target.closest('circle') && !event.target.closest('.controls-sidebar')) {
                 dispatch(selectNode(null)); // Deselect node
             }
         };
