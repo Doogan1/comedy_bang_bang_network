@@ -136,6 +136,7 @@ const Visualizer = () => {
     };
 
     const adjustView = (positions, svg, zoom) => {
+        console.log(`Adjusting view using positions: ${positions}`);
         if (!positions || Object.keys(positions).length === 0) return;
 
             // Extract node data from nodeElementsRef
@@ -180,7 +181,11 @@ const Visualizer = () => {
             label.style('font-size', `${Math.max(30, currentRadius)}px`);
         });
         // Save the zoom level to zoomCache
-        dispatch(updateZoomCache({ component: selectedComponent, zoom: { k: transform.k, x: transform.x, y: transform.y } }));
+        dispatch(updateZoomCache({ 
+            network: currentNetwork,
+            component: currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent,
+            zoom: { k: transform.k, x: transform.x, y: transform.y } 
+        }));
     };
 
 
@@ -226,9 +231,9 @@ const Visualizer = () => {
             });
         
         svg.call(zoom);
-        
-        if (zoomCache[currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent]) {
-            const { k, x, y } = zoomCache[currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent];
+        const componentKey = `${currentNetwork}-${currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent}`;
+        if (zoomCache[componentKey]) {
+            const { k, x, y } = zoomCache[componentKey];
             const transform = d3.zoomIdentity.translate(x, y).scale(k);
             svg.call(zoom.transform, transform);
             zoomRef.current = transform;
@@ -306,6 +311,8 @@ const Visualizer = () => {
             .force("link", d3.forceLink(mutableEdges).id(d => d.id))
             .force("charge", d3.forceManyBody().strength(-forceStrength))
             .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collide", d3.forceCollide().radius(d => d.currentRadius || 30))
+            .alphaDecay(selectedComponent === 0 || guestSelectedComponent === 0 ? 0.005 : 0.0228) // Adjust alpha decay for giant components
             .on("tick", () => {
                 edgeElements
                     .attr("x1", d => d.source.x)
@@ -337,12 +344,11 @@ const Visualizer = () => {
         }
 
         return () => {
-            const nodeData = nodeElements.data();
-            updateNetworkPositions(dispatch, currentNetwork, currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent, nodeData.reduce((acc, node) => ({
-                ...acc,
-                [node.id]: { x: node.x, y: node.y }
-            }), {}));
+            const currentPositions = getCurrentPositions();
+            const componentKey = `${currentNetwork}-${currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent}`;
+            updateNetworkPositions(currentPositions);
             dispatch(updateZoomCache({
+                network: currentNetwork,
                 component: currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent,
                 zoom: { k: zoomRef.current.k, x: zoomRef.current.x, y: zoomRef.current.y }
             }));
@@ -375,6 +381,12 @@ const Visualizer = () => {
                     return nodeRadii[i]});
             labelsRef.current
                 .style("font-size", (d, i) => `${Math.max(30, nodeRadii[i])}px`);
+
+            // Update collision force with new radii
+            if (simulationRef.current) {
+                simulationRef.current.force("collide", d3.forceCollide().radius(d => d.currentRadius || 30));
+                simulationRef.current.alpha(1).restart(); // Restart the simulation with new radii
+            }
         }
 
         if (highlightNodes.length > 0) {
