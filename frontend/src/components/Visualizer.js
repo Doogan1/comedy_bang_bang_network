@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
 import { selectNode , updateZoomCache, setTriggerZoomToFit } from '../features/ui/uiSlice'; 
 import { fetchCharacters , updatePositions , setIsComponentChanged, setHighlightEdges , setHighlightNodes } from '../features/characters/characterSlice';
-import { fetchGuests } from '../features/guests/guestSlice';
+import { fetchGuests , updateGuestPositions} from '../features/guests/guestSlice';
 
 const Visualizer = () => {
     const svgRef = useRef(null);
@@ -40,6 +40,24 @@ const Visualizer = () => {
     const nodesRef = useRef([]);
     const edgesRef = useRef([]);
     const positionsRef = useRef({});
+
+    // Function to get the current positions
+    const getCurrentPositions = () => {
+        const nodeData = nodeElementsRef.current.data();
+        return nodeData.reduce((acc, node) => ({
+            ...acc,
+            [node.id]: { x: node.x, y: node.y }
+        }), {});
+    };
+
+    const updateNetworkPositions = (dispatch, currentNetwork, selectedComponent, positions) => {
+        if (currentNetwork === 'characters') {
+            dispatch(updatePositions({ component: selectedComponent, positions }));
+        } else if (currentNetwork === 'guests') {
+            dispatch(updateGuestPositions({ component: selectedComponent, positions }));
+        }
+    };
+
     // Fetch character data when component mounts
     useEffect(() => {
 
@@ -69,11 +87,6 @@ const Visualizer = () => {
         }
     }, [currentNetwork, characterNodes, characterEdges, characterPositions, guestNodes, guestEdges, guestPositions]);
 
-    // mutableNodes.forEach(node => {
-    //     node.x = positions[node.id].x;
-    //     node.y = positions[node.id].y;
-    //     console.log(positions[node.id].x);
-    // });
 
     // Normalizes an array of scores to the range [0, 1]
     const normalizeScores = (scores) => {
@@ -129,13 +142,10 @@ const Visualizer = () => {
         const nodeData = nodeElementsRef.current.data();
 
             // Dispatch updatePositions action with the current positions of the nodes
-        dispatch(updatePositions({
-            component: selectedComponent,
-            positions: nodeData.reduce((acc, node) => ({
-                ...acc,
-                [node.id]: { x: node.x, y: node.y }
-            }), {})
-        }));
+        updateNetworkPositions(dispatch, currentNetwork, currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent, nodeData.reduce((acc, node) => ({
+            ...acc,
+            [node.id]: { x: node.x, y: node.y }
+        }), {}));
 
         const bounds = calculateGraphBounds(positions, svgRef.current.clientWidth, svgRef.current.clientHeight);
 
@@ -217,13 +227,13 @@ const Visualizer = () => {
         
         svg.call(zoom);
         
-        if (zoomCache[selectedComponent]) {
-            const { k, x, y } = zoomCache[selectedComponent];
+        if (zoomCache[currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent]) {
+            const { k, x, y } = zoomCache[currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent];
             const transform = d3.zoomIdentity.translate(x, y).scale(k);
-            svg.call(zoom.transform, transform); // Use cached zoom level if available
+            svg.call(zoom.transform, transform);
             zoomRef.current = transform;
         } else {
-            adjustView(positions, svg, zoom); // Adjust view on initial load if no cache
+            adjustView(positions, svg, zoom);
         }
         // Apply the stored zoom transform if it exists
         // if (zoomRef.current) {
@@ -314,13 +324,10 @@ const Visualizer = () => {
                 tickCounter += 1;
                 if (tickCounter % tickUpdateFrequency === 0) {
                     const nodeData = nodeElements.data();
-                    dispatch(updatePositions({
-                        component: currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent,
-                        positions: nodeData.reduce((acc, node) => ({
-                            ...acc,
-                            [node.id]: { x: node.x, y: node.y }
-                        }), {})
-                    }));
+                    updateNetworkPositions(dispatch, currentNetwork, currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent, nodeData.reduce((acc, node) => ({
+                        ...acc,
+                        [node.id]: { x: node.x, y: node.y }
+                    }), {}));
                 }
             });
 
@@ -330,13 +337,11 @@ const Visualizer = () => {
         }
 
         return () => {
-            dispatch(updatePositions({
-                component: currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent,
-                positions: nodes.reduce((acc, node) => ({
-                    ...acc,
-                    [node.id]: { x: node.x, y: node.y }
-                }), {})
-            }));
+            const nodeData = nodeElements.data();
+            updateNetworkPositions(dispatch, currentNetwork, currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent, nodeData.reduce((acc, node) => ({
+                ...acc,
+                [node.id]: { x: node.x, y: node.y }
+            }), {}));
             dispatch(updateZoomCache({
                 component: currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent,
                 zoom: { k: zoomRef.current.k, x: zoomRef.current.x, y: zoomRef.current.y }
