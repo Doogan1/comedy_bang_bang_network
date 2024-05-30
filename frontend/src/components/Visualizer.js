@@ -136,6 +136,7 @@ const Visualizer = () => {
     };
 
     const adjustView = (positions, svg, zoom) => {
+        console.log(`Adjusting view using positions: ${positions}`);
         if (!positions || Object.keys(positions).length === 0) return;
 
             // Extract node data from nodeElementsRef
@@ -310,6 +311,7 @@ const Visualizer = () => {
             .force("link", d3.forceLink(mutableEdges).id(d => d.id))
             .force("charge", d3.forceManyBody().strength(-forceStrength))
             .force("center", d3.forceCenter(width / 2, height / 2))
+            .alphaDecay(selectedComponent === 0 || guestSelectedComponent === 0 ? 0.005 : 0.0228) // Adjust alpha decay for giant components
             .on("tick", () => {
                 edgeElements
                     .attr("x1", d => d.source.x)
