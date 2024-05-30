@@ -183,7 +183,7 @@ const Visualizer = () => {
         // Save the zoom level to zoomCache
         dispatch(updateZoomCache({ 
             network: currentNetwork,
-            component: selectedComponent,
+            component: currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent,
             zoom: { k: transform.k, x: transform.x, y: transform.y } 
         }));
     };
