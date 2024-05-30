@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setForceStrength, setLinkDistance, setSidebarWidth , setCentrality , setRadiusRange, setTriggerZoomToFit} from '../features/ui/uiSlice';
-import  Slider, { Range } from 'rc-slider';
+import { setForceStrength, setLinkDistance, setSidebarWidth, setCentrality, setRadiusRange, setTriggerZoomToFit } from '../features/ui/uiSlice';
+import { fetchComponentsSummary } from '../features/characters/characterSlice';
+import { fetchGuestComponentsSummary , setSelectedGuestComponent} from '../features/guests/guestSlice';
+import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
-
 
 const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSummary }) => {
     const dispatch = useDispatch();
@@ -12,7 +13,18 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
     const sidebarWidth = useSelector(state => state.ui.sidebarWidth);
     const currentCentrality = useSelector(state => state.ui.currentCentrality);
     const radiusRange = useSelector(state => state.ui.radiusRange);
+    const currentNetwork = useSelector(state => state.ui.currentNetwork);
 
+    const characterComponentsSummary = useSelector(state => state.characters.componentsSummary);
+    const guestComponentsSummary = useSelector(state => state.guests.componentsSummary);
+
+    useEffect(() => {
+        if (currentNetwork === 'characters') {
+            dispatch(fetchComponentsSummary());
+        } else if (currentNetwork === 'guests') {
+            dispatch(fetchGuestComponentsSummary());
+        }
+    }, [dispatch, currentNetwork]);
 
     const createHandleSliderChange = (actionCreator) => (e) => {
         const value = Number(e.target.value);
@@ -82,6 +94,8 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
         dispatch(setTriggerZoomToFit(true));
     };
 
+    const currentComponentsSummary = currentNetwork === 'characters' ? characterComponentsSummary : guestComponentsSummary;
+    console.log(`The current network is ${currentNetwork} and the current components summary is ${currentComponentsSummary}`);
     return (
         <div className="controls-sidebar" style={{ width: `225px` }}>
             <div className="controls-resizer"></div>
@@ -94,7 +108,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                         onChange={(e) => setSelectedComponent(Number(e.target.value))}
                         style={styles.select}
                     >
-                        {componentsSummary.map((comp) => (
+                        {currentComponentsSummary.map((comp) => (
                             <option key={comp.index} value={comp.index}>
                                 Component {comp.index} - Order: {comp.size} ({comp.percentage.toFixed(2)}%)
                             </option>
@@ -238,6 +252,15 @@ const styles = {
         textAlign: 'right',
         color: '#555',
         fontSize: '14px',
+    },
+    button: {
+        marginTop: '20px',
+        padding: '10px',
+        backgroundColor: '#007bff',
+        color: '#fff',
+        border: 'none',
+        borderRadius: '4px',
+        cursor: 'pointer',
     },
 };
 

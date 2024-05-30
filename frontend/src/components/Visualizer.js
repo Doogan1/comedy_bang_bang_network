@@ -49,7 +49,7 @@ const Visualizer = () => {
             });
         } else if (currentNetwork === 'guests') {
             dispatch(fetchGuests(guestSelectedComponent)).then(response => {
-                console.log(`Guests fetched:`, response);
+                console.log(`Guests fetched for component ${guestSelectedComponent}:`, response);
             });
         }
     }, [dispatch, currentNetwork, selectedComponent, guestSelectedComponent]);
