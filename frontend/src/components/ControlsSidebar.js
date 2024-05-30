@@ -90,12 +90,12 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
     }, [sidebarWidth, dispatch]);
 
     const handleZoomToFit = () => {
-        console.log("Setting Trigger Zoom to Fit to true");
+
         dispatch(setTriggerZoomToFit(true));
     };
 
     const currentComponentsSummary = currentNetwork === 'characters' ? characterComponentsSummary : guestComponentsSummary;
-    console.log(`The current network is ${currentNetwork} and the current components summary is ${currentComponentsSummary}`);
+
     return (
         <div className="controls-sidebar" style={{ width: `225px` }}>
             <div className="controls-resizer"></div>
