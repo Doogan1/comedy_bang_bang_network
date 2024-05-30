@@ -96,7 +96,7 @@ const Visualizer = () => {
         const highlightedEdges = [];
 
 
-        edges.forEach(edge => {
+        edgesRef.current.forEach(edge => {
             if (edge.source === nodeId || edge.target === nodeId) {
                 highlightedEdges.push([edge.source, edge.target]);
                 highlightedNodes.push(edge.source === nodeId ? edge.target : edge.source);
