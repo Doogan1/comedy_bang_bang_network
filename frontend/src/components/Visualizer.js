@@ -42,14 +42,14 @@ const Visualizer = () => {
     const positionsRef = useRef({});
     // Fetch character data when component mounts
     useEffect(() => {
-        console.log(`Switching to ${currentNetwork} network.`);
+
         if (currentNetwork === 'characters') {
             dispatch(fetchCharacters(selectedComponent)).then(response => {
-                console.log(`Characters fetched:`, response);
+
             });
         } else if (currentNetwork === 'guests') {
             dispatch(fetchGuests(guestSelectedComponent)).then(response => {
-                console.log(`Guests fetched for component ${guestSelectedComponent}:`, response);
+
             });
         }
     }, [dispatch, currentNetwork, selectedComponent, guestSelectedComponent]);
@@ -60,14 +60,12 @@ const Visualizer = () => {
             nodesRef.current = characterNodes;
             edgesRef.current = characterEdges;
             positionsRef.current = characterPositions;
-            console.log('Character nodes:', characterNodes);
-            console.log('Character edges:', characterEdges);
+
         } else if (currentNetwork === 'guests') {
             nodesRef.current = guestNodes;
             edgesRef.current = guestEdges;
             positionsRef.current = guestPositions;
-            console.log('Guest nodes:', guestNodes);
-            console.log('Guest edges:', guestEdges);
+
         }
     }, [currentNetwork, characterNodes, characterEdges, characterPositions, guestNodes, guestEdges, guestPositions]);
 
@@ -175,18 +173,15 @@ const Visualizer = () => {
         dispatch(updateZoomCache({ component: selectedComponent, zoom: { k: transform.k, x: transform.x, y: transform.y } }));
     };
 
-    useEffect(() => {
-        console.log(`Network switched to ${currentNetwork}`);
-    }, [currentNetwork]);
 
     useEffect(() => {
         const nodes = nodesRef.current;
         const edges = edgesRef.current;
         const positions = positionsRef.current;
 
-        console.log(`Running useEffect with network ${currentNetwork}`);
+
         if (!nodes || !edges) return;
-        console.log(`Running useEffect with network ${currentNetwork}`);
+
         const mutableNodes = nodes.map(node => ({
             ...node,
             x: positions[node.id]?.x || node.x,
@@ -399,7 +394,7 @@ const Visualizer = () => {
             simulationRef.current.force("charge").strength(-forceStrength);
             simulationRef.current.alpha(1).restart(); // Restart the simulation with new force strength
         }
-    }, [forceStrength , triggerZoomToFit]);
+    }, [forceStrength , currentNetwork , isComponentChanged, triggerZoomToFit]);
 
 
     // Separate useEffect for updating link distance
@@ -408,7 +403,7 @@ const Visualizer = () => {
             simulationRef.current.force("link").distance(linkDistance);
             simulationRef.current.alpha(1).restart(); // Restart the simulation with new link distance
         }
-    }, [linkDistance , triggerZoomToFit]);
+    }, [linkDistance , currentNetwork , isComponentChanged , triggerZoomToFit]);
 
     useEffect(() => {
         if (highlightNodes.length > 0) {
