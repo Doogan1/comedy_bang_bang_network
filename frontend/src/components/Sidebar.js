@@ -1,22 +1,32 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCharacterDetails } from '../features/characters/characterSlice';
-import { setEntityDetails , setSidebarWidth} from '../features/ui/uiSlice';
+import { fetchGuestDetails } from '../features/guests/guestSlice'; // Import the guest details thunk
+import { setEntityDetails, setSidebarWidth } from '../features/ui/uiSlice';
 
 const Sidebar = () => {
     const dispatch = useDispatch();
-    const { currentEntityType, selectedNodeId, entityDetails , sidebarWidth} = useSelector(state => state.ui);
+    const { currentNetwork, selectedNodeId, entityDetails, sidebarWidth } = useSelector(state => state.ui);
   
     useEffect(() => {
         if (selectedNodeId !== null) {
-            dispatch(fetchCharacterDetails(selectedNodeId))
-                .then(action => {
-                    if (fetchCharacterDetails.fulfilled.match(action)) {
-                        dispatch(setEntityDetails(action.payload));
-                    }
-                });
+            if (currentNetwork === 'characters') {
+                dispatch(fetchCharacterDetails(selectedNodeId))
+                    .then(action => {
+                        if (fetchCharacterDetails.fulfilled.match(action)) {
+                            dispatch(setEntityDetails(action.payload));
+                        }
+                    });
+            } else if (currentNetwork === 'guests') {
+                dispatch(fetchGuestDetails(selectedNodeId))
+                    .then(action => {
+                        if (fetchGuestDetails.fulfilled.match(action)) {
+                            dispatch(setEntityDetails(action.payload));
+                        }
+                    });
+            }
         }
-    }, [selectedNodeId, dispatch]);
+    }, [selectedNodeId, currentNetwork, dispatch]);
 
     useEffect(() => {
         let isResizing = false;
@@ -66,16 +76,20 @@ const Sidebar = () => {
     }, [sidebarWidth, dispatch]);
 
     return (
-        <div className="sidebar" id="characterDetails" style={{ display: selectedNodeId ? 'block' : 'none', width: `${sidebarWidth}px` }}>
+        <div className="sidebar" id="entityDetails" style={{ display: selectedNodeId ? 'block' : 'none', width: `${sidebarWidth}px` }}>
             <div className="resizer"></div>
-            <h3>{currentEntityType === 'characters' ? 'Character Details' : 'Guest Details'}</h3>
+            <h3>{currentNetwork === 'characters' ? 'Character Details' : 'Guest Details'}</h3>
             <div><h2>{entityDetails.character_name}</h2></div>
             <div>
-                <h4>Played By</h4>
+                <h4>{currentNetwork === 'characters' ? 'Played By' : 'Details'}</h4>
                 <ul>
-                    {entityDetails.actors && entityDetails.actors.length > 0 ? (
+                    {currentNetwork === 'characters' && entityDetails.actors && entityDetails.actors.length > 0 ? (
                         entityDetails.actors.map((actor) => (
                             <li key={actor.id}>{actor.name}</li>
+                        ))
+                    ) : currentNetwork === 'guests' && entityDetails.details && entityDetails.details.length > 0 ? (
+                        entityDetails.details.map((detail, index) => (
+                            <li key={index}>{detail}</li>
                         ))
                     ) : (
                         <li>Unknown</li>
@@ -91,7 +105,7 @@ const Sidebar = () => {
                     </tr>
                 </thead>
                 <tbody>
-                    {entityDetails.episodes.map((episode, index) => (
+                    {entityDetails.episodes && entityDetails.episodes.map((episode, index) => (
                         <tr key={index}>
                             <td>{episode.title}</td>
                             <td>{episode.episode_number}</td>
@@ -105,4 +119,3 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
-
