@@ -1,9 +1,9 @@
 import React, { useEffect, useRef , useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
-import { selectNode , updateZoomCache, setTriggerZoomToFit} from '../features/ui/uiSlice'; 
+import { selectNode , updateZoomCache, setTriggerZoomToFit } from '../features/ui/uiSlice'; 
 import { fetchCharacters , updatePositions , setIsComponentChanged, setHighlightEdges , setHighlightNodes } from '../features/characters/characterSlice';
-
+import { fetchGuests } from '../features/guests/guestSlice';
 
 const Visualizer = () => {
     const svgRef = useRef(null);
@@ -11,31 +11,66 @@ const Visualizer = () => {
     const forceStrength = useSelector(state => state.ui.forceStrength);
     const linkDistance = useSelector(state => state.ui.linkDistance);
     const currentCentrality = useSelector(state => state.ui.currentCentrality);
+
     const zoomRef = useRef(d3.zoomIdentity); // Ref to store zoom state
     const simulationRef = useRef(null); // Ref to store simulation
     const nodeElementsRef = useRef(null); // Ref to store node elements
-    const edgeElementsRef = useRef(null);
+    const edgeElementsRef = useRef(null); // Ref to store edge elements
     const labelsRef = useRef(null); // Ref to store labels
-    const positionsRef = useRef(null); // Ref to store positions
+
     const radiusRange = useSelector(state => state.ui.radiusRange);
-    const selectedComponent = useSelector(state => state.characters.selectedComponent);
     const zoomCache = useSelector(state => state.ui.zoomCache);
     const triggerZoomToFit = useSelector(state => state.ui.triggerZoomToFit);
     const isComponentChanged = useSelector(state => state.characters.isComponentChanged);
     const highlightNodes = useSelector(state => state.characters.highlightNodes);
     const highlightEdges = useSelector(state => state.characters.highlightEdges);
     const selectedNodeId = useSelector(state => state.ui.selectedNodeId);
+    const currentNetwork = useSelector(state => state.ui.currentNetwork);
+    const selectedComponent = useSelector(state => state.characters.selectedComponent);
+    const guestSelectedComponent = useSelector(state => state.guests.selectedComponent);
+
+    const characterNodes = useSelector(state => state.characters.nodes);
+    const characterEdges = useSelector(state => state.characters.edges);
+    const characterPositions = useSelector(state => state.characters.positions[selectedComponent]);
+    
+    const guestNodes = useSelector(state => state.guests.nodes);
+    const guestEdges = useSelector(state => state.guests.edges);
+    const guestPositions = useSelector(state => state.guests.positions[guestSelectedComponent]);
+    
+    const nodesRef = useRef([]);
+    const edgesRef = useRef([]);
+    const positionsRef = useRef({});
     // Fetch character data when component mounts
     useEffect(() => {
-        dispatch(fetchCharacters(selectedComponent));
-        dispatch(setIsComponentChanged(true));
-    }, [dispatch, selectedComponent]);
+        console.log(`Switching to ${currentNetwork} network.`);
+        if (currentNetwork === 'characters') {
+            dispatch(fetchCharacters(selectedComponent)).then(response => {
+                console.log(`Characters fetched:`, response);
+            });
+        } else if (currentNetwork === 'guests') {
+            dispatch(fetchGuests(guestSelectedComponent)).then(response => {
+                console.log(`Guests fetched for component ${guestSelectedComponent}:`, response);
+            });
+        }
+    }, [dispatch, currentNetwork, selectedComponent, guestSelectedComponent]);
     
     // Pulling nodes and edges from Redux state
-    const nodes = useSelector(state => state.characters.nodes);
-    const edges = useSelector(state => state.characters.edges);
-    const positions = useSelector(state => state.characters.positions[selectedComponent]);
-    positionsRef.current = positions;
+    useEffect(() => {
+        if (currentNetwork === 'characters') {
+            nodesRef.current = characterNodes;
+            edgesRef.current = characterEdges;
+            positionsRef.current = characterPositions;
+            console.log('Character nodes:', characterNodes);
+            console.log('Character edges:', characterEdges);
+        } else if (currentNetwork === 'guests') {
+            nodesRef.current = guestNodes;
+            edgesRef.current = guestEdges;
+            positionsRef.current = guestPositions;
+            console.log('Guest nodes:', guestNodes);
+            console.log('Guest edges:', guestEdges);
+        }
+    }, [currentNetwork, characterNodes, characterEdges, characterPositions, guestNodes, guestEdges, guestPositions]);
+
     // mutableNodes.forEach(node => {
     //     node.x = positions[node.id].x;
     //     node.y = positions[node.id].y;
@@ -61,7 +96,7 @@ const Visualizer = () => {
         const highlightedEdges = [];
 
 
-        edges.forEach(edge => {
+        edgesRef.current.forEach(edge => {
             if (edge.source === nodeId || edge.target === nodeId) {
                 highlightedEdges.push([edge.source, edge.target]);
                 highlightedNodes.push(edge.source === nodeId ? edge.target : edge.source);
@@ -140,10 +175,18 @@ const Visualizer = () => {
         dispatch(updateZoomCache({ component: selectedComponent, zoom: { k: transform.k, x: transform.x, y: transform.y } }));
     };
 
-
+    useEffect(() => {
+        console.log(`Network switched to ${currentNetwork}`);
+    }, [currentNetwork]);
 
     useEffect(() => {
+        const nodes = nodesRef.current;
+        const edges = edgesRef.current;
+        const positions = positionsRef.current;
+
+        console.log(`Running useEffect with network ${currentNetwork}`);
         if (!nodes || !edges) return;
+        console.log(`Running useEffect with network ${currentNetwork}`);
         const mutableNodes = nodes.map(node => ({
             ...node,
             x: positions[node.id]?.x || node.x,
@@ -277,7 +320,7 @@ const Visualizer = () => {
                 if (tickCounter % tickUpdateFrequency === 0) {
                     const nodeData = nodeElements.data();
                     dispatch(updatePositions({
-                        component: selectedComponent,
+                        component: currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent,
                         positions: nodeData.reduce((acc, node) => ({
                             ...acc,
                             [node.id]: { x: node.x, y: node.y }
@@ -292,24 +335,33 @@ const Visualizer = () => {
         }
 
         return () => {
-            dispatch(updatePositions({ component: selectedComponent, positions: mutableNodes.reduce((acc, node) => ({ ...acc, [node.id]: { x: node.x, y: node.y } }), {}) }));
-            dispatch(updateZoomCache({ component: selectedComponent, zoom: { k: zoomRef.current.k, x: zoomRef.current.x, y: zoomRef.current.y } }));
+            dispatch(updatePositions({
+                component: currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent,
+                positions: nodes.reduce((acc, node) => ({
+                    ...acc,
+                    [node.id]: { x: node.x, y: node.y }
+                }), {})
+            }));
+            dispatch(updateZoomCache({
+                component: currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent,
+                zoom: { k: zoomRef.current.k, x: zoomRef.current.x, y: zoomRef.current.y }
+            }));
             simulationRef.current.stop(); // Cleanup on component unmount
             svg.on('.zoom', null); // Remove zoom listener
             dispatch(setIsComponentChanged(true));
         };
 
-    }, [nodes, edges, triggerZoomToFit, dispatch]);
+    }, [ currentNetwork, triggerZoomToFit, characterNodes, guestNodes, dispatch]);
 
     useEffect(() => {
-        if (!nodes) return;
+        if (!nodesRef.current) return;
 
         const centralityScores = {
-            degree: nodes.map(node => node.degree),
-            betweenness: nodes.map(node => node.betweenness),
-            eigenvector: nodes.map(node => node.eigenvector),
-            closeness: nodes.map(node => node.closeness),
-            none: nodes.map(() => 1) // Default size for 'none'
+            degree: nodesRef.current.map(node => node.degree),
+            betweenness: nodesRef.current.map(node => node.betweenness),
+            eigenvector: nodesRef.current.map(node => node.eigenvector),
+            closeness: nodesRef.current.map(node => node.closeness),
+            none: nodesRef.current.map(() => 1) // Default size for 'none'
         };
         
         const normalizedScores = normalizeScores(centralityScores[currentCentrality]);
@@ -339,7 +391,7 @@ const Visualizer = () => {
 
 
         dispatch(setIsComponentChanged(false));
-    }, [nodes, currentCentrality, radiusRange, selectedComponent, isComponentChanged, triggerZoomToFit, dispatch]);
+    }, [ nodesRef.current, currentCentrality, radiusRange, selectedComponent, isComponentChanged, triggerZoomToFit, dispatch]);
     
     // Separate useEffect for updating force strength
     useEffect(() => {
