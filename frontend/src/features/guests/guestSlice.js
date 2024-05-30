@@ -57,7 +57,22 @@ export const fetchGuests = createAsyncThunk(
     }
   );
   
-  // guestSlice.js
+  // Thunk to fetch guest details
+export const fetchGuestDetails = createAsyncThunk(
+    'guests/fetchGuestDetails',
+    async (guestId, { rejectWithValue }) => {
+        try {
+            const response = await fetch(`http://localhost:8000/api/guests/${guestId}/`);
+            if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            return rejectWithValue(error.message);
+        }
+    }
+);
+
+
 export const guestSlice = createSlice({
     name: 'guests',
     initialState,
@@ -126,6 +141,17 @@ export const guestSlice = createSlice({
                 state.loading = false;
             })
             .addCase(fetchGuestComponentsSummary.rejected, (state, action) => {
+                state.error = action.payload;
+                state.loading = false;
+            })
+            .addCase(fetchGuestDetails.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(fetchGuestDetails.fulfilled, (state, action) => {
+                state.entityDetails = action.payload;
+                state.loading = false;
+            })
+            .addCase(fetchGuestDetails.rejected, (state, action) => {
                 state.error = action.payload;
                 state.loading = false;
             });

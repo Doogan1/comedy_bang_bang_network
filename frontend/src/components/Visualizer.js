@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
 import { selectNode , updateZoomCache, setTriggerZoomToFit } from '../features/ui/uiSlice'; 
 import { fetchCharacters , updatePositions , setIsComponentChanged, setHighlightEdges , setHighlightNodes } from '../features/characters/characterSlice';
-import { fetchGuests , updateGuestPositions} from '../features/guests/guestSlice';
+import { fetchGuests , updateGuestPositions , fetchGuestDetails} from '../features/guests/guestSlice';
 
 const Visualizer = () => {
     const svgRef = useRef(null);
