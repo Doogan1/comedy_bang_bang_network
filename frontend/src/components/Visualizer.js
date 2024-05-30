@@ -180,7 +180,11 @@ const Visualizer = () => {
             label.style('font-size', `${Math.max(30, currentRadius)}px`);
         });
         // Save the zoom level to zoomCache
-        dispatch(updateZoomCache({ component: selectedComponent, zoom: { k: transform.k, x: transform.x, y: transform.y } }));
+        dispatch(updateZoomCache({ 
+            network: currentNetwork,
+            component: selectedComponent,
+            zoom: { k: transform.k, x: transform.x, y: transform.y } 
+        }));
     };
 
 
@@ -226,9 +230,9 @@ const Visualizer = () => {
             });
         
         svg.call(zoom);
-        
-        if (zoomCache[currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent]) {
-            const { k, x, y } = zoomCache[currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent];
+        const componentKey = `${currentNetwork}-${currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent}`;
+        if (zoomCache[componentKey]) {
+            const { k, x, y } = zoomCache[componentKey];
             const transform = d3.zoomIdentity.translate(x, y).scale(k);
             svg.call(zoom.transform, transform);
             zoomRef.current = transform;
@@ -337,12 +341,11 @@ const Visualizer = () => {
         }
 
         return () => {
-            const nodeData = nodeElements.data();
-            updateNetworkPositions(dispatch, currentNetwork, currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent, nodeData.reduce((acc, node) => ({
-                ...acc,
-                [node.id]: { x: node.x, y: node.y }
-            }), {}));
+            const currentPositions = getCurrentPositions();
+            const componentKey = `${currentNetwork}-${currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent}`;
+            updateNetworkPositions(currentPositions);
             dispatch(updateZoomCache({
+                network: currentNetwork,
                 component: currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent,
                 zoom: { k: zoomRef.current.k, x: zoomRef.current.x, y: zoomRef.current.y }
             }));
