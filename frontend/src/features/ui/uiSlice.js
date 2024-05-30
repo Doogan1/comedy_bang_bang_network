@@ -37,9 +37,9 @@ export const uiSlice = createSlice({
         setCurrentZoomLevel: (state, action) => {
             state.currentZoomLevel = action.payload;
         },
-        updateZoomCache: (state, action) => {
-            const { component, zoom } = action.payload;
-            state.zoomCache[component] = zoom;
+        updateZoomCache(state, action) {
+            const { network, component, zoom } = action.payload;
+            state.zoomCache[`${network}-${component}`] = zoom;
         },
         selectNode: (state, action) => {
             state.selectedNodeId = action.payload;
