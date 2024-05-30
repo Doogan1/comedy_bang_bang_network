@@ -311,6 +311,7 @@ const Visualizer = () => {
             .force("link", d3.forceLink(mutableEdges).id(d => d.id))
             .force("charge", d3.forceManyBody().strength(-forceStrength))
             .force("center", d3.forceCenter(width / 2, height / 2))
+            .force("collide", d3.forceCollide().radius(d => d.currentRadius || 30))
             .alphaDecay(selectedComponent === 0 || guestSelectedComponent === 0 ? 0.005 : 0.0228) // Adjust alpha decay for giant components
             .on("tick", () => {
                 edgeElements
@@ -380,6 +381,12 @@ const Visualizer = () => {
                     return nodeRadii[i]});
             labelsRef.current
                 .style("font-size", (d, i) => `${Math.max(30, nodeRadii[i])}px`);
+
+            // Update collision force with new radii
+            if (simulationRef.current) {
+                simulationRef.current.force("collide", d3.forceCollide().radius(d => d.currentRadius || 30));
+                simulationRef.current.alpha(1).restart(); // Restart the simulation with new radii
+            }
         }
 
         if (highlightNodes.length > 0) {
