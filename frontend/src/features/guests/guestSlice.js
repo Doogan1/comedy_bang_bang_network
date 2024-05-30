@@ -47,7 +47,7 @@ export const fetchGuests = createAsyncThunk(
     'guests/fetchGuestComponentsSummary',
     async (entityType, { rejectWithValue }) => {
       try {
-        const response = await fetch(`http://localhost:8000/api/components-summary/${entityType}/`);
+        const response = await fetch(`http://localhost:8000/api/components-summary/guests/`);
         if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
         const data = await response.json();
         return data;
