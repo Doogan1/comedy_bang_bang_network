@@ -31,7 +31,7 @@ export const uiSlice = createSlice({
     reducers: {
         switchNetwork: (state, action) => {
             state.currentNetwork = action.payload;
-            state.selectedNodeId = null;  // Reset selected node ID
+            // state.selectedNodeId = null;  // Reset selected node ID
             state.entityDetails = initialState.entityDetails;  // Reset entity details to initial state
         },
         setCurrentZoomLevel: (state, action) => {

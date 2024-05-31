@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCharacters, setSelectedComponent as setSelectedCharacterComponent, fetchComponentsSummary as fetchCharacterComponentsSummary } from './features/characters/characterSlice';
 import { fetchGuests, setSelectedGuestComponent as setSelectedGuestComponent, fetchGuestComponentsSummary as fetchGuestComponentsSummary } from './features/guests/guestSlice';
@@ -12,6 +12,7 @@ import './styles.css';
 const App = () => {
     const dispatch = useDispatch();
     const currentNetwork = useSelector((state) => state.ui.currentNetwork);
+    const selectedNodeId = useSelector((state) => state.ui.selectedNodeId);
     const selectedCharacterComponent = useSelector((state) => state.characters.selectedComponent);
     const characterComponentsSummary = useSelector((state) => state.characters.componentsSummary);
     const selectedGuestComponent = useSelector((state) => state.guests.selectedComponent);
@@ -33,19 +34,19 @@ const App = () => {
         }
     }, [characterComponentsSummary, guestComponentsSummary, dispatch, selectedCharacterComponent, selectedGuestComponent, currentNetwork]);
 
+    const handleClickOutside = useCallback((event) => {
+        if (selectedNodeId && !event.target.closest('.sidebar') && !event.target.closest('span') && !event.target.closest('circle') && !event.target.closest('.controls-sidebar')) {
+
+            dispatch(selectNode(null)); // Deselect node
+        }
+    }, [dispatch, selectedNodeId]);
+
     useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (!event.target.closest('.sidebar') && !event.target.closest('circle') && !event.target.closest('.controls-sidebar')) {
-                dispatch(selectNode(null)); // Deselect node
-            }
-        };
-
         document.addEventListener('click', handleClickOutside);
-
         return () => {
             document.removeEventListener('click', handleClickOutside);
         };
-    }, [dispatch]);
+    }, [handleClickOutside]);
 
     const handleComponentChange = (component) => {
         if (currentNetwork === 'characters') {
