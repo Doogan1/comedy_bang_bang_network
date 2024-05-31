@@ -1,5 +1,6 @@
 // guestSlice.js
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
+import { createSelector } from 'reselect';
 
 const initialState = {
     nodes: [],
@@ -168,5 +169,12 @@ export const {
     resetGuestHighlights,
     setGuestEntityDetails,
 } = guestSlice.actions;
+
+const selectSelectedComponentCache = (state) => state.guests.cache[state.guests.selectedComponent] || { nodes: [] };
+
+export const selectGuestNames = createSelector(
+  [selectSelectedComponentCache],
+  (cache) => cache.nodes.map((node) => ({ id: node.id, name: node.name }))
+);
 
 export default guestSlice.reducer;

@@ -210,4 +210,45 @@ circle {
     user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera, Firefox, Safari */
 }
 
+.top-bar {
+    display: flex;
+    flex-direction: row;
+    align-items:center;
+    justify-content: center;
+    position: relative;
+    margin: auto;
+}
 
+.search-bar-container {
+    position: relative;
+    width: 300px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  
+  .search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    max-height: 150px; /* Adjust the height as needed */
+    overflow-y: auto;
+    z-index: 1000;
+  }
+  
+  .search-item {
+    padding: 8px;
+    cursor: pointer;
+  }
+  
+  .search-item:hover {
+    background-color: #f0f0f0;
+  }
+  
