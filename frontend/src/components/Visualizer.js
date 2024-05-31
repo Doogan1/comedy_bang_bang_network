@@ -106,7 +106,6 @@ const Visualizer = () => {
         const highlightedNodes = [nodeId];
         const highlightedEdges = [];
 
-
         edgesRef.current.forEach(edge => {
             if (edge.source === nodeId || edge.target === nodeId) {
                 highlightedEdges.push([edge.source, edge.target]);
@@ -434,6 +433,10 @@ const Visualizer = () => {
             simulationRef.current.force("link").distance(linkDistance);
             simulationRef.current.alpha(1).restart(); // Restart the simulation with new link distance
         }
+        if (selectedNodeId) {
+            highlightNodeAndNeighbors(selectedNodeId);
+        }
+        
     }, [linkDistance , currentNetwork , isComponentChanged , triggerZoomToFit]);
 
     useEffect(() => {
