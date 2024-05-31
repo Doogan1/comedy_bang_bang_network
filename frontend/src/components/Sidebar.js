@@ -1,13 +1,14 @@
 import React, { useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCharacterDetails } from '../features/characters/characterSlice';
-import { fetchGuestDetails } from '../features/guests/guestSlice'; // Import the guest details thunk
-import { setEntityDetails, setSidebarWidth } from '../features/ui/uiSlice';
+import { fetchGuestDetails } from '../features/guests/guestSlice'; 
+import { setEntityDetails, setSidebarWidth, selectNode } from '../features/ui/uiSlice';
+import { setTriggerZoomToFit , switchNetwork } from '../features/ui/uiSlice'; // Assuming this action exists for zooming to fit
 
 const Sidebar = () => {
     const dispatch = useDispatch();
     const { currentNetwork, selectedNodeId, entityDetails, sidebarWidth } = useSelector(state => state.ui);
-  
+
     useEffect(() => {
         if (selectedNodeId !== null) {
             if (currentNetwork === 'characters') {
@@ -75,26 +76,34 @@ const Sidebar = () => {
         };
     }, [sidebarWidth, dispatch]);
 
+    const handleEntityClick = (id) => {
+        const targetNetwork = currentNetwork === 'characters' ? 'guests' : 'characters';
+        dispatch(switchNetwork(targetNetwork));
+        dispatch(selectNode(id));
+        // dispatch(setTriggerZoomToFit(true));
+        // Add logic to switch networks if necessary
+    };
+
     return (
         <div className="sidebar" id="entityDetails" style={{ display: selectedNodeId ? 'block' : 'none', width: `${sidebarWidth}px` }}>
             <div className="resizer"></div>
             <h3>{currentNetwork === 'characters' ? 'Character Details' : 'Guest Details'}</h3>
             <div><h2>{entityDetails.character_name}</h2></div>
             <div>
-                <h4>{currentNetwork === 'characters' ? 'Played By' : 'Details'}</h4>
-                <ul>
+                <h4>{currentNetwork === 'characters' ? 'Played By' : 'Characters'}</h4>
+                <div>
                     {currentNetwork === 'characters' && entityDetails.actors && entityDetails.actors.length > 0 ? (
                         entityDetails.actors.map((actor) => (
-                            <li key={actor.id}>{actor.name}</li>
+                            <span className="clickSpan" key={actor.id} onClick={() => handleEntityClick(actor.id)}>{actor.name}</span>
                         ))
                     ) : currentNetwork === 'guests' && entityDetails.details && entityDetails.details.length > 0 ? (
                         entityDetails.details.map((detail, index) => (
-                            <li key={index}>{detail}</li>
+                            <span className="clickSpan" key={index} onClick={() => handleEntityClick(detail.id)}>{detail}</span>
                         ))
                     ) : (
-                        <li>Unknown</li>
+                        <span>Unknown</span>
                     )}
-                </ul>
+                </div>
             </div>
             <table>
                 <thead>
