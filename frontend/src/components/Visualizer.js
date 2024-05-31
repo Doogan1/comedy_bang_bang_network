@@ -437,7 +437,7 @@ const Visualizer = () => {
             highlightNodeAndNeighbors(selectedNodeId);
         }
         
-    }, [linkDistance , currentNetwork , isComponentChanged , triggerZoomToFit]);
+    }, [linkDistance , currentNetwork , selectedNodeId , isComponentChanged , triggerZoomToFit]);
 
     useEffect(() => {
         if (highlightNodes.length > 0) {
