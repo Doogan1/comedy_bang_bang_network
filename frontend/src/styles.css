@@ -85,12 +85,12 @@ circle {
     border-radius: 5px;
 }
 
-#characterDetails table {
+#entityDetails table {
     width: 100%;
     border-collapse: collapse;
 }
 
-#characterDetails th, #characterDetails td {
+#entityDetails th, #entityDetails td {
     border-radius: 5px;
     padding: 8px;
     text-align: center;
