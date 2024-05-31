@@ -390,13 +390,28 @@ const Visualizer = () => {
 
         if (highlightNodes.length > 0) {
             nodeElementsRef.current
-            .style("fill", d => highlightNodes.includes(d.id) ? "red" : "rgb(0, 183, 255)")
-            .style("opacity", d => highlightNodes.includes(d.id) ? 1 : 0.2);
+            .style("fill", d => d.id === selectedNodeId ? "red" : "rgb(0, 183, 255)")
+            .style("opacity", d => highlightNodes.includes(d.id) || d.id === selectedNodeId ? 1 : 0.2);
+
 
             edgeElementsRef.current
-            .attr("stroke", d => highlightEdges.includes([d.source, d.target]) ? "red" : "rgb(0, 183, 255)");
+            .style("opacity", d => {
+                const edge = [d.source.id, d.target.id];
+
+                return highlightEdges.some(highlightedEdge => (highlightedEdge[0] === edge[0] && highlightedEdge[1] === edge[1])) ? 1 : 0.2
+            });
+
+            labelsRef.current
+            .style("opacity", d => highlightNodes.includes(d.id) || d.id === selectedNodeId ? 1 : 0.2);
         } else {
             nodeElementsRef.current
+            .style("opacity", 1)
+            .style("fill", "rgb(0, 183, 255)");
+
+            edgeElementsRef.current
+            .style("opacity", 1);
+
+            labelsRef.current
             .style("opacity", 1);
         }
 
@@ -424,7 +439,7 @@ const Visualizer = () => {
     useEffect(() => {
         if (highlightNodes.length > 0) {
             nodeElementsRef.current
-            .style("fill", d => highlightNodes.includes(d.id) ? "red" : "rgb(0, 183, 255)")
+            .style("fill", d => d.id === selectedNodeId ? "red" : "rgb(0, 183, 255)")
             .style("opacity", d => highlightNodes.includes(d.id) ? 1 : 0.2);
 
 
