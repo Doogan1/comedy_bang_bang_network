@@ -7,6 +7,7 @@ import Visualizer from './components/Visualizer';
 import Sidebar from './components/Sidebar';
 import ControlsSidebar from './components/ControlsSidebar';
 import NetworkSwitcher from './components/NetworkSwitcher';
+import SearchBar from './components/SearchBar';
 import './styles.css';
 
 const App = () => {
@@ -18,6 +19,7 @@ const App = () => {
     const selectedGuestComponent = useSelector((state) => state.guests.selectedComponent);
     const guestComponentsSummary = useSelector((state) => state.guests.componentsSummary);
 
+    
     useEffect(() => {
         if (currentNetwork === 'characters') {
             dispatch(fetchCharacterComponentsSummary());
@@ -35,8 +37,8 @@ const App = () => {
     }, [characterComponentsSummary, guestComponentsSummary, dispatch, selectedCharacterComponent, selectedGuestComponent, currentNetwork]);
 
     const handleClickOutside = useCallback((event) => {
-        if (selectedNodeId && !event.target.closest('.sidebar') && !event.target.closest('span') && !event.target.closest('circle') && !event.target.closest('.controls-sidebar')) {
 
+        if (selectedNodeId && event.target.nodeName === 'svg') {
             dispatch(selectNode(null)); // Deselect node
         }
     }, [dispatch, selectedNodeId]);
@@ -69,7 +71,10 @@ const App = () => {
                 componentsSummary={componentsSummary}
             />
             <div style={mainLayoutStyles.visualizerContainer}>
-                <NetworkSwitcher />
+                <div className="top-bar">
+                    <NetworkSwitcher /> 
+                    <SearchBar />
+                </div>
                 <Visualizer />
             </div>
             <Sidebar />

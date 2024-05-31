@@ -1,4 +1,5 @@
 import { createSlice , createAsyncThunk} from '@reduxjs/toolkit';
+import { createSelector } from 'reselect';
 
 const initialState = {
     nodes: [],
@@ -155,5 +156,12 @@ export const characterSlice = createSlice({
 });
 
 export const { setSelectedComponent , updatePositions , setIsComponentChanged , setHighlightEdges , setHighlightNodes } = characterSlice.actions;
+
+const selectSelectedComponentCache = (state) => state.characters.cache[state.characters.selectedComponent] || { nodes: [] };
+
+export const selectCharacterNames = createSelector(
+  [selectSelectedComponentCache],
+  (cache) => cache.nodes.map((node) => ({ id: node.id, name: node.name }))
+);
 
 export default characterSlice.reducer;
