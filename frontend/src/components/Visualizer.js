@@ -136,7 +136,6 @@ const Visualizer = () => {
     };
 
     const adjustView = (positions, svg, zoom) => {
-        console.log(`Adjusting view using positions: ${positions}`);
         if (!positions || Object.keys(positions).length === 0) return;
 
             // Extract node data from nodeElementsRef
