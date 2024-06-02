@@ -1,31 +1,38 @@
+# connect_characters_guests.py
+import csv
 from django.core.management.base import BaseCommand
 from visualizer.models import Character, Guest
-import csv
-import os
+from visualizer.utils import get_best_match_or_create
 
 class Command(BaseCommand):
-    help = 'Imports character and actor data from a CSV file'
+    help = 'Connect characters to guests based on the character-actor CSV file'
 
-
-    def handle(self, *args, **options):
-        self.import_data('data/character-actor.csv')
-
-    def import_data(self, file_path):
-        with open(file_path, 'r', newline='', encoding='utf-8') as file:
+    def handle(self, *args, **kwargs):
+        self.stdout.write(self.style.SUCCESS('Connecting characters to guests...'))
+        
+        # Path to the CSV file
+        csv_path = 'character-actor.csv'
+        
+        with open(csv_path, 'r') as file:
             reader = csv.reader(file)
+            next(reader)  # Skip the header row
             for row in reader:
-                if row:  # Ensure the row is not empty
-                    character_name = row[0].strip()
-                    actor_names = row[1:]  # Get all names after the first column
-
-                    # Get or create the character
-                    character, created = Character.objects.get_or_create(name=character_name)
-
-                    # Process each actor in the list
-                    for actor_name in actor_names:
-                        if actor_name.strip():  # Ensure the actor name is not empty
-                            actor, _ = Guest.objects.get_or_create(name=actor_name.strip())
-                            character.actors.add(actor)  # Add this actor to the character
-
-                    self.stdout.write(self.style.SUCCESS(f'Successfully imported actors for character: {character_name}'))
-
+                guest_name, character_name = row
+                try:
+                    # Get or create the character and guest using fuzzy matching
+                    character, created_char = get_best_match_or_create(Character, character_name)
+                    guest, created_guest = get_best_match_or_create(Guest, guest_name)
+                    
+                    # Create the relationship
+                    character.actors.add(guest)
+                    
+                    # Provide feedback
+                    if created_char:
+                        self.stdout.write(self.style.SUCCESS(f'Created new character: {character_name}'))
+                    if created_guest:
+                        self.stdout.write(self.style.SUCCESS(f'Created new guest: {guest_name}'))
+                    self.stdout.write(self.style.SUCCESS(f'Connected {character.name} to {guest.name}'))
+                except Exception as e:
+                    self.stdout.write(self.style.ERROR(f'Error connecting {character_name} to {guest_name}: {e}'))
+        
+        self.stdout.write(self.style.SUCCESS('Successfully connected characters to guests.'))

@@ -27,7 +27,7 @@ class Command(BaseCommand):
         os.makedirs(settings.NETWORK_DATA_DIR, exist_ok=True)
 
         # Path to the components file
-        file_path = os.path.join(settings.NETWORK_DATA_DIR, f"{entity_type}_components_test.json")
+        file_path = os.path.join(settings.NETWORK_DATA_DIR, f"{entity_type}_components.json")
         
         with open(file_path, 'w') as file:
             json.dump(components, file)
