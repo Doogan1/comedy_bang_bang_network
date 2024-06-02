@@ -9,6 +9,8 @@ const Sidebar = () => {
     const dispatch = useDispatch();
     const { currentNetwork, selectedNodeId, entityDetails, sidebarWidth } = useSelector(state => state.ui);
 
+    console.log(entityDetails);
+
     useEffect(() => {
         if (selectedNodeId !== null) {
             if (currentNetwork === 'characters') {
@@ -91,14 +93,14 @@ const Sidebar = () => {
             <div><h2>{entityDetails.character_name}</h2></div>
             <div>
                 <h4>{currentNetwork === 'characters' ? 'Played By' : 'Characters'}</h4>
-                <div>
+                <div className='character-actor-sidebar-list'>
                     {currentNetwork === 'characters' && entityDetails.actors && entityDetails.actors.length > 0 ? (
                         entityDetails.actors.map((actor) => (
                             <span className="clickSpan" key={actor.id} onClick={() => handleEntityClick(actor.id)}>{actor.name}</span>
                         ))
-                    ) : currentNetwork === 'guests' && entityDetails.details && entityDetails.details.length > 0 ? (
-                        entityDetails.details.map((detail, index) => (
-                            <span className="clickSpan" key={index} onClick={() => handleEntityClick(detail.id)}>{detail}</span>
+                    ) : currentNetwork === 'guests' && entityDetails.characters && entityDetails.characters.length > 0 ? (
+                        entityDetails.characters.map((character) => (
+                            <span className="clickSpan" key={character.id} onClick={() => handleEntityClick(character.id)}>{character.name} </span>
                         ))
                     ) : (
                         <span>Unknown</span>
