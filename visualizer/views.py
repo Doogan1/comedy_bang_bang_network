@@ -62,10 +62,13 @@ class GuestDetailView(APIView):
         try:
             guest = Guest.objects.get(pk=guest_id)
             episodes = guest.episodes.all()
+            characters = guest.characters.all()
+            character_data = [{'name': character.name, 'id': character.id} for character in characters]
             episodes_data = [{'id': episode.id, 'title': episode.title, 'release_date': episode.release_date, 'episode_number': episode.number} for episode in episodes]
             return Response({
                 'character_id': guest.id,
                 'character_name': guest.name,
+                'characters': character_data,
                 'episodes': episodes_data
             })
         except Guest.DoesNotExist:

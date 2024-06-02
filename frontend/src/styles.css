@@ -252,3 +252,22 @@ circle {
     background-color: #f0f0f0;
   }
   
+  .character-actor-sidebar-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .character-actor-sidebar-list > span {
+    padding: 5px;
+    margin: 5px;
+    border: 1px solid black;
+    border-radius: 3px;
+  }
+
+  .character-actor-sidebar-list > span:hover {
+    background-color:#63b8da;
+    cursor: pointer;
+  }
