@@ -64,13 +64,13 @@ const App = () => {
     const selectedComponent = currentNetwork === 'characters' ? selectedCharacterComponent : selectedGuestComponent;
 
     return (
-        <div style={mainLayoutStyles.container}>
+        <div className='container'>
             <ControlsSidebar
                 selectedComponent={selectedComponent}
                 setSelectedComponent={handleComponentChange}
                 componentsSummary={componentsSummary}
             />
-            <div style={mainLayoutStyles.visualizerContainer}>
+            <div className='visualizer-container'>
                 <div className="top-bar">
                     <NetworkSwitcher /> 
                     <SearchBar />
@@ -80,17 +80,6 @@ const App = () => {
             <Sidebar />
         </div>
     );
-};
-
-const mainLayoutStyles = {
-    container: {
-        display: 'flex',
-        height: '100vh',
-    },
-    visualizerContainer: {
-        flex: 1,
-        position: 'relative',
-    },
 };
 
 export default App;

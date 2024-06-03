@@ -5,9 +5,10 @@ body {
 }
 
 #network {
-    width: 1000px;
-    height: 1000px;
+    width:1250px;
+    height:800px;
     margin: auto;
+    margin-top: 5px;
     border: 1px solid #ccc;
     background-color: #9a9a9a;
 }
@@ -22,6 +23,19 @@ body {
         1px -1px 0 #000,
         -1px 1px 0 #000,
         1px 1px 0 #000;
+}
+
+.visualizer-container {
+    flex: 1;
+    position: 'relative';
+    border: 1px solid black;
+    padding: 5px;
+}
+
+.container {
+    display: flex;
+    height: 80vh;
+    width: 90vw;
 }
 
 line {
