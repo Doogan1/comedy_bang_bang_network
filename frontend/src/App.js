@@ -18,7 +18,10 @@ const App = () => {
     const characterComponentsSummary = useSelector((state) => state.characters.componentsSummary);
     const selectedGuestComponent = useSelector((state) => state.guests.selectedComponent);
     const guestComponentsSummary = useSelector((state) => state.guests.componentsSummary);
-
+    const windowState = useSelector((state) => state.ui.window);
+    const windowWidth = windowState.width;
+    const topbarWidth = windowWidth * 0.85;
+    const windowHeight = windowState.height;
     
     useEffect(() => {
         if (currentNetwork === 'characters') {
@@ -71,7 +74,7 @@ const App = () => {
                 componentsSummary={componentsSummary}
             />
             <div className='visualizer-container'>
-                <div className="top-bar">
+                <div className="top-bar" style={{width: topbarWidth}}>
                     <NetworkSwitcher /> 
                     <SearchBar />
                 </div>

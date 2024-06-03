@@ -21,7 +21,7 @@ const NetworkSwitcher = () => {
     };
 
     return (
-        <div>
+        <div className='tabs'>
             <button
                 onClick={() => handleSwitch('characters')}
                 className={`tab ${currentNetwork === 'characters' ? 'selected' : ''}`}
