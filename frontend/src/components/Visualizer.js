@@ -1,9 +1,9 @@
 import React, { useEffect, useRef , useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
-import { selectNode , updateZoomCache, setTriggerZoomToFit } from '../features/ui/uiSlice'; 
+import { selectNode , updateZoomCache, setTriggerZoomToFit , setWindow } from '../features/ui/uiSlice'; 
 import { fetchCharacters , updatePositions , setIsComponentChanged, setHighlightEdges , setHighlightNodes } from '../features/characters/characterSlice';
-import { fetchGuests , updateGuestPositions , fetchGuestDetails} from '../features/guests/guestSlice';
+import { fetchGuests , updateGuestPositions , fetchGuestDetails } from '../features/guests/guestSlice';
 
 const Visualizer = () => {
     const svgRef = useRef(null);
@@ -11,7 +11,10 @@ const Visualizer = () => {
     const forceStrength = useSelector(state => state.ui.forceStrength);
     const linkDistance = useSelector(state => state.ui.linkDistance);
     const currentCentrality = useSelector(state => state.ui.currentCentrality);
-
+    const windowState = useSelector(state => state.ui.window);
+    console.log(windowState);
+    const windowWidth = windowState.width;
+    const windowHeight = windowState.height;
     const zoomRef = useRef(d3.zoomIdentity); // Ref to store zoom state
     const simulationRef = useRef(null); // Ref to store simulation
     const nodeElementsRef = useRef(null); // Ref to store node elements
@@ -57,6 +60,18 @@ const Visualizer = () => {
             dispatch(updateGuestPositions({ component: selectedComponent, positions }));
         }
     };
+
+    // Reset dimensions on window resize
+    useEffect(() => {
+        const handleResize = () => {
+            console.log("dispatching setWindow");
+            dispatch(setWindow({ width: window.innerWidth, height: window.innerHeight }));
+        };
+        console.log("Adding event listener");
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+      }, [dispatch]);
+    
 
     // Fetch character data when component mounts
     useEffect(() => {
@@ -207,7 +222,10 @@ const Visualizer = () => {
         // const mutableEdges = edges.map(link => ({ ...link }));
         
         // Select the SVG element
-        const svg = d3.select(svgRef.current);
+        const svg = d3.select(svgRef.current)
+            .attr('width', windowWidth)
+            .attr('height', windowHeight);
+
         svg.selectAll("*").remove(); // Clear SVG to prevent duplicates
 
         const { width, height } = svgRef.current.getBoundingClientRect();
@@ -473,10 +491,10 @@ const Visualizer = () => {
             dispatch(setHighlightEdges([]));
         }
     }, [selectedNodeId, dispatch]);
-
+    console.log(windowWidth,windowHeight);
     return (
-        <div id="visualizer-container">
-            <svg id='network' ref={svgRef} width='1000px' height='500px'>
+        <div id="visualizer-container" style={{width: '100%', height: '100%'}}>
+            <svg id='network' ref={svgRef} style={{width: {windowWidth}, height: {windowHeight}}}>
             </svg>
         </div>
     );

@@ -2,13 +2,12 @@ body {
     font-family: Arial, sans-serif;
     margin: 40px;
     text-align: center;
+    width: 100%;
+    height: 100%;
 }
 
 #network {
-    width:1250px;
-    height:800px;
     margin: auto;
-    margin-top: 5px;
     border: 1px solid #ccc;
     background-color: #9a9a9a;
 }
@@ -25,17 +24,23 @@ body {
         1px 1px 0 #000;
 }
 
+.controls-sidebar {
+    position: absolute;
+    height: 100%;
+    width: 15%;
+}
 .visualizer-container {
-    flex: 1;
-    position: 'relative';
+    width: 100%;
+    height: 100%;
     border: 1px solid black;
-    padding: 5px;
+    background: #f9f9f9;
+
 }
 
 .container {
     display: flex;
-    height: 80vh;
-    width: 90vw;
+    height: 100%;
+    width: 100%;
 }
 
 line {
@@ -47,6 +52,7 @@ circle {
     stroke-width: 5px;
     stroke: #000000;
     fill: rgb(0, 183, 255);
+    cursor: pointer;
 }
 
 .slider-range-container {
@@ -60,6 +66,8 @@ circle {
     padding: 10px;
     border-radius: 5px;
 }
+
+
 
 .sidebar {
     border-radius: 5px;
@@ -189,10 +197,11 @@ circle {
 
 .tabs {
     padding: 0;
-    background-color: #f4f4f4;
+    left: 0;
+    position: relative;
     border-bottom: 2px solid #ccc;
-    width: 1000px;
-    margin: auto;
+    width: 25%;
+    margin: 0;
     display: flex;
     flex-direction: row;
     justify-content: flex-start;
@@ -204,9 +213,9 @@ circle {
 
 .tab {
     padding: 10px 20px;
-    border: none;
     background-color: inherit;
     cursor: pointer;
+    border: 1px solid black;
 }
 
 .tab:hover {
@@ -225,16 +234,18 @@ circle {
 }
 
 .top-bar {
+    border: none;
+    left: 15%;
     display: flex;
     flex-direction: row;
-    align-items:center;
-    justify-content: center;
+    align-items: center;
     position: relative;
-    margin: auto;
+    min-width: 600px;
 }
 
 .search-bar-container {
-    position: relative;
+    position: absolute;
+    left: calc(100% - 300px);
     width: 300px;
   }
   
