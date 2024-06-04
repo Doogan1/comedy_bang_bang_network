@@ -3,7 +3,7 @@ from rest_framework.response import Response
 import json
 from django.conf import settings
 import os
-from visualizer.models import Character, Guest
+from visualizer.models import Character, Guest, Episode
 from django.http import Http404
 
 class NetworkData(APIView):
@@ -72,4 +72,34 @@ class GuestDetailView(APIView):
                 'episodes': episodes_data
             })
         except Guest.DoesNotExist:
+            raise Http404
+        
+class EpisodeDetailView(APIView):
+    def get(self, request):
+        try:
+            episodes = Episode.objects.all()
+            details = [
+                {
+                    'title': episode.title,
+                    'episode_number': episode.number,
+                    'release_date': episode.release_date,
+                    'characters': [
+                        {
+                            'id': character.id,
+                            'name': character.name
+                        }
+                        for character in episode.characters.all()
+                    ],
+                    'guests': [
+                        {
+                            'id': guest.id,
+                            'name': guest.name
+                        }
+                        for guest in episode.guests.all()
+                    ]
+                }
+                for episode in episodes
+            ]
+            return Response(details)
+        except Episode.DoesNotExist:
             raise Http404

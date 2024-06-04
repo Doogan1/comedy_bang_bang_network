@@ -14,6 +14,7 @@ const initialState = {
     },
     zoomCache: {},
     selectedNodeId: null,
+    selectedEpisode: null,
     entityDetails: {
         name: '',
         episodes: []
@@ -49,6 +50,9 @@ export const uiSlice = createSlice({
         selectNode: (state, action) => {
             state.selectedNodeId = action.payload;
         },
+        selectEpisode: (state, action) => {
+            state.selectedEpisode = action.payload;
+        },
         setEntityDetails: (state, action) => {
             state.entityDetails = action.payload;
         },
@@ -82,6 +86,6 @@ export const uiSlice = createSlice({
     }
 });
 
-export const { switchNetwork, setCurrentZoomLevel, updateZoomCache, selectNode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit, setTriggerZoomToSelection , setWindow} = uiSlice.actions;
+export const { switchNetwork, setCurrentZoomLevel, updateZoomCache, selectNode , selectEpisode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit, setTriggerZoomToSelection , setWindow} = uiSlice.actions;
 
 export default uiSlice.reducer;

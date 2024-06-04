@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchCharacterDetails } from '../features/characters/characterSlice';
 import { fetchGuestDetails } from '../features/guests/guestSlice'; 
 import { setEntityDetails, setSidebarWidth, selectNode } from '../features/ui/uiSlice';
-import { setTriggerZoomToFit , switchNetwork } from '../features/ui/uiSlice'; // Assuming this action exists for zooming to fit
+import { setTriggerZoomToFit , switchNetwork , selectEpisode} from '../features/ui/uiSlice'; // Assuming this action exists for zooming to fit
 
 const Sidebar = () => {
     const dispatch = useDispatch();
@@ -85,6 +85,12 @@ const Sidebar = () => {
         // Add logic to switch networks if necessary
     };
 
+    const handleEpisodeClick = (episodeId) => {
+        console.log(`Dispatching episode number: ${episodeId}.`);
+        dispatch(selectNode(null));
+        dispatch(selectEpisode(episodeId));
+    };
+
     return (
         <div className="sidebar" id="entityDetails" style={{ display: selectedNodeId ? 'block' : 'none', width: `${sidebarWidth}px` }}>
             <div className="resizer"></div>
@@ -116,7 +122,7 @@ const Sidebar = () => {
                 </thead>
                 <tbody>
                     {entityDetails.episodes && entityDetails.episodes.map((episode, index) => (
-                        <tr key={index}>
+                        <tr key={index} onClick={() => handleEpisodeClick(episode.episode_number)}>
                             <td>{episode.title}</td>
                             <td>{episode.episode_number}</td>
                             <td>{episode.release_date}</td>

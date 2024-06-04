@@ -3,6 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { fetchCharacters, setSelectedComponent as setSelectedCharacterComponent, fetchComponentsSummary as fetchCharacterComponentsSummary } from './features/characters/characterSlice';
 import { fetchGuests, setSelectedGuestComponent as setSelectedGuestComponent, fetchGuestComponentsSummary as fetchGuestComponentsSummary } from './features/guests/guestSlice';
 import { selectNode, switchNetwork } from './features/ui/uiSlice';
+import { fetchEpisodes , setEpisodes} from './features/episodes/episodeSlice';
 import Visualizer from './components/Visualizer';
 import Sidebar from './components/Sidebar';
 import ControlsSidebar from './components/ControlsSidebar';
@@ -18,6 +19,8 @@ const App = () => {
     const characterComponentsSummary = useSelector((state) => state.characters.componentsSummary);
     const selectedGuestComponent = useSelector((state) => state.guests.selectedComponent);
     const guestComponentsSummary = useSelector((state) => state.guests.componentsSummary);
+
+    const episodes = useSelector((state) => state.episodes.episodes);
     const windowState = useSelector((state) => state.ui.window);
     const windowWidth = windowState.width;
     const topbarWidth = windowWidth * 0.85;
@@ -30,6 +33,15 @@ const App = () => {
             dispatch(fetchGuestComponentsSummary());
         }
     }, [dispatch, currentNetwork]);
+
+    useEffect(() => {
+        const episodeValues = Object.values(episodes);
+
+        if (episodeValues.length === 0) {
+            dispatch(fetchEpisodes());
+        }
+
+    }, [dispatch]);
 
     useEffect(() => {
         if (currentNetwork === 'characters' && characterComponentsSummary.length > 0 && selectedCharacterComponent === 0) {
