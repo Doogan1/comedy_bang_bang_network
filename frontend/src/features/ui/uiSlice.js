@@ -14,6 +14,7 @@ const initialState = {
     },
     zoomCache: {},
     selectedNodeId: null,
+    selectedEpisode: null,
     entityDetails: {
         name: '',
         episodes: []
@@ -26,7 +27,8 @@ const initialState = {
         minRadius: 1,
         maxRadius: 30
     },
-    triggerZoomToFit: false // Flag to trigger zoom-to-fit
+    triggerZoomToFit: false, // Flag to trigger zoom-to-fit
+    triggerZoomToSelection: false,
 };
 
 export const uiSlice = createSlice({
@@ -47,6 +49,9 @@ export const uiSlice = createSlice({
         },
         selectNode: (state, action) => {
             state.selectedNodeId = action.payload;
+        },
+        selectEpisode: (state, action) => {
+            state.selectedEpisode = action.payload;
         },
         setEntityDetails: (state, action) => {
             state.entityDetails = action.payload;
@@ -70,6 +75,10 @@ export const uiSlice = createSlice({
         setTriggerZoomToFit: (state, action) => {
             state.triggerZoomToFit = action.payload;
         },
+        setTriggerZoomToSelection: (state, action) => {
+            console.log(`Setting triggerZoomToSelection as ${action.payload}`);
+            state.triggerZoomToSelection = action.payload;
+        },
         setWindow: (state, action) => {
             state.window.width = action.payload.width;
             state.window.height = action.payload.height;
@@ -77,6 +86,6 @@ export const uiSlice = createSlice({
     }
 });
 
-export const { switchNetwork, setCurrentZoomLevel, updateZoomCache, selectNode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit, setWindow} = uiSlice.actions;
+export const { switchNetwork, setCurrentZoomLevel, updateZoomCache, selectNode , selectEpisode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit, setTriggerZoomToSelection , setWindow} = uiSlice.actions;
 
 export default uiSlice.reducer;
