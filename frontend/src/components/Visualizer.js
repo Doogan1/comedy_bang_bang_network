@@ -1,7 +1,7 @@
 import React, { useEffect, useRef , useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
-import { selectNode , updateZoomCache, setTriggerZoomToFit , setWindow } from '../features/ui/uiSlice'; 
+import { selectNode , updateZoomCache, setTriggerZoomToFit , setTriggerZoomToSelection , setWindow } from '../features/ui/uiSlice'; 
 import { fetchCharacters , updatePositions , setIsComponentChanged, setHighlightEdges , setHighlightNodes } from '../features/characters/characterSlice';
 import { fetchGuests , updateGuestPositions , fetchGuestDetails } from '../features/guests/guestSlice';
 
@@ -12,7 +12,7 @@ const Visualizer = () => {
     const linkDistance = useSelector(state => state.ui.linkDistance);
     const currentCentrality = useSelector(state => state.ui.currentCentrality);
     const windowState = useSelector(state => state.ui.window);
-    console.log(windowState);
+
     const windowWidth = windowState.width;
     const windowHeight = windowState.height;
     const zoomRef = useRef(d3.zoomIdentity); // Ref to store zoom state
@@ -22,8 +22,11 @@ const Visualizer = () => {
     const labelsRef = useRef(null); // Ref to store labels
 
     const radiusRange = useSelector(state => state.ui.radiusRange);
+
     const zoomCache = useSelector(state => state.ui.zoomCache);
     const triggerZoomToFit = useSelector(state => state.ui.triggerZoomToFit);
+    const triggerZoomToSelection = useSelector(state => state.ui.triggerZoomToSelection);
+
     const isComponentChanged = useSelector(state => state.characters.isComponentChanged);
     const highlightNodes = useSelector(state => state.characters.highlightNodes);
     const highlightEdges = useSelector(state => state.characters.highlightEdges);
@@ -64,10 +67,8 @@ const Visualizer = () => {
     // Reset dimensions on window resize
     useEffect(() => {
         const handleResize = () => {
-            console.log("dispatching setWindow");
             dispatch(setWindow({ width: window.innerWidth, height: window.innerHeight }));
         };
-        console.log("Adding event listener");
         window.addEventListener('resize', handleResize);
         return () => window.removeEventListener('resize', handleResize);
       }, [dispatch]);
@@ -132,26 +133,34 @@ const Visualizer = () => {
         dispatch(setHighlightEdges(highlightedEdges));
     };
 
-    const calculateGraphBounds = () => {
 
-        const positionValues = Object.values(positionsRef.current);
+    const calculateGraphBounds = (vertexSelection) => {
+        console.log(`Calculating graph bounds with ${vertexSelection}`);
+
+        const positionValues = Object.values(vertexSelection);
         
+        positionValues.forEach(d => console.log(d.x,d.y));
+
         const minX = d3.min(positionValues, d => d.x);
         const maxX = d3.max(positionValues, d => d.x);
         const minY = d3.min(positionValues, d => d.y);
         const maxY = d3.max(positionValues, d => d.y);
 
+        console.log(minX,maxX, maxX - minX, maxY - minY, (minX + maxX) / 2, (minY + maxY) / 2);
+
         return {
             x: minX,
             y: minY,
             width: maxX - minX,
-            height: maxY - minY
+            height: maxY - minY,
+            centerX: (minX + maxX) / 2,
+            centerY: (minY + maxY) / 2
         };
     };
 
-    const adjustView = (positions, svg, zoom) => {
+    const adjustView = (positions, zoom) => {
         if (!positions || Object.keys(positions).length === 0) return;
-
+        
             // Extract node data from nodeElementsRef
         const nodeData = nodeElementsRef.current.data();
 
@@ -161,13 +170,13 @@ const Visualizer = () => {
             [node.id]: { x: node.x, y: node.y }
         }), {}));
 
-        const bounds = calculateGraphBounds(positions, svgRef.current.clientWidth, svgRef.current.clientHeight);
+        const bounds = calculateGraphBounds(positions);
 
         const scale = 0.95 / Math.max(bounds.width / svgRef.current.clientWidth, bounds.height / svgRef.current.clientHeight);
 
         const translate = [
-            (svgRef.current.clientWidth / 2) - scale * (bounds.x + bounds.width / 2),
-            (svgRef.current.clientHeight / 2) - scale * (bounds.y + bounds.height / 2)
+            (svgRef.current.clientWidth / 2) - scale * (bounds.centerX),
+            (svgRef.current.clientHeight / 2) - scale * (bounds.centerY)
         ];
 
         const transform = d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale);
@@ -254,7 +263,7 @@ const Visualizer = () => {
             svg.call(zoom.transform, transform);
             zoomRef.current = transform;
         } else {
-            adjustView(positions, svg, zoom);
+            adjustView(positions, zoom);
         }
         // Apply the stored zoom transform if it exists
         // if (zoomRef.current) {
@@ -282,6 +291,7 @@ const Visualizer = () => {
                 event.stopPropagation();
                 dispatch(selectNode(d.id));
                 highlightNodeAndNeighbors(d.id);
+                console.log(d.x,d.y);
             });
 
         nodeElementsRef.current = nodeElements;
@@ -355,8 +365,20 @@ const Visualizer = () => {
             });
 
         if (triggerZoomToFit) {
-            adjustView(positions, svg, zoom);
+            adjustView(positions, zoom);
             dispatch(setTriggerZoomToFit(false));
+        }
+
+        if (triggerZoomToSelection) {
+
+            console.log(`Adjusting view to zoom in on ${highlightNodes}`);
+            const positionRefValues = Object.values(nodeElementsRef.current.data());
+            console.log(positionRefValues);
+            const highlightVertices = positionRefValues.filter((d, index) => highlightNodes.includes(d.id));
+
+            console.log(highlightVertices);
+            adjustView(highlightVertices, zoom);
+            dispatch(setTriggerZoomToSelection(false));
         }
 
         return () => {
@@ -373,7 +395,7 @@ const Visualizer = () => {
             dispatch(setIsComponentChanged(true));
         };
 
-    }, [ currentNetwork, triggerZoomToFit, characterNodes, guestNodes, dispatch]);
+    }, [ currentNetwork, triggerZoomToFit, triggerZoomToSelection, characterNodes, guestNodes, dispatch]);
 
     useEffect(() => {
         if (!nodesRef.current) return;
@@ -491,7 +513,7 @@ const Visualizer = () => {
             dispatch(setHighlightEdges([]));
         }
     }, [selectedNodeId, dispatch]);
-    console.log(windowWidth,windowHeight);
+
     return (
         <div id="visualizer-container" style={{width: '100%', height: '100%'}}>
             <svg id='network' ref={svgRef} style={{width: {windowWidth}, height: {windowHeight}}}>
