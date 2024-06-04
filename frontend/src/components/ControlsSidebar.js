@@ -1,6 +1,6 @@
 import React, { useEffect } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { setForceStrength, setLinkDistance, setSidebarWidth, setCentrality, setRadiusRange, setTriggerZoomToFit } from '../features/ui/uiSlice';
+import { setForceStrength, setLinkDistance, setSidebarWidth, setCentrality, setRadiusRange, setTriggerZoomToFit , setTriggerZoomToSelection} from '../features/ui/uiSlice';
 import { fetchComponentsSummary } from '../features/characters/characterSlice';
 import { fetchGuestComponentsSummary , setSelectedGuestComponent} from '../features/guests/guestSlice';
 import Slider from 'rc-slider';
@@ -93,6 +93,11 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
 
         dispatch(setTriggerZoomToFit(true));
     };
+
+    const handleZoomToSelection = () => {
+        console.log("Zoomin'!")
+        dispatch(setTriggerZoomToSelection(true));
+    }
 
     const currentComponentsSummary = currentNetwork === 'characters' ? characterComponentsSummary : guestComponentsSummary;
 
@@ -211,6 +216,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                     <div>Max Radius: {radiusRange.maxRadius}</div>
                 </div>
                 <button onClick={handleZoomToFit} style={styles.button}>Zoom to Fit</button>
+                <button onClick={handleZoomToSelection} style={styles.button}>Zoom to Selection</button>
             </div>  
         </div>
     );

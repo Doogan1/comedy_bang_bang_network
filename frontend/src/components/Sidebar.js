@@ -9,7 +9,6 @@ const Sidebar = () => {
     const dispatch = useDispatch();
     const { currentNetwork, selectedNodeId, entityDetails, sidebarWidth } = useSelector(state => state.ui);
 
-    console.log(entityDetails);
 
     useEffect(() => {
         if (selectedNodeId !== null) {

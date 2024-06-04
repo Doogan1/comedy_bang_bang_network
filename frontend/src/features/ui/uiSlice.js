@@ -26,7 +26,8 @@ const initialState = {
         minRadius: 1,
         maxRadius: 30
     },
-    triggerZoomToFit: false // Flag to trigger zoom-to-fit
+    triggerZoomToFit: false, // Flag to trigger zoom-to-fit
+    triggerZoomToSelection: false,
 };
 
 export const uiSlice = createSlice({
@@ -70,6 +71,10 @@ export const uiSlice = createSlice({
         setTriggerZoomToFit: (state, action) => {
             state.triggerZoomToFit = action.payload;
         },
+        setTriggerZoomToSelection: (state, action) => {
+            console.log(`Setting triggerZoomToSelection as ${action.payload}`);
+            state.triggerZoomToSelection = action.payload;
+        },
         setWindow: (state, action) => {
             state.window.width = action.payload.width;
             state.window.height = action.payload.height;
@@ -77,6 +82,6 @@ export const uiSlice = createSlice({
     }
 });
 
-export const { switchNetwork, setCurrentZoomLevel, updateZoomCache, selectNode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit, setWindow} = uiSlice.actions;
+export const { switchNetwork, setCurrentZoomLevel, updateZoomCache, selectNode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit, setTriggerZoomToSelection , setWindow} = uiSlice.actions;
 
 export default uiSlice.reducer;
