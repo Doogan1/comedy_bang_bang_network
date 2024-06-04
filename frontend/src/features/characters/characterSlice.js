@@ -82,6 +82,7 @@ export const characterSlice = createSlice({
           state.isComponentChanged = newVal;
         },
         setHighlightNodes: (state, action) => {
+          console.log(`Setting highlightNodes to be ${action.payload}`);
           state.highlightNodes = action.payload;
         },
         setHighlightEdges: (state, action) => {

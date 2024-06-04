@@ -31,6 +31,7 @@ const Visualizer = () => {
     const highlightNodes = useSelector(state => state.characters.highlightNodes);
     const highlightEdges = useSelector(state => state.characters.highlightEdges);
     const selectedNodeId = useSelector(state => state.ui.selectedNodeId);
+    const selectedEpisode = useSelector(state => state.ui.selectedEpisode);
     const currentNetwork = useSelector(state => state.ui.currentNetwork);
     const selectedComponent = useSelector(state => state.characters.selectedComponent);
     const guestSelectedComponent = useSelector(state => state.guests.selectedComponent);
@@ -43,9 +44,12 @@ const Visualizer = () => {
     const guestEdges = useSelector(state => state.guests.edges);
     const guestPositions = useSelector(state => state.guests.positions[guestSelectedComponent]);
     
+    const episodes = useSelector(state => state.episodes.episodes);
+
     const nodesRef = useRef([]);
     const edgesRef = useRef([]);
     const positionsRef = useRef({});
+
 
     // Function to get the current positions
     const getCurrentPositions = () => {
@@ -128,25 +132,52 @@ const Visualizer = () => {
                 highlightedNodes.push(edge.source === nodeId ? edge.target : edge.source);
             }
         });
-
+        console.log(`Setting highlight nodes from highlightNodeAndNeighbors`);
         dispatch(setHighlightNodes(highlightedNodes));
         dispatch(setHighlightEdges(highlightedEdges));
     };
 
+    const highlightEpisode = (episodeId) => {
+        const episodeObjects = Object.values(episodes).filter(d => d.episode_number === episodeId);
+
+        const nodeIdsToHighlight = [];
+
+        if (currentNetwork === 'characters') {
+            episodeObjects.forEach(episode => {
+                episode.characters.forEach(character => nodeIdsToHighlight.push(character.id));
+            });
+        }
+
+        if (currentNetwork === 'guests') {
+    
+            episodeObjects.forEach(episode => {
+                episode.guests.forEach(guest => nodeIdsToHighlight.push(guest.id));
+            });
+        }
+        // const nodesToHighlight = nodesRef.current.filter(d => nodeIdsToHighlight.includes(d.id))
+        const nodesToHighlight = nodesRef.current.filter(d => nodeIdsToHighlight.includes(d.id));
+        const edgesToHighlight = [];
+        edgesRef.current.forEach((d) => {
+            if (nodeIdsToHighlight.includes(d.source) && nodeIdsToHighlight.includes(d.target)) {
+                edgesToHighlight.push([d.source, d.target]);
+            }
+        });
+
+        dispatch(setHighlightNodes(nodeIdsToHighlight));
+        dispatch(setHighlightEdges(edgesToHighlight));
+        
+    };
 
     const calculateGraphBounds = (vertexSelection) => {
-        console.log(`Calculating graph bounds with ${vertexSelection}`);
 
         const positionValues = Object.values(vertexSelection);
         
-        positionValues.forEach(d => console.log(d.x,d.y));
 
         const minX = d3.min(positionValues, d => d.x);
         const maxX = d3.max(positionValues, d => d.x);
         const minY = d3.min(positionValues, d => d.y);
         const maxY = d3.max(positionValues, d => d.y);
 
-        console.log(minX,maxX, maxX - minX, maxY - minY, (minX + maxX) / 2, (minY + maxY) / 2);
 
         return {
             x: minX,
@@ -291,7 +322,7 @@ const Visualizer = () => {
                 event.stopPropagation();
                 dispatch(selectNode(d.id));
                 highlightNodeAndNeighbors(d.id);
-                console.log(d.x,d.y);
+
             });
 
         nodeElementsRef.current = nodeElements;
@@ -371,12 +402,11 @@ const Visualizer = () => {
 
         if (triggerZoomToSelection) {
 
-            console.log(`Adjusting view to zoom in on ${highlightNodes}`);
+
             const positionRefValues = Object.values(nodeElementsRef.current.data());
-            console.log(positionRefValues);
+
             const highlightVertices = positionRefValues.filter((d, index) => highlightNodes.includes(d.id));
 
-            console.log(highlightVertices);
             adjustView(highlightVertices, zoom);
             dispatch(setTriggerZoomToSelection(false));
         }
@@ -508,12 +538,16 @@ const Visualizer = () => {
     }, [highlightEdges , highlightNodes])
 
     useEffect(() => {
-        if (selectedNodeId === null) {
+        if (selectedNodeId === null && selectedEpisode === null) {
             dispatch(setHighlightNodes([]));
             dispatch(setHighlightEdges([]));
         }
     }, [selectedNodeId, dispatch]);
 
+    useEffect(() => {
+        console.log(`useEffect is triggering due to the user selecting episode ${selectedEpisode}`);
+        highlightEpisode(selectedEpisode);
+    }, [selectedEpisode])
     return (
         <div id="visualizer-container" style={{width: '100%', height: '100%'}}>
             <svg id='network' ref={svgRef} style={{width: {windowWidth}, height: {windowHeight}}}>
