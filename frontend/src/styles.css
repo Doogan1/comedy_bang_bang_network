@@ -198,6 +198,12 @@ circle {
     background-color: #f5f5f5;
 }
 
+#entityDetails table tbody::after {
+    content: '';
+    display: table-row;
+    height: 25px;
+}
+
 .resizer {
     position: absolute;
     left: 0;
@@ -206,6 +212,7 @@ circle {
     height: 100%;
     cursor: ew-resize; /* Cursor appears as left-right resize arrow */
     background-color: #ccc; /* Just to make it visible */
+    height: calc(100% + 25px);
 }
 
 .tabs {

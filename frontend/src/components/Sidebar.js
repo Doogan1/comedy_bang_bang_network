@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect , useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCharacterDetails } from '../features/characters/characterSlice';
 import { fetchGuestDetails } from '../features/guests/guestSlice'; 
@@ -8,6 +8,8 @@ import { setTriggerZoomToFit , switchNetwork , selectEpisode} from '../features/
 const Sidebar = () => {
     const dispatch = useDispatch();
     const { currentNetwork, selectedNodeId, entityDetails, sidebarWidth } = useSelector(state => state.ui);
+    const resizerRef = useRef(null);
+    const sidebarRef = useRef(null);
 
 
     useEffect(() => {
@@ -44,9 +46,9 @@ const Sidebar = () => {
             document.addEventListener('mouseup', stopResize);
             e.preventDefault();
             
-            const sidebar = document.querySelector('.sidebar');
-            if (sidebar.scrollHeight > sidebar.clientHeight) {
-                scrollbarWidth = sidebar.offsetWidth - sidebar.clientWidth;
+
+            if (sidebarRef.current.scrollHeight > sidebarRef.current.clientHeight) {
+                scrollbarWidth = sidebarRef.current.offsetWidth - sidebarRef.current.clientWidth;
             } else {
                 scrollbarWidth = 0;
             }
@@ -77,6 +79,22 @@ const Sidebar = () => {
         };
     }, [sidebarWidth, dispatch]);
 
+    useEffect(() => {
+        const updateResizerHeight = () => {
+            const resizer = resizerRef.current;
+            if (sidebarRef.current) {
+                resizer.style.height = `${sidebarRef.current.scrollHeight}px`;
+            }
+        };
+
+        updateResizerHeight();
+
+        window.addEventListener('resize', updateResizerHeight);
+        return () => {
+            window.removeEventListener('resize', updateResizerHeight);
+        };
+    }, [entityDetails]);
+
     const handleEntityClick = (id) => {
         const targetNetwork = currentNetwork === 'characters' ? 'guests' : 'characters';
         dispatch(switchNetwork(targetNetwork));
@@ -92,8 +110,8 @@ const Sidebar = () => {
     };
 
     return (
-        <div className="sidebar" id="entityDetails" style={{ display: selectedNodeId ? 'block' : 'none', width: `${sidebarWidth}px` }}>
-            <div className="resizer"></div>
+        <div className="sidebar" id="entityDetails" ref={sidebarRef} style={{ display: selectedNodeId ? 'block' : 'none', width: `${sidebarWidth}px` }}>
+            <div className="resizer" ref={resizerRef}></div>
             <h3>{currentNetwork === 'characters' ? 'Character Details' : 'Guest Details'}</h3>
             <div><h2>{entityDetails.character_name}</h2></div>
             <div>
