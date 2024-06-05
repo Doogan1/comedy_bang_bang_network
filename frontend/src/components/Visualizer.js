@@ -132,7 +132,6 @@ const Visualizer = () => {
                 highlightedNodes.push(edge.source === nodeId ? edge.target : edge.source);
             }
         });
-        console.log(`Setting highlight nodes from highlightNodeAndNeighbors`);
         dispatch(setHighlightNodes(highlightedNodes));
         dispatch(setHighlightEdges(highlightedEdges));
     };
@@ -300,7 +299,6 @@ const Visualizer = () => {
             svg.call(zoom.transform, transform);
             zoomRef.current = transform;
         } else {
-            console.log(`There was not anything in zoomCache[component], so we're adjusting view using ${positionsRef.current}`);
             setTriggerZoomToFit(true);
         }
         // Apply the stored zoom transform if it exists
@@ -552,7 +550,6 @@ const Visualizer = () => {
     }, [selectedNodeId, dispatch]);
 
     useEffect(() => {
-        console.log(`useEffect is triggering due to the user selecting episode ${selectedEpisode}`);
         highlightEpisode(selectedEpisode);
     }, [selectedEpisode])
 
