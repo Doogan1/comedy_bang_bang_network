@@ -26,7 +26,6 @@ export const episodeSlice = createSlice({
     initialState,
     reducers: {
         setEpisodes: (state, action) => {
-            console.log(`setting episodes with: ${action.payload}`);
             state.episodes = action.payload;
           },   
     },
