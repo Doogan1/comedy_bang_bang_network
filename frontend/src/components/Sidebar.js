@@ -104,7 +104,6 @@ const Sidebar = () => {
     };
 
     const handleEpisodeClick = (episodeId) => {
-        console.log(`Dispatching episode number: ${episodeId}.`);
         dispatch(selectNode(null));
         dispatch(selectEpisode(episodeId));
     };

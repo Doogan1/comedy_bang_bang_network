@@ -76,7 +76,6 @@ export const uiSlice = createSlice({
             state.triggerZoomToFit = action.payload;
         },
         setTriggerZoomToSelection: (state, action) => {
-            console.log(`Setting triggerZoomToSelection as ${action.payload}`);
             state.triggerZoomToSelection = action.payload;
         },
         setWindow: (state, action) => {
