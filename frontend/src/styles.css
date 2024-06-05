@@ -1,7 +1,7 @@
 body {
     font-family: Arial, sans-serif;
-    margin: 40px;
     text-align: center;
+    margin: 0;
     width: 100%;
     height: 100%;
     background: rgb(17, 0, 63);
@@ -25,16 +25,26 @@ body {
         1px 1px 0 #000;
 }
 
+.control-group {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin-bottom: 15px;
+}
 .controls-sidebar {
-    position: absolute;
+    position: relative;
+    top: 0;
     height: 100%;
     width: 15%;
+    min-width: 192px;
 }
 .visualizer-container {
     width: 100%;
     height: 100%;
     border: 1px solid black;
     background: #f9f9f9;
+    padding: 10px;
+    border-radius: 10px;
 
 }
 
@@ -203,7 +213,7 @@ circle {
     left: 0;
     position: relative;
     border-bottom: 2px solid #ccc;
-    width: 25%;
+    width: 290px;
     margin: 0;
     display: flex;
     flex-direction: row;
@@ -239,7 +249,7 @@ circle {
 
 .top-bar {
     border: none;
-    left: 15%;
+    left: 5px;
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -250,7 +260,7 @@ circle {
 .search-bar-container {
     position: absolute;
     left: calc(100% - 300px);
-    width: 300px;
+    width: 290px;
   }
   
   .search-input {

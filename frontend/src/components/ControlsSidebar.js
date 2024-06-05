@@ -105,7 +105,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
         <div className="controls-sidebar" >
             <div className="controls-resizer"></div>
             <div style={styles.container}>
-                <div style={styles.controlGroup}>
+                <div  className="control-group">
                     <label htmlFor="component-selector" style={styles.label}>Select Component:</label>
                     <select
                         id="component-selector"
@@ -120,7 +120,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                         ))}
                     </select>
                 </div>
-                <div style={styles.controlGroup}>
+                <div className="control-group">
                     <label htmlFor="chargeStrength" style={styles.label}>Charge Strength:</label>
                     <input
                         type="range"
@@ -133,7 +133,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                     />
                     <span style={styles.value}>{forceStrength}</span>
                 </div>
-                <div style={styles.controlGroup}>
+                <div className='control-group'>
                     <label htmlFor="linkDistance" style={styles.label}>Link Distance:</label>
                     <input
                         type="range"
@@ -231,9 +231,6 @@ const styles = {
         borderRadius: '8px',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
         height: '100%',
-    },
-    controlGroup: {
-        marginBottom: '15px',
     },
     label: {
         display: 'block',

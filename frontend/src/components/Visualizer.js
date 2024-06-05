@@ -263,8 +263,8 @@ const Visualizer = () => {
         
         // Select the SVG element
         const svg = d3.select(svgRef.current)
-            .attr('width', windowWidth)
-            .attr('height', windowHeight);
+            .attr('width', 0.85 * windowWidth)
+            .attr('height', 0.9 * windowHeight);
 
         svg.selectAll("*").remove(); // Clear SVG to prevent duplicates
 
@@ -548,9 +548,12 @@ const Visualizer = () => {
         console.log(`useEffect is triggering due to the user selecting episode ${selectedEpisode}`);
         highlightEpisode(selectedEpisode);
     }, [selectedEpisode])
+
+    const scaledWidth = 0.75 * windowWidth;
+    const scaledHeight = 0.25 * windowHeight;
     return (
         <div id="visualizer-container" style={{width: '100%', height: '100%'}}>
-            <svg id='network' ref={svgRef} style={{width: {windowWidth}, height: {windowHeight}}}>
+            <svg id='network' ref={svgRef} style={{width: {scaledWidth}, height: {scaledHeight}}}>
             </svg>
         </div>
     );
