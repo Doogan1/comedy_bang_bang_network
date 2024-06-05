@@ -95,7 +95,6 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
     };
 
     const handleZoomToSelection = () => {
-        console.log("Zoomin'!")
         dispatch(setTriggerZoomToSelection(true));
     }
 
