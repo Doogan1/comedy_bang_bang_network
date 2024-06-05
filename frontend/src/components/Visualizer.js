@@ -203,7 +203,12 @@ const Visualizer = () => {
 
         const bounds = calculateGraphBounds(positions);
 
-        const scale = 0.95 / Math.max(bounds.width / svgRef.current.clientWidth, bounds.height / svgRef.current.clientHeight);
+        let scale = 0.80 / Math.max(bounds.width / svgRef.current.clientWidth, bounds.height / svgRef.current.clientHeight);
+
+        // Handle the case where bounds.width and bounds.height are zero
+        if (bounds.width === 0 && bounds.height === 0) {
+            scale = 1; // Default scale for a single vertex
+        }
 
         const translate = [
             (svgRef.current.clientWidth / 2) - scale * (bounds.centerX),
@@ -290,11 +295,13 @@ const Visualizer = () => {
         const componentKey = `${currentNetwork}-${currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent}`;
         if (zoomCache[componentKey]) {
             const { k, x, y } = zoomCache[componentKey];
+
             const transform = d3.zoomIdentity.translate(x, y).scale(k);
             svg.call(zoom.transform, transform);
             zoomRef.current = transform;
         } else {
-            adjustView(positions, zoom);
+            console.log(`There was not anything in zoomCache[component], so we're adjusting view using ${positionsRef.current}`);
+            setTriggerZoomToFit(true);
         }
         // Apply the stored zoom transform if it exists
         // if (zoomRef.current) {
