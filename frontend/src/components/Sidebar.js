@@ -2,7 +2,7 @@ import React, { useEffect , useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCharacterDetails } from '../features/characters/characterSlice';
 import { fetchGuestDetails } from '../features/guests/guestSlice'; 
-import { setEntityDetails, setSidebarWidth, selectNode } from '../features/ui/uiSlice';
+import { setEntityDetails, setSidebarWidth, selectNode , switchComponent} from '../features/ui/uiSlice';
 import { setTriggerZoomToFit , switchNetwork , selectEpisode} from '../features/ui/uiSlice'; // Assuming this action exists for zooming to fit
 
 const Sidebar = () => {
@@ -95,12 +95,14 @@ const Sidebar = () => {
         };
     }, [entityDetails]);
 
-    const handleEntityClick = (id) => {
+    const handleEntityClick = (id, component) => {
         const targetNetwork = currentNetwork === 'characters' ? 'guests' : 'characters';
         console.log(`Switching network.`);
         console.log(`The current component is: ${currentComponent}`);
         dispatch(switchNetwork(targetNetwork));
         console.log(`Switched network, now selecting node ${id}`);
+        dispatch(switchComponent(component - 1));
+        console.log(`Switched component to component #${component}`);
         dispatch(selectNode(id));
     };
 
@@ -120,11 +122,11 @@ const Sidebar = () => {
                 <div className='character-actor-sidebar-list'>
                     {currentNetwork === 'characters' && entityDetails.actors && entityDetails.actors.length > 0 ? (
                         entityDetails.actors.map((actor) => (
-                            <span className="clickSpan" key={actor.id} onClick={() => handleEntityClick(actor.id)}>{actor.name}</span>
+                            <span className="clickSpan" key={actor.id} onClick={() => handleEntityClick(actor.id, actor.component)}>{actor.name}</span>
                         ))
                     ) : currentNetwork === 'guests' && entityDetails.characters && entityDetails.characters.length > 0 ? (
                         entityDetails.characters.map((character) => (
-                            <span className="clickSpan" key={character.id} onClick={() => handleEntityClick(character.id)}>{character.name} </span>
+                            <span className="clickSpan" key={character.id} onClick={() => handleEntityClick(character.id, character.component)}>{character.name} </span>
                         ))
                     ) : (
                         <span>Unknown</span>
