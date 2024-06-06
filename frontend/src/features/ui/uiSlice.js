@@ -1,8 +1,8 @@
-// features/uiSlice.js
 import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
     currentNetwork: 'characters',
+    currentComponent: '0',
     currentZoomLevel: {
         k: 1,
         x: 0,
@@ -27,8 +27,12 @@ const initialState = {
         minRadius: 1,
         maxRadius: 30
     },
-    triggerZoomToFit: false, // Flag to trigger zoom-to-fit
+    triggerZoomToFit: false, 
     triggerZoomToSelection: false,
+    highlights: {
+        characters: {},
+        guests: {}
+    }
 };
 
 export const uiSlice = createSlice({
@@ -37,8 +41,10 @@ export const uiSlice = createSlice({
     reducers: {
         switchNetwork: (state, action) => {
             state.currentNetwork = action.payload;
-            // state.selectedNodeId = null;  // Reset selected node ID
-            state.entityDetails = initialState.entityDetails;  // Reset entity details to initial state
+            state.entityDetails = initialState.entityDetails; 
+        },
+        switchComponent: (state, action) => {
+            state.currentComponent = action.payload;
         },
         setCurrentZoomLevel: (state, action) => {
             state.currentZoomLevel = action.payload;
@@ -49,6 +55,17 @@ export const uiSlice = createSlice({
         },
         selectNode: (state, action) => {
             state.selectedNodeId = action.payload;
+        },
+        setHighlights: (state, action) => {
+            const { nodes, edges } = action.payload;
+            const currentNetwork = state.currentNetwork;
+            const currentComponent = state.currentComponent;
+
+            if (!state.highlights[currentNetwork]) {
+                state.highlights[currentNetwork] = {};
+            }
+
+            state.highlights[currentNetwork][currentComponent] = { nodes, edges };
         },
         selectEpisode: (state, action) => {
             state.selectedEpisode = action.payload;
@@ -85,6 +102,6 @@ export const uiSlice = createSlice({
     }
 });
 
-export const { switchNetwork, setCurrentZoomLevel, updateZoomCache, selectNode , selectEpisode , setEntityDetails , setSidebarWidth , setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit, setTriggerZoomToSelection , setWindow} = uiSlice.actions;
+export const { switchNetwork, switchComponent, setCurrentZoomLevel, updateZoomCache, selectNode, selectEpisode, setHighlights, setEntityDetails, setSidebarWidth, setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit, setTriggerZoomToSelection, setWindow } = uiSlice.actions;
 
 export default uiSlice.reducer;

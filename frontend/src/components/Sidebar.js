@@ -113,6 +113,7 @@ const Sidebar = () => {
             <div className="resizer" ref={resizerRef}></div>
             <h3>{currentNetwork === 'characters' ? 'Character Details' : 'Guest Details'}</h3>
             <div><h2>{entityDetails.character_name}</h2></div>
+            <hr />
             <div>
                 <h4>{currentNetwork === 'characters' ? 'Played By' : 'Characters'}</h4>
                 <div className='character-actor-sidebar-list'>
@@ -129,6 +130,7 @@ const Sidebar = () => {
                     )}
                 </div>
             </div>
+            <hr />
             <table>
                 <thead>
                     <tr>

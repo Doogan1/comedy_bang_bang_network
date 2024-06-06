@@ -9,31 +9,32 @@ const initialState = {
     isFetched: false,
     loading: false,
     error: null,
-    selectedComponent: 0,
     componentsSummary: [],
     isComponentChanged: false,
-    highlightNodes: [],
-    highlightEdges: [],
 };
 
 // Define a thunk for fetching characters
 export const fetchCharacters = createAsyncThunk(
   'characters/fetchCharacters',
-  async (component, { getState, rejectWithValue }) => {
+  async (_, { getState, rejectWithValue }) => {
+    console.log(`Fetching characters!`);
     const state = getState();
-      if (component === undefined) {
-        return rejectWithValue('Component is undefined');
-      } else if (state.characters.cache[component]) {
-        return state.characters.cache[component];
-      }
-      try {
-          const response = await fetch(`http://localhost:8000/api/network/characters/?component=${component}`);
-          if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
-          const data = await response.json();
-          return data;
-      } catch (error) {
-          return rejectWithValue(error.message);
-      }
+    const component = state.ui.currentComponent; // Access currentComponent from uiSlice
+    console.log(`The component is ${component}`);
+    if (component === undefined) {
+      return rejectWithValue('Component is undefined');
+    } else if (state.characters.cache[component]) {
+      return state.characters.cache[component];
+    }
+
+    try {
+      const response = await fetch(`http://localhost:8000/api/network/characters/?component=${component}`);
+      if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+      const data = await response.json();
+      return data;
+    } catch (error) {
+      return rejectWithValue(error.message);
+    }
   }
 );
 
@@ -80,27 +81,7 @@ export const characterSlice = createSlice({
         setIsComponentChanged: (state, action) => {
           const newVal = action.payload;
           state.isComponentChanged = newVal;
-        },
-        setHighlightNodes: (state, action) => {
-          state.highlightNodes = action.payload;
-        },
-        setHighlightEdges: (state, action) => {
-          state.highlightEdges = action.payload;
-        },
-        // updateCharacterPosition: (state, action) => {
-        //   const { nodeId, position } = action.payload;
-        //   // console.log(`Updating position of node ${nodeId} to position ${position}`);
-        //   state.positions[nodeId] = position;
-        // },
-        // setCharactersData: (state, action) => {
-        //     state.nodes = action.payload.nodes;
-        //     state.edges = action.payload.edges;
-        //     state.isFetched = true;
-        // },
-        // updateCharacterPosition: (state, action) => {
-        //     const { nodeId, position } = action.payload;
-        //     state.positions[nodeId] = position;
-        // }
+        }
     },
     extraReducers: (builder) => {
         builder
@@ -110,7 +91,8 @@ export const characterSlice = createSlice({
           .addCase(fetchCharacters.fulfilled, (state, action) => {
             state.nodes = action.payload.nodes;
             state.edges = action.payload.edges;
-            const selectedComponent = state.selectedComponent;
+
+            const selectedComponent = action.meta.arg;
 
             state.loading = false;
 
@@ -155,7 +137,7 @@ export const characterSlice = createSlice({
     },
 });
 
-export const { setSelectedComponent , updatePositions , setIsComponentChanged , setHighlightEdges , setHighlightNodes } = characterSlice.actions;
+export const { setSelectedComponent , updatePositions , setIsComponentChanged } = characterSlice.actions;
 
 const selectSelectedComponentCache = (state) => state.characters.cache[state.characters.selectedComponent] || { nodes: [] };
 

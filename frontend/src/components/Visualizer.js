@@ -1,9 +1,9 @@
 import React, { useEffect, useRef , useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
-import { selectNode , updateZoomCache, setTriggerZoomToFit , setTriggerZoomToSelection , setWindow } from '../features/ui/uiSlice'; 
-import { fetchCharacters , updatePositions , setIsComponentChanged, setHighlightEdges , setHighlightNodes } from '../features/characters/characterSlice';
-import { fetchGuests , updateGuestPositions , fetchGuestDetails } from '../features/guests/guestSlice';
+import { selectNode , updateZoomCache, setTriggerZoomToFit , setTriggerZoomToSelection , setWindow , setHighlights} from '../features/ui/uiSlice'; 
+import { fetchCharacters , updatePositions , setIsComponentChanged} from '../features/characters/characterSlice';
+import { fetchGuests , updateGuestPositions } from '../features/guests/guestSlice';
 
 const Visualizer = () => {
     const svgRef = useRef(null);
@@ -28,23 +28,24 @@ const Visualizer = () => {
     const triggerZoomToSelection = useSelector(state => state.ui.triggerZoomToSelection);
 
     const isComponentChanged = useSelector(state => state.characters.isComponentChanged);
-    const highlightNodes = useSelector(state => state.characters.highlightNodes);
-    const highlightEdges = useSelector(state => state.characters.highlightEdges);
+
     const selectedNodeId = useSelector(state => state.ui.selectedNodeId);
     const selectedEpisode = useSelector(state => state.ui.selectedEpisode);
     const currentNetwork = useSelector(state => state.ui.currentNetwork);
-    const selectedComponent = useSelector(state => state.characters.selectedComponent);
-    const guestSelectedComponent = useSelector(state => state.guests.selectedComponent);
+
+    const currentComponent = useSelector(state => state.ui.currentComponent);
 
     const characterNodes = useSelector(state => state.characters.nodes);
     const characterEdges = useSelector(state => state.characters.edges);
-    const characterPositions = useSelector(state => state.characters.positions[selectedComponent]);
+    const characterPositions = useSelector(state => state.characters.positions[currentComponent]);
     
     const guestNodes = useSelector(state => state.guests.nodes);
     const guestEdges = useSelector(state => state.guests.edges);
-    const guestPositions = useSelector(state => state.guests.positions[guestSelectedComponent]);
+    const guestPositions = useSelector(state => state.guests.positions[currentComponent]);
     
     const episodes = useSelector(state => state.episodes.episodes);
+
+    const highlights = useSelector(state => state.ui.highlights);
 
     const nodesRef = useRef([]);
     const edgesRef = useRef([]);
@@ -60,11 +61,11 @@ const Visualizer = () => {
         }), {});
     };
 
-    const updateNetworkPositions = (dispatch, currentNetwork, selectedComponent, positions) => {
+    const updateNetworkPositions = (dispatch, currentNetwork, currentComponent, positions) => {
         if (currentNetwork === 'characters') {
-            dispatch(updatePositions({ component: selectedComponent, positions }));
+            dispatch(updatePositions({ component: currentComponent, positions }));
         } else if (currentNetwork === 'guests') {
-            dispatch(updateGuestPositions({ component: selectedComponent, positions }));
+            dispatch(updateGuestPositions({ component: currentComponent, positions }));
         }
     };
 
@@ -77,23 +78,59 @@ const Visualizer = () => {
         return () => window.removeEventListener('resize', handleResize);
       }, [dispatch]);
     
+    // highlight nodes and edges in the current component and network's list of highlights
+    useEffect(() => {
+        console.log(`About to define highlightData using ${JSON.stringify(highlights)}`);
+        const highlightData = highlights[currentNetwork][currentComponent] || { nodes: [], edges: [] };
+        const { nodes: nodesToHighlight = [], edges: edgesToHighlight = []} = highlightData;
+        console.log(JSON.stringify(highlightData));
+        if (nodeElementsRef.current) {
+            if (nodesToHighlight.length > 0) {
+                nodeElementsRef.current
+                    .style("fill", d => d.id === selectedNodeId ? "red" : "rgb(0, 183, 255)")
+                    .style("opacity", d => nodesToHighlight.includes(d.id) ? 1 : 0.2);
+    
+                edgeElementsRef.current
+                    .style("opacity", d => {
+                        const edge = [d.source.id, d.target.id];
+                        return edgesToHighlight.some(highlightedEdge => (highlightedEdge[0] === edge[0] && highlightedEdge[1] === edge[1])) ? 1 : 0.2;
+                    });
+    
+                labelsRef.current
+                    .style("opacity", d => nodesToHighlight.includes(d.id) ? 1 : 0.2);
+            } else {
+                nodeElementsRef.current
+                    .style("opacity", 1)
+                    .style("fill", "rgb(0, 183, 255)");
+    
+                edgeElementsRef.current
+                    .style("opacity", 1);
+    
+                labelsRef.current
+                    .style("opacity", 1);
+            }
+        }
+    }, [highlights, currentComponent]);
+    
 
     // Fetch character data when component mounts
     useEffect(() => {
-
+        console.log(`current component is ${currentComponent}`);
         if (currentNetwork === 'characters') {
-            dispatch(fetchCharacters(selectedComponent)).then(response => {
+            dispatch(fetchCharacters(currentComponent)).then(response => {
 
             });
         } else if (currentNetwork === 'guests') {
-            dispatch(fetchGuests(guestSelectedComponent)).then(response => {
+            dispatch(fetchGuests(currentComponent)).then(response => {
 
             });
         }
-    }, [dispatch, currentNetwork, selectedComponent, guestSelectedComponent]);
+
+    }, [dispatch, currentNetwork, currentComponent]);
     
     // Pulling nodes and edges from Redux state
     useEffect(() => {
+        console.log();
         if (currentNetwork === 'characters') {
             nodesRef.current = characterNodes;
             edgesRef.current = characterEdges;
@@ -132,8 +169,13 @@ const Visualizer = () => {
                 highlightedNodes.push(edge.source === nodeId ? edge.target : edge.source);
             }
         });
-        dispatch(setHighlightNodes(highlightedNodes));
-        dispatch(setHighlightEdges(highlightedEdges));
+
+        const payload = {
+            nodes: highlightedNodes,
+            edges: highlightedEdges
+        }
+
+        dispatch(setHighlights(payload));
     };
 
     const highlightEpisode = (episodeId) => {
@@ -162,8 +204,12 @@ const Visualizer = () => {
             }
         });
 
-        dispatch(setHighlightNodes(nodeIdsToHighlight));
-        dispatch(setHighlightEdges(edgesToHighlight));
+        const payload = {
+            nodes: nodeIdsToHighlight,
+            edges: edgesToHighlight
+        }
+
+        dispatch(setHighlights(payload));
         
     };
 
@@ -195,7 +241,7 @@ const Visualizer = () => {
         const nodeData = nodeElementsRef.current.data();
 
             // Dispatch updatePositions action with the current positions of the nodes
-        updateNetworkPositions(dispatch, currentNetwork, currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent, nodeData.reduce((acc, node) => ({
+        updateNetworkPositions(dispatch, currentNetwork, currentComponent, nodeData.reduce((acc, node) => ({
             ...acc,
             [node.id]: { x: node.x, y: node.y }
         }), {}));
@@ -240,7 +286,7 @@ const Visualizer = () => {
         // Save the zoom level to zoomCache
         dispatch(updateZoomCache({ 
             network: currentNetwork,
-            component: currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent,
+            component: currentComponent,
             zoom: { k: transform.k, x: transform.x, y: transform.y } 
         }));
     };
@@ -250,7 +296,7 @@ const Visualizer = () => {
         const nodes = nodesRef.current;
         const edges = edgesRef.current;
         const positions = positionsRef.current;
-
+        console.log(`Current positions ref is ${positionsRef.current}`);
 
         if (!nodes || !edges) return;
 
@@ -291,7 +337,7 @@ const Visualizer = () => {
             });
         
         svg.call(zoom);
-        const componentKey = `${currentNetwork}-${currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent}`;
+        const componentKey = `${currentNetwork}-${currentComponent}`;
         if (zoomCache[componentKey]) {
             const { k, x, y } = zoomCache[componentKey];
 
@@ -301,6 +347,9 @@ const Visualizer = () => {
         } else {
             setTriggerZoomToFit(true);
         }
+
+        const highlightData = highlights[String(currentNetwork)][String(currentComponent)] || { nodes: [], edges: [] };
+        const { nodes: highlightNodes, edges: highlightEdges } = highlightData;
         // Apply the stored zoom transform if it exists
         // if (zoomRef.current) {
         //     svg.call(zoom.transform, d3.zoomIdentity.translate(zoomRef.current.x, zoomRef.current.y).scale(zoomRef.current.k));
@@ -327,7 +376,6 @@ const Visualizer = () => {
                 event.stopPropagation();
                 dispatch(selectNode(d.id));
                 highlightNodeAndNeighbors(d.id);
-
             });
 
         nodeElementsRef.current = nodeElements;
@@ -374,7 +422,7 @@ const Visualizer = () => {
             .force("charge", d3.forceManyBody().strength(-forceStrength))
             .force("center", d3.forceCenter(width / 2, height / 2))
             .force("collide", d3.forceCollide().radius(d => d.currentRadius || 30))
-            .alphaDecay(selectedComponent === 0 || guestSelectedComponent === 0 ? 0.005 : 0.0228) // Adjust alpha decay for giant components
+            .alphaDecay(currentComponent === 0 ? 0.005 : 0.0228) // Adjust alpha decay for giant components
             .on("tick", () => {
                 edgeElements
                     .attr("x1", d => d.source.x)
@@ -393,7 +441,7 @@ const Visualizer = () => {
                 tickCounter += 1;
                 if (tickCounter % tickUpdateFrequency === 0) {
                     const nodeData = nodeElements.data();
-                    updateNetworkPositions(dispatch, currentNetwork, currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent, nodeData.reduce((acc, node) => ({
+                    updateNetworkPositions(dispatch, currentNetwork, currentComponent, nodeData.reduce((acc, node) => ({
                         ...acc,
                         [node.id]: { x: node.x, y: node.y }
                     }), {}));
@@ -410,7 +458,7 @@ const Visualizer = () => {
 
             const positionRefValues = Object.values(nodeElementsRef.current.data());
 
-            const highlightVertices = positionRefValues.filter((d, index) => highlightNodes.includes(d.id));
+            const highlightVertices = positionRefValues.filter((d, index) => highlights[String(currentNetwork)][String(currentComponent)].nodes.includes(d.id));
 
             adjustView(highlightVertices, zoom);
             dispatch(setTriggerZoomToSelection(false));
@@ -418,11 +466,11 @@ const Visualizer = () => {
 
         return () => {
             const currentPositions = getCurrentPositions();
-            const componentKey = `${currentNetwork}-${currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent}`;
+            const componentKey = `${currentNetwork}-${currentComponent}`;
             updateNetworkPositions(currentPositions);
             dispatch(updateZoomCache({
                 network: currentNetwork,
-                component: currentNetwork === 'characters' ? selectedComponent : guestSelectedComponent,
+                component: currentComponent,
                 zoom: { k: zoomRef.current.k, x: zoomRef.current.x, y: zoomRef.current.y }
             }));
             simulationRef.current.stop(); // Cleanup on component unmount
@@ -430,7 +478,7 @@ const Visualizer = () => {
             dispatch(setIsComponentChanged(true));
         };
 
-    }, [ currentNetwork, triggerZoomToFit, triggerZoomToSelection, characterNodes, guestNodes, dispatch]);
+    }, [ currentNetwork, characterNodes, characterEdges, guestNodes, guestEdges, triggerZoomToFit, triggerZoomToSelection, dispatch]);
 
     useEffect(() => {
         if (!nodesRef.current) return;
@@ -462,36 +510,8 @@ const Visualizer = () => {
             }
         }
 
-        if (highlightNodes.length > 0) {
-            nodeElementsRef.current
-            .style("fill", d => d.id === selectedNodeId ? "red" : "rgb(0, 183, 255)")
-            .style("opacity", d => highlightNodes.includes(d.id) || d.id === selectedNodeId ? 1 : 0.2);
-
-
-            edgeElementsRef.current
-            .style("opacity", d => {
-                const edge = [d.source.id, d.target.id];
-
-                return highlightEdges.some(highlightedEdge => (highlightedEdge[0] === edge[0] && highlightedEdge[1] === edge[1])) ? 1 : 0.2
-            });
-
-            labelsRef.current
-            .style("opacity", d => highlightNodes.includes(d.id) || d.id === selectedNodeId ? 1 : 0.2);
-        } else {
-            nodeElementsRef.current
-            .style("opacity", 1)
-            .style("fill", "rgb(0, 183, 255)");
-
-            edgeElementsRef.current
-            .style("opacity", 1);
-
-            labelsRef.current
-            .style("opacity", 1);
-        }
-
-
         dispatch(setIsComponentChanged(false));
-    }, [ nodesRef.current, currentCentrality, radiusRange, selectedComponent, isComponentChanged, triggerZoomToFit, dispatch]);
+    }, [ nodesRef.current, currentCentrality, radiusRange, currentComponent, isComponentChanged, triggerZoomToFit, dispatch]);
     
     // Separate useEffect for updating force strength
     useEffect(() => {
@@ -515,6 +535,9 @@ const Visualizer = () => {
     }, [linkDistance , currentNetwork , selectedNodeId , isComponentChanged , triggerZoomToFit]);
 
     useEffect(() => {
+        const highlightData = highlights[currentNetwork][currentComponent] || { nodes: [], edges: [] };
+        const { nodes: highlightNodes = [], edges: highlightEdges = [] } = highlightData;
+
         if (highlightNodes.length > 0) {
             nodeElementsRef.current
             .style("fill", d => d.id === selectedNodeId ? "red" : "rgb(0, 183, 255)")
@@ -540,12 +563,12 @@ const Visualizer = () => {
             labelsRef.current
             .style("opacity", 1);
         }
-    }, [highlightEdges , highlightNodes])
+    }, [isComponentChanged, currentNetwork])
 
     useEffect(() => {
         if (selectedNodeId === null && selectedEpisode === null) {
-            dispatch(setHighlightNodes([]));
-            dispatch(setHighlightEdges([]));
+            dispatch(setHighlights([]));
+            dispatch(setHighlights([]));
         }
     }, [selectedNodeId, dispatch]);
 
