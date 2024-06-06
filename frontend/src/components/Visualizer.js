@@ -174,7 +174,7 @@ const Visualizer = () => {
             nodes: highlightedNodes,
             edges: highlightedEdges
         }
-
+        console.log(`About to set highlights fromf highlightNodeAndNeighbors with ${JSON.stringify(payload)}`);
         dispatch(setHighlights(payload));
     };
 
@@ -195,7 +195,7 @@ const Visualizer = () => {
                 episode.guests.forEach(guest => nodeIdsToHighlight.push(guest.id));
             });
         }
-        // const nodesToHighlight = nodesRef.current.filter(d => nodeIdsToHighlight.includes(d.id))
+
         const nodesToHighlight = nodesRef.current.filter(d => nodeIdsToHighlight.includes(d.id));
         const edgesToHighlight = [];
         edgesRef.current.forEach((d) => {
@@ -203,7 +203,7 @@ const Visualizer = () => {
                 edgesToHighlight.push([d.source, d.target]);
             }
         });
-
+        console.log(`About to set highlights fromf highlightEpisode with ${JSON.stringify(payload)}`);
         const payload = {
             nodes: nodeIdsToHighlight,
             edges: edgesToHighlight
@@ -348,8 +348,9 @@ const Visualizer = () => {
             setTriggerZoomToFit(true);
         }
 
-        const highlightData = highlights[String(currentNetwork)][String(currentComponent)] || { nodes: [], edges: [] };
-        const { nodes: highlightNodes, edges: highlightEdges } = highlightData;
+        const highlightData = highlights[currentNetwork][currentComponent] || { nodes: [], edges: [] };
+        const { nodes: highlightNodes = [], edges: highlightEdges = [] } = highlightData;
+        console.log(`Zoom to fit was triggered and we're about to style, the current highlight nodes are ${highlightNodes}`);
         // Apply the stored zoom transform if it exists
         // if (zoomRef.current) {
         //     svg.call(zoom.transform, d3.zoomIdentity.translate(zoomRef.current.x, zoomRef.current.y).scale(zoomRef.current.k));
@@ -366,8 +367,8 @@ const Visualizer = () => {
             .data(mutableNodes)
             .enter().append("circle")
             .attr("r", d => d.currentRadius || 30)
-            .attr("fill", d => highlightNodes.includes(d) ? "red" : "rgb(0, 183, 255)")
-            .style("opacity", d => highlightNodes.includes(d) ? 1 : 0.2)
+            .attr("fill", d => highlightNodes.includes(d.id) ? "red" : "rgb(0, 183, 255)")
+            .style("opacity", d => highlightNodes.includes(d.id) ? 1 : 0.2)
             .call(d3.drag() 
                 .on("start", dragStart)
                 .on("drag", dragging)
@@ -453,12 +454,15 @@ const Visualizer = () => {
             dispatch(setTriggerZoomToFit(false));
         }
 
-        if (triggerZoomToSelection) {
+        if (triggerZoomToSelection && highlights[currentNetwork][currentComponent]) {
 
 
             const positionRefValues = Object.values(nodeElementsRef.current.data());
 
-            const highlightVertices = positionRefValues.filter((d, index) => highlights[String(currentNetwork)][String(currentComponent)].nodes.includes(d.id));
+            const highlightVerticesIds = highlights[currentNetwork][currentComponent].nodes || [];
+            console.log(`Retrieving highlighted vertices via triggerZommToSelection ${highlightVerticesIds}`);
+            const highlightVertices = positionRefValues.filter(d => highlightVerticesIds.includes(d.id));
+            console.log(highlightVertices);
 
             adjustView(highlightVertices, zoom);
             dispatch(setTriggerZoomToSelection(false));
@@ -527,9 +531,6 @@ const Visualizer = () => {
         if (simulationRef.current) {
             simulationRef.current.force("link").distance(linkDistance);
             simulationRef.current.alpha(1).restart(); // Restart the simulation with new link distance
-        }
-        if (selectedNodeId) {
-            highlightNodeAndNeighbors(selectedNodeId);
         }
         
     }, [linkDistance , currentNetwork , selectedNodeId , isComponentChanged , triggerZoomToFit]);
