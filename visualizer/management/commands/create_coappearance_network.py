@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 import networkx as nx
-from visualizer.models import Episode, Character, Guest
+from visualizer.models import Episode, Character, Guest, CharacterComponent, GuestComponent
 
 class Command(BaseCommand):
     help = "Generates a co-appearance network of characters or guests and calculates positions using NetworkX"
@@ -22,6 +22,7 @@ class Command(BaseCommand):
         # Choose the appropriate related_name based on network_type
         relation = 'characters' if network_type == 'characters' else 'guests'
         Model = Character if network_type == 'characters' else Guest
+        ComponentModel = CharacterComponent if network_type == 'characters' else GuestComponent
 
         # Add entities as nodes using their primary key as the node identifier
         for episode in Episode.objects.all().prefetch_related(relation):
@@ -35,15 +36,23 @@ class Command(BaseCommand):
                         G.add_edge(entities[i].id, entities[j].id, weight=1)
 
         # Calculate and return component data
-        return self.calculate_component_data(G)
+        return self.calculate_component_data(G, Model, ComponentModel)
 
-    def calculate_component_data(self, G):
+    def calculate_component_data(self, G, Model, ComponentModel):
         components = []
         total_nodes = G.order()
+
         for i, component_nodes in enumerate(nx.connected_components(G)):
             subgraph = G.subgraph(component_nodes)
             positions = nx.spring_layout(subgraph)
             centralities = self.compute_centrality_measures(subgraph)
+
+            # Create a new component
+            component = ComponentModel.objects.create(name=f'Component {i+1}')
+
+            # Update the model instances with the component information
+            Model.objects.filter(id__in=component_nodes).update(component=component)
+
             component_data = {
                 'nodes': [{
                     'id': node,
