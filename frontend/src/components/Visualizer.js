@@ -110,7 +110,7 @@ const Visualizer = () => {
                     .style("opacity", 1);
             }
         }
-    }, [highlights, currentComponent]);
+    }, [highlights, currentComponent, currentNetwork]);
     
 
     // Fetch character data when component mounts
@@ -570,8 +570,12 @@ const Visualizer = () => {
         if (selectedNodeId === null && selectedEpisode === null) {
             dispatch(setHighlights([]));
             dispatch(setHighlights([]));
+        } else {
+            console.log(`Highlighting node and neighbors because selectedNodeId changed to ${selectedNodeId}`);
+            highlightNodeAndNeighbors(selectedNodeId);
         }
     }, [selectedNodeId, dispatch]);
+
 
     useEffect(() => {
         highlightEpisode(selectedEpisode);

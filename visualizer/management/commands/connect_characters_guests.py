@@ -1,7 +1,7 @@
 # connect_characters_guests.py
 import csv
 from django.core.management.base import BaseCommand
-from visualizer.models import Character, Guest
+from visualizer.models import Character, Guest, CharacterComponent, GuestComponent
 from visualizer.utils import get_best_match_or_create
 
 class Command(BaseCommand):
@@ -12,7 +12,11 @@ class Command(BaseCommand):
         
         # Path to the CSV file
         csv_path = 'character-actor.csv'
-        
+
+        # Create or retrieve a default component
+        default_char_component, _ = CharacterComponent.objects.get_or_create(name='Default Character Component')
+        default_guest_component, _ = GuestComponent.objects.get_or_create(name='Default Guest Component')
+
         with open(csv_path, 'r') as file:
             reader = csv.reader(file)
             next(reader)  # Skip the header row
@@ -20,8 +24,8 @@ class Command(BaseCommand):
                 guest_name, character_name = row
                 try:
                     # Get or create the character and guest using fuzzy matching
-                    character, created_char = get_best_match_or_create(Character, character_name)
-                    guest, created_guest = get_best_match_or_create(Guest, guest_name)
+                    character, created_char = get_best_match_or_create(Character, character_name, defaults={'component': default_char_component})
+                    guest, created_guest = get_best_match_or_create(Guest, guest_name, defaults={'component': default_guest_component})
                     
                     # Create the relationship
                     character.actors.add(guest)

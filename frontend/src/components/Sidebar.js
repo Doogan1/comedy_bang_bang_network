@@ -7,7 +7,7 @@ import { setTriggerZoomToFit , switchNetwork , selectEpisode} from '../features/
 
 const Sidebar = () => {
     const dispatch = useDispatch();
-    const { currentNetwork, selectedNodeId, entityDetails, sidebarWidth } = useSelector(state => state.ui);
+    const { currentNetwork, selectedNodeId, entityDetails, sidebarWidth , currentComponent} = useSelector(state => state.ui);
     const resizerRef = useRef(null);
     const sidebarRef = useRef(null);
 
@@ -97,10 +97,11 @@ const Sidebar = () => {
 
     const handleEntityClick = (id) => {
         const targetNetwork = currentNetwork === 'characters' ? 'guests' : 'characters';
+        console.log(`Switching network.`);
+        console.log(`The current component is: ${currentComponent}`);
         dispatch(switchNetwork(targetNetwork));
+        console.log(`Switched network, now selecting node ${id}`);
         dispatch(selectNode(id));
-        // dispatch(setTriggerZoomToFit(true));
-        // Add logic to switch networks if necessary
     };
 
     const handleEpisodeClick = (episodeId) => {
