@@ -2,7 +2,7 @@ import React, { useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCharacters, setSelectedComponent as setSelectedCharacterComponent, fetchComponentsSummary as fetchCharacterComponentsSummary } from './features/characters/characterSlice';
 import { fetchGuests, setSelectedGuestComponent as setSelectedGuestComponent, fetchGuestComponentsSummary as fetchGuestComponentsSummary } from './features/guests/guestSlice';
-import { selectNode, switchNetwork , switchComponent} from './features/ui/uiSlice';
+import { selectNode, switchNetwork , switchComponent , setHighlights} from './features/ui/uiSlice';
 import { fetchEpisodes , setEpisodes} from './features/episodes/episodeSlice';
 import Visualizer from './components/Visualizer';
 import Sidebar from './components/Sidebar';
@@ -56,6 +56,7 @@ const App = () => {
 
         if (selectedNodeId && event.target.nodeName === 'svg') {
             dispatch(selectNode(null)); // Deselect node
+            dispatch(setHighlights({nodes: [], edges: []}));
         }
     }, [dispatch, selectedNodeId]);
 
