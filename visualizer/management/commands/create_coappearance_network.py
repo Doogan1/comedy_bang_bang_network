@@ -42,15 +42,31 @@ class Command(BaseCommand):
         components = []
         total_nodes = G.order()
 
+        # Debugging information
+        self.stdout.write(self.style.WARNING(f'Number of nodes in graph: {total_nodes}'))
+
+        # Do not delete existing components
+        # self.stdout.write(self.style.WARNING(f'Deleting all existing components of type {ComponentModel.__name__}'))
+        # ComponentModel.objects.all().delete()
+
+        component_map = {}
+
         for i, component_nodes in enumerate(nx.connected_components(G)):
             subgraph = G.subgraph(component_nodes)
             positions = nx.spring_layout(subgraph)
             centralities = self.compute_centrality_measures(subgraph)
+            
+            # Create or get a component
+            component, created = ComponentModel.objects.get_or_create(name=f'Component {i+1}')
+            if created:
+                self.stdout.write(self.style.SUCCESS(f'Created new component: {component.name}'))
+            else:
+                self.stdout.write(self.style.SUCCESS(f'Found existing component: {component.name}'))
 
-            # Create a new component
-            component = ComponentModel.objects.create(name=f'Component {i+1}')
+            component_map[i] = component.id
 
             # Update the model instances with the component information
+            self.stdout.write(self.style.WARNING(f'Updating model instances with component information'))
             Model.objects.filter(id__in=component_nodes).update(component=component)
 
             component_data = {
@@ -62,7 +78,8 @@ class Command(BaseCommand):
                 } for node in subgraph.nodes()],
                 'edges': [{'source': u, 'target': v, 'weight': data['weight']} for u, v, data in subgraph.edges(data=True)],
                 'size': len(component_nodes),
-                'percentage': (len(component_nodes) / total_nodes) * 100
+                'percentage': (len(component_nodes) / total_nodes) * 100,
+                'component_id': component.id  # Include the component ID
             }
             components.append(component_data)
         components.sort(key=lambda x: x['size'], reverse=True)

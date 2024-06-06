@@ -114,8 +114,8 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                         style={styles.select}
                     >
                         {currentComponentsSummary.map((comp) => (
-                            <option key={comp.index} value={comp.index}>
-                                Component {comp.index} - Order: {comp.size} ({comp.percentage.toFixed(2)}%)
+                            <option key={comp.id} value={comp.id}>
+                                Component {comp.id} - Order: {comp.size} ({comp.percentage.toFixed(2)}%)
                             </option>
                         ))}
                     </select>
