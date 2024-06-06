@@ -139,7 +139,7 @@ export const characterSlice = createSlice({
 
 export const { setSelectedComponent , updatePositions , setIsComponentChanged } = characterSlice.actions;
 
-const selectSelectedComponentCache = (state) => state.characters.cache[state.characters.selectedComponent] || { nodes: [] };
+const selectSelectedComponentCache = (state) => state.characters.cache[state.ui.currentComponent] || { nodes: [] };
 
 export const selectCharacterNames = createSelector(
   [selectSelectedComponentCache],
