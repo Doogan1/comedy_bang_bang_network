@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { switchNetwork , selectNode , selectEpisode} from '../features/ui/uiSlice';
+import { switchNetwork , selectNode , selectEpisode, switchComponent} from '../features/ui/uiSlice';
 
 const NetworkSwitcher = () => {
     const dispatch = useDispatch();
@@ -11,6 +11,7 @@ const NetworkSwitcher = () => {
     const handleSwitch = (network) => {
         dispatch(selectNode(null));
         dispatch(selectEpisode(null));
+        dispatch(switchComponent(0));
         if (network === 'characters') {
             characterButtonRef.current.classList.add('selected');
             guestButtonRef.current.classList.remove('selected');
