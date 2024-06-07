@@ -281,9 +281,10 @@ const Visualizer = () => {
       adjustView(nodes, zoom);
       dispatch(setTriggerZoomToFit(false));
     }
-  }, [triggerZoomToFit, highlights, currentNetwork, currentComponent, dispatch]);
+  }, [triggerZoomToFit, currentNetwork, currentComponent, dispatch]);
 
   useEffect(() => {
+    console.log(`Trigger zoom to selection useEffect is triggering with ${JSON.stringify(highlights)}`);
     if (triggerZoomToSelection && highlights[currentNetwork]?.[currentComponent]) {
       const highlightVerticesIds = highlights[currentNetwork][currentComponent].nodes || [];
       const highlightVertices = nodeElementsRef.current.filter(d => highlightVerticesIds.includes(d.id));
@@ -294,7 +295,7 @@ const Visualizer = () => {
       adjustView(highlightVertices.data(), zoom);
       dispatch(setTriggerZoomToSelection(false));
     }
-  }, [triggerZoomToSelection, dispatch]);
+  }, [triggerZoomToSelection, selectedNodeId, highlights, dispatch]);
 
   useEffect(() => {
     const centralityScores = {
@@ -345,6 +346,8 @@ const Visualizer = () => {
       dispatch(setHighlights([]));
     } else {
       highlightNodeAndNeighbors(selectedNodeId);
+      console.log(`the selected node has changed so this useEffect is going and we're about to set trigger zoom to selection using node: ${selectedNodeId}`);
+      setTriggerZoomToSelection(true);
     }
   }, [selectedNodeId, dispatch]);
 
@@ -403,7 +406,6 @@ const Visualizer = () => {
       });
     }
 
-    const nodesToHighlight = nodesRef.current.filter(d => nodeIdsToHighlight.includes(d.id));
     const edgesToHighlight = [];
     edgesRef.current.forEach((d) => {
       if (nodeIdsToHighlight.includes(d.source) && nodeIdsToHighlight.includes(d.target)) {
