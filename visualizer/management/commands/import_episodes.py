@@ -1,10 +1,9 @@
 from django.core.management.base import BaseCommand
 import csv
-from visualizer.models import Episode, Character, Guest
+from visualizer.models import Episode, Character, Guest, CharacterComponent, GuestComponent
 
 class Command(BaseCommand):
     help = 'Import episodes and characters from a CSV file'
-
 
     def handle(self, *args, **options):
         self.import_data('data/episode-characters.csv')
@@ -14,10 +13,8 @@ class Command(BaseCommand):
             reader = csv.reader(file)
             for row in reader:
                 episode_title = row[0].strip()
-
                 episode_number = row[1].strip()
-
-                episode_release_date = row[2].strip() #release dates begin and end with quotes by default
+                episode_release_date = row[2].strip()  # release dates begin and end with quotes by default
 
                 guest_names = [name.strip() for name in row[3:23] if name.strip()]  # Skip empty entries, 4th column is the start of the guests and they go through the 22nd column
                 print(f"Guests: {guest_names}")
@@ -27,6 +24,10 @@ class Command(BaseCommand):
                 # Create or get the episode
                 episode, created = Episode.objects.get_or_create(title=episode_title)
 
+                # Create or retrieve default components
+                default_char_component, _ = CharacterComponent.objects.get_or_create(name='Default Character Component')
+                default_guest_component, _ = GuestComponent.objects.get_or_create(name='Default Guest Component')
+
                 if created:  # If the episode is newly created, then set its number and release_date
                     episode.number = episode_number
                     episode.release_date = episode_release_date
@@ -34,12 +35,13 @@ class Command(BaseCommand):
 
                 # Iterate over character names and create or get character
                 for character_name in character_names:
-                    character, _ = Character.objects.get_or_create(name=character_name)
+                    character, _ = Character.objects.get_or_create(name=character_name, defaults={'component': default_char_component})
                     # Add this character to the episode
                     episode.characters.add(character)
 
+                # Iterate over guest names and create or get guest
                 for guest_name in guest_names:
-                    guest, _ = Guest.objects.get_or_create(name=guest_name)
+                    guest, _ = Guest.objects.get_or_create(name=guest_name, defaults={'component': default_guest_component})
                     # Add the guest to the episode
                     episode.guests.add(guest)
 

@@ -2,7 +2,7 @@ import React, { useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCharacters, setSelectedComponent as setSelectedCharacterComponent, fetchComponentsSummary as fetchCharacterComponentsSummary } from './features/characters/characterSlice';
 import { fetchGuests, setSelectedGuestComponent as setSelectedGuestComponent, fetchGuestComponentsSummary as fetchGuestComponentsSummary } from './features/guests/guestSlice';
-import { selectNode, switchNetwork } from './features/ui/uiSlice';
+import { selectNode, switchNetwork , switchComponent , setHighlights} from './features/ui/uiSlice';
 import { fetchEpisodes , setEpisodes} from './features/episodes/episodeSlice';
 import Visualizer from './components/Visualizer';
 import Sidebar from './components/Sidebar';
@@ -15,10 +15,11 @@ const App = () => {
     const dispatch = useDispatch();
     const currentNetwork = useSelector((state) => state.ui.currentNetwork);
     const selectedNodeId = useSelector((state) => state.ui.selectedNodeId);
-    const selectedCharacterComponent = useSelector((state) => state.characters.selectedComponent);
+
     const characterComponentsSummary = useSelector((state) => state.characters.componentsSummary);
-    const selectedGuestComponent = useSelector((state) => state.guests.selectedComponent);
     const guestComponentsSummary = useSelector((state) => state.guests.componentsSummary);
+
+    const currentComponent = useSelector((state) => state.ui.currentComponent);
 
     const episodes = useSelector((state) => state.episodes.episodes);
     const windowState = useSelector((state) => state.ui.window);
@@ -44,17 +45,18 @@ const App = () => {
     }, [dispatch]);
 
     useEffect(() => {
-        if (currentNetwork === 'characters' && characterComponentsSummary.length > 0 && selectedCharacterComponent === 0) {
+        if (currentNetwork === 'characters' && characterComponentsSummary.length > 0 && currentComponent === 0) {
             dispatch(fetchCharacters(0));
-        } else if (currentNetwork === 'guests' && guestComponentsSummary.length > 0 && selectedGuestComponent === 0) {
+        } else if (currentNetwork === 'guests' && guestComponentsSummary.length > 0 && currentComponent === 0) {
             dispatch(fetchGuests(0));
         }
-    }, [characterComponentsSummary, guestComponentsSummary, dispatch, selectedCharacterComponent, selectedGuestComponent, currentNetwork]);
+    }, [characterComponentsSummary, guestComponentsSummary, dispatch, currentComponent , currentNetwork]);
 
     const handleClickOutside = useCallback((event) => {
 
         if (selectedNodeId && event.target.nodeName === 'svg') {
             dispatch(selectNode(null)); // Deselect node
+            dispatch(setHighlights({nodes: [], edges: []}));
         }
     }, [dispatch, selectedNodeId]);
 
@@ -66,22 +68,15 @@ const App = () => {
     }, [handleClickOutside]);
 
     const handleComponentChange = (component) => {
-        if (currentNetwork === 'characters') {
-            dispatch(setSelectedCharacterComponent(component));
-            dispatch(fetchCharacters(component));
-        } else if (currentNetwork === 'guests') {
-            dispatch(setSelectedGuestComponent(component));
-            dispatch(fetchGuests(component));
-        }
+        dispatch(switchComponent(component));
     };
 
     const componentsSummary = currentNetwork === 'characters' ? characterComponentsSummary : guestComponentsSummary;
-    const selectedComponent = currentNetwork === 'characters' ? selectedCharacterComponent : selectedGuestComponent;
 
     return (
         <div className='container'>
             <ControlsSidebar
-                selectedComponent={selectedComponent}
+                selectedComponent={currentComponent}
                 setSelectedComponent={handleComponentChange}
                 componentsSummary={componentsSummary}
             />

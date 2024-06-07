@@ -25,8 +25,9 @@ const initialState = {
 // Thunk to fetch guest data
 export const fetchGuests = createAsyncThunk(
     'guests/fetchGuests',
-    async (component, { getState, rejectWithValue }) => {
+    async (_, { getState, rejectWithValue }) => {
       const state = getState();
+      const component = state.ui.currentComponent;
       if (component === undefined) {
         return rejectWithValue('Component is undefined');
       } else if (state.guests.cache[component]) {
@@ -113,7 +114,8 @@ export const guestSlice = createSlice({
             .addCase(fetchGuests.fulfilled, (state, action) => {
                 state.nodes = action.payload.nodes;
                 state.edges = action.payload.edges;
-                const selectedComponent = state.selectedComponent;
+                
+                const selectedComponent = action.meta.arg;
 
                 state.loading = false;
 
