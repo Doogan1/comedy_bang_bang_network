@@ -229,6 +229,12 @@ hr {
     height: calc(100% + 25px);
 }
 
+.sidebar h4 {
+    cursor: pointer;
+    width: 100%;
+    
+}
+
 .tabs {
     padding-top: 5px;
     left: 0;
