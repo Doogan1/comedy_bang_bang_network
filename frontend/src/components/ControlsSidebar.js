@@ -14,6 +14,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
     const currentCentrality = useSelector(state => state.ui.currentCentrality);
     const radiusRange = useSelector(state => state.ui.radiusRange);
     const currentNetwork = useSelector(state => state.ui.currentNetwork);
+    const currentComponent = useSelector(state => state.ui.currentComponent);
 
     const characterComponentsSummary = useSelector(state => state.characters.componentsSummary);
     const guestComponentsSummary = useSelector(state => state.guests.componentsSummary);
@@ -90,7 +91,6 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
     }, [sidebarWidth, dispatch]);
 
     const handleZoomToFit = () => {
-
         dispatch(setTriggerZoomToFit(true));
     };
 
@@ -113,8 +113,8 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                         style={styles.select}
                     >
                         {currentComponentsSummary.map((comp) => (
-                            <option key={comp.index} value={comp.index}>
-                                Component {comp.index} - Order: {comp.size} ({comp.percentage.toFixed(2)}%)
+                            <option key={comp.id} value={comp.id}>
+                                Component {comp.id} - Order: {comp.size} ({comp.percentage.toFixed(2)}%)
                             </option>
                         ))}
                     </select>

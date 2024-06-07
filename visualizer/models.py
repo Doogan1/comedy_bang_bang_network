@@ -12,10 +12,16 @@ class Edge(models.Model):
     weight = models.FloatField(default=1.0)
 
 
+class CharacterComponent(models.Model):
+    name = models.CharField(max_length=100)
+
+class GuestComponent(models.Model):
+    name = models.CharField(max_length=100)
 
 class Guest(models.Model):
     name = models.CharField(max_length=255)
     position = models.TextField(blank=True, default='')
+    component = models.ForeignKey(GuestComponent, on_delete=models.CASCADE)
 
     def set_position(self, x, y):
         self.position = json.dumps({'x': x, 'y': y})
@@ -27,6 +33,7 @@ class Character(models.Model):
     name = models.CharField(max_length=255)
     actors = models.ManyToManyField(Guest, related_name='characters')
     position = models.TextField(blank=True, default='')
+    component = models.ForeignKey(CharacterComponent, on_delete=models.CASCADE)
 
     def set_position(self, x, y):
         self.position = json.dumps({'x': x, 'y': y})
