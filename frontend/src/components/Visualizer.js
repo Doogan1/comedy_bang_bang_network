@@ -278,20 +278,26 @@ const Visualizer = () => {
         d3.select(svgRef.current).select("g").attr("transform", event.transform);
         zoomRef.current = event.transform;
       });
+      console.log(`In zoom to fit the nodes passed to adjust view are ${JSON.stringify(nodes)}.`);
       adjustView(nodes, zoom);
+      console.log(`In zoom to fit, the zoom coming back from adjustview looks like: ${zoom}`);
       dispatch(setTriggerZoomToFit(false));
     }
   }, [triggerZoomToFit, dispatch]);
 
   useEffect(() => {
+    console.log(`Inside zoomToSelection useEffect`);
     if (triggerZoomToSelection && highlights[currentNetwork]?.[currentComponent]) {
+      console.log(`...passed the condition check with triggerZoomToSelection: ${triggerZoomToSelection}, highlights[currentNetwork][currentComponent]: ${highlights[currentNetwork][currentComponent]}`);
       const highlightVerticesIds = highlights[currentNetwork][currentComponent].nodes || [];
-      const highlightVertices = nodesRef.current.filter(d => highlightVerticesIds.includes(d.id));
+      const highlightVertices = nodeElementsRef.current.filter(d => highlightVerticesIds.includes(d.id));
       const zoom = d3.zoom().scaleExtent([0.01, 4]).on("zoom", (event) => {
         d3.select(svgRef.current).select("g").attr("transform", event.transform);
         zoomRef.current = event.transform;
       });
-      adjustView(highlightVertices, zoom);
+      console.log(`Calling adjustView from trigger zoom to selection useEffect with ${JSON.stringify(highlightVertices)} and zoom: ${zoom}.`);
+      adjustView(highlightVertices.data(), zoom);
+      console.log(`After adjusting view zoom is now ${zoom}`);
       dispatch(setTriggerZoomToSelection(false));
     }
   }, [triggerZoomToSelection, highlights, currentNetwork, currentComponent, dispatch]);
@@ -412,6 +418,7 @@ const Visualizer = () => {
   };
 
   const calculateGraphBounds = (vertexSelection) => {
+    console.log(`Calculating graph bounds with ${JSON.stringify(vertexSelection)}`);
     const positionValues = Object.values(vertexSelection);
     const minX = d3.min(positionValues, d => d.x);
     const maxX = d3.max(positionValues, d => d.x);
