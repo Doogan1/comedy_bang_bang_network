@@ -2,7 +2,7 @@ import React, { useEffect , useRef } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCharacterDetails } from '../features/characters/characterSlice';
 import { fetchGuestDetails } from '../features/guests/guestSlice'; 
-import { setEntityDetails, setSidebarWidth, selectNode , switchComponent} from '../features/ui/uiSlice';
+import { setEntityDetails, setSidebarWidth, selectNode , switchComponent, setTriggerZoomToSelection} from '../features/ui/uiSlice';
 import { setTriggerZoomToFit , switchNetwork , selectEpisode} from '../features/ui/uiSlice'; // Assuming this action exists for zooming to fit
 
 const Sidebar = () => {
