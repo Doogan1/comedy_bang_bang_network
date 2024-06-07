@@ -97,12 +97,8 @@ const Sidebar = () => {
 
     const handleEntityClick = (id, component) => {
         const targetNetwork = currentNetwork === 'characters' ? 'guests' : 'characters';
-        console.log(`Switching network.`);
-        console.log(`The current component is: ${currentComponent}`);
         dispatch(switchNetwork(targetNetwork));
-        console.log(`Switched network, now selecting node ${id}`);
         dispatch(switchComponent(component - 1));
-        console.log(`Switched component to component #${component}`);
         dispatch(selectNode(id));
     };
 
