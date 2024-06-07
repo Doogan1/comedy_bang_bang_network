@@ -91,7 +91,6 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
     }, [sidebarWidth, dispatch]);
 
     const handleZoomToFit = () => {
-
         dispatch(setTriggerZoomToFit(true));
     };
 
