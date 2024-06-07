@@ -1,3 +1,5 @@
+
+
 body {
     font-family: Arial, sans-serif;
     text-align: center;
@@ -9,8 +11,9 @@ body {
 
 #network {
     margin: auto;
-    border: 1px solid #ccc;
+    border: 1px solid #000000;
     background-color: #9a9a9a;
+    border-radius: 5px;
 }
 
 .node-label {
@@ -52,6 +55,8 @@ body {
     display: flex;
     height: 100%;
     width: 100%;
+    align-items: center;
+    margin-top: 20px;
 }
 
 line {
@@ -274,9 +279,12 @@ hr {
 }
 
 .search-bar-container {
-    position: absolute;
+    /* position: absolute;
     left: calc(100% - 300px);
-    width: 290px;
+    width: 290px; */
+    position: relative;
+    left: 5%;
+    width: 300px;
   }
   
   .search-input {
