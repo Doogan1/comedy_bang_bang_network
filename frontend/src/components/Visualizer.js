@@ -46,7 +46,6 @@ const Visualizer = () => {
   const edgesRef = useRef([]);
   const positionsRef = useRef({});
 
-  // Function to get the current positions
   const getCurrentPositions = () => {
     const nodeData = nodeElementsRef.current.data();
     return nodeData.reduce((acc, node) => ({
@@ -63,7 +62,6 @@ const Visualizer = () => {
     }
   };
 
-  // Handle window resize
   useEffect(() => {
     const handleResize = () => {
       dispatch(setWindow({ width: window.innerWidth, height: window.innerHeight }));
@@ -72,7 +70,6 @@ const Visualizer = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, [dispatch]);
 
-  // Fetch data based on current network and component
   useEffect(() => {
     if (currentNetwork === 'characters') {
       dispatch(fetchCharacters(currentComponent));
@@ -81,7 +78,6 @@ const Visualizer = () => {
     }
   }, [dispatch, currentNetwork, currentComponent]);
 
-  // Set nodes and edges based on current network
   useEffect(() => {
     if (currentNetwork === 'characters') {
       nodesRef.current = characterNodes;
@@ -94,7 +90,6 @@ const Visualizer = () => {
     }
   }, [currentNetwork, characterNodes, characterEdges, characterPositions, guestNodes, guestEdges, guestPositions]);
 
-  // Handle highlighting nodes and edges
   useEffect(() => {
     const highlightData = highlights[currentNetwork]?.[currentComponent] || { nodes: [], edges: [] };
     const { nodes: nodesToHighlight = [], edges: edgesToHighlight = [] } = highlightData;
@@ -127,7 +122,6 @@ const Visualizer = () => {
     }
   }, [highlights, currentComponent, currentNetwork, selectedNodeId]);
 
-  // Initialize nodes and edges
   useEffect(() => {
     const nodes = nodesRef.current;
     const edges = edgesRef.current;
@@ -147,7 +141,7 @@ const Visualizer = () => {
       .attr('width', 0.85 * windowWidth)
       .attr('height', 0.9 * windowHeight);
 
-    svg.selectAll("*").remove(); // Clear SVG to prevent duplicates
+    svg.selectAll("*").remove();
 
     const { width, height } = svgRef.current.getBoundingClientRect();
     const contentGroup = svg.append("g");
@@ -182,7 +176,7 @@ const Visualizer = () => {
       .data(mutableNodes)
       .enter().append("circle")
       .attr("r", d => d.currentRadius || 30)
-      .attr("fill", d => "rgb(0, 183, 255)")
+      .attr("fill", "rgb(0, 183, 255)")
       .call(d3.drag()
         .on("start", dragStart)
         .on("drag", dragging)
@@ -261,18 +255,6 @@ const Visualizer = () => {
         }
       });
 
-    if (triggerZoomToFit) {
-      adjustView(mutableNodes, zoom);
-      dispatch(setTriggerZoomToFit(false));
-    }
-
-    if (triggerZoomToSelection && highlights[currentNetwork]?.[currentComponent]) {
-      const highlightVerticesIds = highlights[currentNetwork][currentComponent].nodes || [];
-      const highlightVertices = nodesRef.current.filter(d => highlightVerticesIds.includes(d.id));
-      adjustView(highlightVertices, zoom);
-      dispatch(setTriggerZoomToSelection(false));
-    }
-
     return () => {
       const currentPositions = getCurrentPositions();
       const componentKey = `${currentNetwork}-${currentComponent}`;
@@ -287,9 +269,33 @@ const Visualizer = () => {
       dispatch(setIsComponentChanged(true));
     };
 
-  }, [currentNetwork, characterNodes, characterEdges, guestNodes, guestEdges, triggerZoomToFit, triggerZoomToSelection, dispatch]);
+  }, [currentNetwork, characterNodes, characterEdges, guestNodes, guestEdges, dispatch]);
 
-  // Handle centrality scores and node radius updates
+  useEffect(() => {
+    if (triggerZoomToFit) {
+      const nodes = nodeElementsRef.current ? nodeElementsRef.current.data() : [];
+      const zoom = d3.zoom().scaleExtent([0.01, 4]).on("zoom", (event) => {
+        d3.select(svgRef.current).select("g").attr("transform", event.transform);
+        zoomRef.current = event.transform;
+      });
+      adjustView(nodes, zoom);
+      dispatch(setTriggerZoomToFit(false));
+    }
+  }, [triggerZoomToFit, dispatch]);
+
+  useEffect(() => {
+    if (triggerZoomToSelection && highlights[currentNetwork]?.[currentComponent]) {
+      const highlightVerticesIds = highlights[currentNetwork][currentComponent].nodes || [];
+      const highlightVertices = nodesRef.current.filter(d => highlightVerticesIds.includes(d.id));
+      const zoom = d3.zoom().scaleExtent([0.01, 4]).on("zoom", (event) => {
+        d3.select(svgRef.current).select("g").attr("transform", event.transform);
+        zoomRef.current = event.transform;
+      });
+      adjustView(highlightVertices, zoom);
+      dispatch(setTriggerZoomToSelection(false));
+    }
+  }, [triggerZoomToSelection, highlights, currentNetwork, currentComponent, dispatch]);
+
   useEffect(() => {
     const centralityScores = {
       degree: nodesRef.current.map(node => node.degree),
@@ -320,7 +326,6 @@ const Visualizer = () => {
     dispatch(setIsComponentChanged(false));
   }, [currentCentrality, radiusRange, isComponentChanged, triggerZoomToFit, dispatch]);
 
-  // Handle force strength updates
   useEffect(() => {
     if (simulationRef.current) {
       simulationRef.current.force("charge").strength(-forceStrength);
@@ -328,7 +333,6 @@ const Visualizer = () => {
     }
   }, [forceStrength, currentNetwork, isComponentChanged, triggerZoomToFit]);
 
-  // Handle link distance updates
   useEffect(() => {
     if (simulationRef.current) {
       simulationRef.current.force("link").distance(linkDistance);
@@ -336,7 +340,6 @@ const Visualizer = () => {
     }
   }, [linkDistance, currentNetwork, selectedNodeId, isComponentChanged, triggerZoomToFit]);
 
-  // Handle node selection changes
   useEffect(() => {
     if (selectedNodeId === null && selectedEpisode === null) {
       dispatch(setHighlights([]));

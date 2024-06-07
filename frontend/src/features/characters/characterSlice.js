@@ -17,10 +17,8 @@ const initialState = {
 export const fetchCharacters = createAsyncThunk(
   'characters/fetchCharacters',
   async (_, { getState, rejectWithValue }) => {
-    console.log(`Fetching characters!`);
     const state = getState();
     const component = state.ui.currentComponent; // Access currentComponent from uiSlice
-    console.log(`The component is ${component}`);
     if (component === undefined) {
       return rejectWithValue('Component is undefined');
     } else if (state.characters.cache[component]) {
