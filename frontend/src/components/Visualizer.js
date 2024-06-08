@@ -1,9 +1,9 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef , useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
 import {
   selectNode, updateZoomCache, setTriggerZoomToFit, setTriggerZoomToSelection,
-  setWindow, setHighlights
+  setWindow, setHighlights, saveHighlights, retrieveHighlightsSave
 } from '../features/ui/uiSlice';
 import { fetchCharacters, updatePositions, setIsComponentChanged } from '../features/characters/characterSlice';
 import { fetchGuests, updateGuestPositions } from '../features/guests/guestSlice';
@@ -45,6 +45,7 @@ const Visualizer = () => {
   const nodesRef = useRef([]);
   const edgesRef = useRef([]);
   const positionsRef = useRef({});
+  const hoverTimeoutRef = useRef(null);
 
   const getCurrentPositions = () => {
     const nodeData = nodeElementsRef.current.data();
@@ -185,7 +186,9 @@ const Visualizer = () => {
         event.stopPropagation();
         dispatch(selectNode(d.id));
         highlightNodeAndNeighbors(d.id);
-      });
+      })
+      .on("mouseenter", (event, d) => handleMouseEnterNode(d.id))
+      .on("mouseleave", handleMouseLeaveNode);
 
     nodeElementsRef.current = nodeElements;
 
@@ -284,7 +287,6 @@ const Visualizer = () => {
   }, [triggerZoomToFit, currentNetwork, currentComponent, dispatch]);
 
   useEffect(() => {
-    console.log(`Trigger zoom to selection useEffect is triggering with ${JSON.stringify(highlights)}`);
     if (triggerZoomToSelection && highlights[currentNetwork]?.[currentComponent]) {
       const highlightVerticesIds = highlights[currentNetwork][currentComponent].nodes || [];
       const highlightVertices = nodeElementsRef.current.filter(d => highlightVerticesIds.includes(d.id));
@@ -346,7 +348,6 @@ const Visualizer = () => {
       dispatch(setHighlights([]));
     } else {
       highlightNodeAndNeighbors(selectedNodeId);
-      console.log(`the selected node has changed so this useEffect is going and we're about to set trigger zoom to selection using node: ${selectedNodeId}`);
       setTriggerZoomToSelection(true);
     }
   }, [selectedNodeId, dispatch]);
@@ -390,7 +391,7 @@ const Visualizer = () => {
     dispatch(setHighlights(payload));
   };
 
-  const highlightEpisode = (episodeId) => {
+    const highlightEpisode = (episodeId) => {
     const episodeObjects = episodes.filter(d => d.episode_number === episodeId);
     const nodeIdsToHighlight = [];
 
@@ -485,6 +486,21 @@ const Visualizer = () => {
       component: currentComponent,
       zoom: { k: transform.k, x: transform.x, y: transform.y }
     }));
+  };
+
+  const handleMouseEnterNode = (nodeId) => {
+    hoverTimeoutRef.current = setTimeout(() => {
+      dispatch(saveHighlights());
+      highlightNodeAndNeighbors(nodeId);
+    }, 500);
+  };
+
+  const handleMouseLeaveNode = () => {
+    if (hoverTimeoutRef.current) {
+      clearTimeout(hoverTimeoutRef.current);
+      hoverTimeoutRef.current = null;
+    }
+    dispatch(retrieveHighlightsSave());
   };
 
   const scaledWidth = 0.85 * windowWidth;

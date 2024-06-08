@@ -32,6 +32,10 @@ const initialState = {
     highlights: {
         characters: {},
         guests: {}
+    },
+    highlightsSave: {
+        characters: {},
+        guests: {}
     }
 };
 
@@ -66,6 +70,13 @@ export const uiSlice = createSlice({
             }
 
             state.highlights[currentNetwork][currentComponent] = { nodes, edges };
+        },
+        saveHighlights: (state) => {
+            state.highlightsSave = state.highlights[state.currentNetwork][state.currentComponent];
+        },
+        retrieveHighlightsSave: (state) => {
+
+            state.highlights[state.currentNetwork][state.currentComponent] = state.highlightsSave;
         },
         selectEpisode: (state, action) => {
             state.selectedEpisode = action.payload;
@@ -102,6 +113,6 @@ export const uiSlice = createSlice({
     }
 });
 
-export const { switchNetwork, switchComponent, setCurrentZoomLevel, updateZoomCache, selectNode, selectEpisode, setHighlights, setEntityDetails, setSidebarWidth, setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit, setTriggerZoomToSelection, setWindow } = uiSlice.actions;
+export const { switchNetwork, switchComponent, setCurrentZoomLevel, updateZoomCache, selectNode, selectEpisode, setHighlights, setEntityDetails, setSidebarWidth, setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit, setTriggerZoomToSelection, setWindow, saveHighlights, retrieveHighlightsSave } = uiSlice.actions;
 
 export default uiSlice.reducer;
