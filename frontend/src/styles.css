@@ -339,3 +339,7 @@ hr {
     background-color:#63b8da;
     cursor: pointer;
   }
+
+  .current-episode {
+    background:#63b8da;
+  }

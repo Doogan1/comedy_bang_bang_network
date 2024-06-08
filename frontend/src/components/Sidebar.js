@@ -4,13 +4,14 @@ import { fetchCharacterDetails } from '../features/characters/characterSlice';
 import { fetchGuestDetails } from '../features/guests/guestSlice';
 import {
   setEntityDetails, setSidebarWidth, selectNode,
-  switchComponent, setTriggerZoomToSelection, setHighlights, setCurrentZoomLevel
+  switchComponent, setHighlights, saveHighlights, retrieveHighlightsSave,
+  setTriggerZoomToSelection
 } from '../features/ui/uiSlice';
-import { setTriggerZoomToFit, switchNetwork, selectEpisode } from '../features/ui/uiSlice'; // Assuming this action exists for zooming to fit
+import { setTriggerZoomToFit, switchNetwork, selectEpisode } from '../features/ui/uiSlice';
 
 const Sidebar = () => {
   const dispatch = useDispatch();
-  const { currentNetwork, selectedNodeId, entityDetails, sidebarWidth, currentComponent } = useSelector(state => state.ui);
+  const { currentNetwork, selectedNodeId, entityDetails, sidebarWidth, selectedEpisode } = useSelector(state => state.ui);
   const resizerRef = useRef(null);
   const sidebarRef = useRef(null);
   const [isOpen, setIsOpen] = useState(true);
@@ -20,7 +21,14 @@ const Sidebar = () => {
     episodes: true
   });
 
+  const episodeDetails = useSelector(state => state.episodes.episodes);
+  const characterEdges = useSelector(state => state.characters.edges);
+  const guestEdges = useSelector(state => state.guests.edges);
+  const [isEpisodeClicked, setIsEpisodeClicked] = useState(false);
+
+
   useEffect(() => {
+    dispatch(saveHighlights());
     if (selectedNodeId !== null) {
       if (currentNetwork === 'characters') {
         dispatch(fetchCharacterDetails(selectedNodeId))
@@ -111,9 +119,58 @@ const Sidebar = () => {
   };
 
   const handleEpisodeClick = (episodeId) => {
-    dispatch(selectNode(null));
+    dispatch(saveHighlights());
     dispatch(selectEpisode(episodeId));
+    dispatch(selectNode(null));
+    setIsEpisodeClicked(true);
   };
+
+  const handleEpisodeDoubleClick = (episodeId) => {
+    dispatch(saveHighlights());
+    dispatch(selectEpisode(episodeId));
+    dispatch(selectNode(null));
+    setIsEpisodeClicked(true);
+    setTriggerZoomToSelection(true);
+  }
+
+  const handleEpisodeMouseEnter = (episodeId) => {
+    if (isEpisodeClicked) {
+      saveHighlights();
+    }
+    const episodeToHighlight = episodeDetails.filter(d => d.episode_number === episodeId);
+    
+    const nodesToHighlight = [];
+    const edgesToHighlight = [];
+
+    if (currentNetwork === 'characters') {
+        episodeToHighlight[0].characters.forEach(character => nodesToHighlight.push(character.id));
+        characterEdges.forEach((d) => {
+          if (nodesToHighlight.includes(d.source) && nodesToHighlight.includes(d.target)) {
+            edgesToHighlight.push([d.source, d.target]);
+          }
+        });
+    }
+
+    if (currentNetwork === 'guests') {
+        episodeToHighlight[0].guests.forEach(guest => nodesToHighlight.push(guest.id));
+        guestEdges.forEach((d) => {
+          if (nodesToHighlight.includes(d.source) && nodesToHighlight.includes(d.target)) {
+            edgesToHighlight.push([d.source, d.target]);
+          }
+        });
+    }
+
+    const payload = {
+      nodes: nodesToHighlight,
+      edges: edgesToHighlight
+    }
+
+    dispatch(setHighlights(payload));
+  }
+
+  const handleEpisodeMouseLeave = () => {
+    dispatch(retrieveHighlightsSave());
+  }
 
   const toggleSection = (section) => {
     setSections(prevSections => ({
@@ -130,11 +187,12 @@ const Sidebar = () => {
   if (!isOpen) return null;
 
   return (
-    <div className="sidebar" id="entityDetails" ref={sidebarRef} style={{ display: selectedNodeId ? 'block' : 'none', width: `${sidebarWidth}px` }}>
+    <div className="sidebar" id="entityDetails" ref={sidebarRef} style={{ display: selectedNodeId || selectedEpisode ? 'block' : 'none', width: `${sidebarWidth}px` }}>
       <div className="resizer" ref={resizerRef}></div>
       <button onClick={closeSidebar} style={{ position: 'absolute', top: '5px', left: `15px` }}>X</button>
       <h3>{currentNetwork === 'characters' ? 'Character Details' : 'Guest Details'}</h3>
-      <div><h2>{entityDetails.character_name}</h2></div>
+      <div><h2>{entityDetails.character_name}</h2>
+      <h4>component: {entityDetails.component}</h4></div>
       <hr />
       <div>
         <h4 onClick={() => toggleSection('actors')} >
@@ -174,7 +232,14 @@ const Sidebar = () => {
             </thead>
             <tbody>
               {entityDetails.episodes && entityDetails.episodes.map((episode, index) => (
-                <tr key={index} onClick={() => handleEpisodeClick(episode.episode_number)}>
+                <tr
+                key={index}
+                onClick={() => handleEpisodeClick(episode.episode_number)}
+                onMouseEnter={() => handleEpisodeMouseEnter(episode.episode_number)}
+                onMouseLeave={() => handleEpisodeMouseLeave()}
+                onDoubleClick={() => handleEpisodeDoubleClick(episode.episode_number)}
+                className={selectedEpisode && selectedEpisode === episode.episode_number ? 'current-episode' : ''}
+                >
                   <td>{episode.title}</td>
                   <td>{episode.episode_number}</td>
                   <td>{episode.release_date}</td>
