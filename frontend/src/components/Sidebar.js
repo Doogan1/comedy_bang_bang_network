@@ -189,6 +189,18 @@ const Sidebar = () => {
     dispatch(selectNode(null));
   };
 
+  const getSharedEpisodes = (characterId) => {
+    console.log(`Getting shared episodes between nodes ${entityDetails.character_id} and ${characterId}`);
+    console.log(episodeDetails);
+    return episodeDetails.filter(episode => {
+      if (currentNetwork === 'characters') {
+        return episode.characters.map(character => character.id).includes(entityDetails.character_id) && episode.characters.map(character => character.id).includes(characterId);
+      } else {
+        return episode.guests.map(guest => guest.id).includes(entityDetails.character_id) && episode.guests.map(guest => guest.id).includes(characterId);
+      }
+    }).map(episode => episode.title).join(', ');
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -260,33 +272,46 @@ const Sidebar = () => {
           {sections.neighbors ? ' v' : ' >'}
         </h4>
         {sections.neighbors && (
-          <div className='character-actor-sidebar-list'>
-            {currentNetwork === 'characters' && characterEdges && characterEdges.length > 0 ? (
-              characterEdges.filter((edge) => edge.source === entityDetails.character_id || edge.target === entityDetails.character_id)
-                .map((edge) => {
-                  const characterId = edge.source === entityDetails.character_id ? edge.target : edge.source;
-                  const character = characterNodes.find(node => node.id === characterId);
-                  return (
-                    <span className="clickSpan" key={characterId} onClick={() => handleEntityClick(characterId, 0, false)}>
-                      {character && character.name}
-                    </span>
-                  );
-              })
-            ) : currentNetwork === 'guests' && guestEdges && guestEdges.length > 0 ? (
-              guestEdges.filter((edge) => edge.source === entityDetails.character_id || edge.target === entityDetails.character_id)
-                .map((edge) => {
-                  const guestId = edge.source === entityDetails.character_id ? edge.target : edge.source;
-                  const guest = guestNodes.find(node => node.id === characterId);
-                  return (
-                    <span className="clickSpan" key={guestId} onClick={() => handleEntityClick(guestId, 0, false)}>
-                      {guest && guest.name}
-                    </span>
-                  );
-                })
-            ) : (
-              <span>Unknown</span>
-            )}
-          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Shared Episodes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentNetwork === 'characters' && characterEdges && characterEdges.length > 0 ? (
+                characterEdges.filter((edge) => edge.source === entityDetails.character_id || edge.target === entityDetails.character_id)
+                  .map((edge) => {
+                    const characterId = edge.source === entityDetails.character_id ? edge.target : edge.source;
+                    const character = characterNodes.find(node => node.id === characterId);
+                    console.log(character);
+                    return (
+                      <tr key={characterId} onClick={() => handleEntityClick(characterId, 0, false)}>
+                        <td>{character && character.name}</td>
+                        <td>{getSharedEpisodes(characterId)}</td>
+                      </tr>
+                    );
+                  })
+              ) : currentNetwork === 'guests' && guestEdges && guestEdges.length > 0 ? (
+                guestEdges.filter((edge) => edge.source === entityDetails.guest_id || edge.target === entityDetails.guest_id)
+                  .map((edge) => {
+                    const guestId = edge.source === entityDetails.guest_id ? edge.target : edge.source;
+                    const guest = guestNodes.find(node => node.id === guestId);
+                    return (
+                      <tr key={guestId} onClick={() => handleEntityClick(guestId, 0, false)}>
+                        <td>{guest && guest.name}</td>
+                        <td>{getSharedEpisodes(guestId)}</td>
+                      </tr>
+                    );
+                  })
+              ) : (
+                <tr>
+                  <td colSpan="2">Unknown</td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         )}
       </div>
     </div>
