@@ -341,7 +341,7 @@ const Visualizer = () => {
       simulationRef.current.force("link").distance(linkDistance);
       simulationRef.current.alpha(1).restart();
     }
-  }, [linkDistance, currentNetwork, selectedNodeId, isComponentChanged, triggerZoomToFit]);
+  }, [linkDistance, currentNetwork, isComponentChanged, triggerZoomToFit]);
 
   useEffect(() => {
     if (selectedNodeId === null && selectedEpisode === null) {
