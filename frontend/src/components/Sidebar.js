@@ -18,12 +18,15 @@ const Sidebar = () => {
   const [sections, setSections] = useState({
     details: true,
     actors: true,
-    episodes: true
+    episodes: true,
+    neighbors: true,
   });
 
   const episodeDetails = useSelector(state => state.episodes.episodes);
   const characterEdges = useSelector(state => state.characters.edges);
+  const characterNodes = useSelector(state => state.characters.nodes);
   const guestEdges = useSelector(state => state.guests.edges);
+  const guestNodes = useSelector(state => state.guests.nodes);
   const [isEpisodeClicked, setIsEpisodeClicked] = useState(false);
 
 
@@ -111,10 +114,12 @@ const Sidebar = () => {
     };
   }, [entityDetails]);
 
-  const handleEntityClick = (id, component) => {
+  const handleEntityClick = (id, component, isSwitch = true) => {
     const targetNetwork = currentNetwork === 'characters' ? 'guests' : 'characters';
-    dispatch(switchNetwork(targetNetwork));
-    dispatch(switchComponent(component - 1));
+    if (isSwitch) {
+      dispatch(switchNetwork(targetNetwork));
+      dispatch(switchComponent(component - 1));
+    }
     dispatch(selectNode(id));
   };
 
@@ -197,7 +202,7 @@ const Sidebar = () => {
       <div>
         <h4 onClick={() => toggleSection('actors')} >
           {currentNetwork === 'characters' ? 'Played By' : 'Characters'}
-          {sections.actors ? '>' : ' v'}
+          {sections.actors ? ' v' : ' >'}
         </h4>
         {sections.actors && (
           <div className='character-actor-sidebar-list'>
@@ -219,7 +224,7 @@ const Sidebar = () => {
       <div>
         <h4 onClick={() => toggleSection('episodes')}>
           Episodes
-          {sections.episodes ? ' >' : ' v'}
+          {sections.episodes ? ' v' : ' >'}
         </h4>
         {sections.episodes && (
           <table>
@@ -247,6 +252,41 @@ const Sidebar = () => {
               ))}
             </tbody>
           </table>
+        )}
+      </div>
+      <div>
+        <h4 onClick={() => toggleSection('neighbors')}>
+          Neighbors
+          {sections.neighbors ? ' v' : ' >'}
+        </h4>
+        {sections.neighbors && (
+          <div className='character-actor-sidebar-list'>
+            {currentNetwork === 'characters' && characterEdges && characterEdges.length > 0 ? (
+              characterEdges.filter((edge) => edge.source === entityDetails.character_id || edge.target === entityDetails.character_id)
+                .map((edge) => {
+                  const characterId = edge.source === entityDetails.character_id ? edge.target : edge.source;
+                  const character = characterNodes.find(node => node.id === characterId);
+                  return (
+                    <span className="clickSpan" key={characterId} onClick={() => handleEntityClick(characterId, 0, false)}>
+                      {character && character.name}
+                    </span>
+                  );
+              })
+            ) : currentNetwork === 'guests' && guestEdges && guestEdges.length > 0 ? (
+              guestEdges.filter((edge) => edge.source === entityDetails.character_id || edge.target === entityDetails.character_id)
+                .map((edge) => {
+                  const guestId = edge.source === entityDetails.character_id ? edge.target : edge.source;
+                  const guest = guestNodes.find(node => node.id === characterId);
+                  return (
+                    <span className="clickSpan" key={guestId} onClick={() => handleEntityClick(guestId, 0, false)}>
+                      {guest && guest.name}
+                    </span>
+                  );
+                })
+            ) : (
+              <span>Unknown</span>
+            )}
+          </div>
         )}
       </div>
     </div>
