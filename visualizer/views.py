@@ -12,7 +12,7 @@ class NetworkData(APIView):
         if entity_type not in ['characters', 'guests']:
             return Response({'error': 'Invalid entity type'}, status=400)
 
-        file_path = os.path.join(settings.NETWORK_DATA_DIR, f'{entity_type}_components.json')
+        file_path = os.path.join(settings.NETWORK_DATA_DIR, f'{entity_type}_components_updated.json')
         
         try:
             with open(file_path, 'r') as file:
@@ -41,7 +41,7 @@ class ComponentsSummary(APIView):
             return Response({'error': 'Invalid entity type'}, status=400)
         
         # Load pre-computed components data
-        file_path = os.path.join(settings.NETWORK_DATA_DIR, f'{entity_type}_components.json')
+        file_path = os.path.join(settings.NETWORK_DATA_DIR, f'{entity_type}_components_updated.json')
         try:
             with open(file_path, 'r') as file:
                 components = json.load(file)
