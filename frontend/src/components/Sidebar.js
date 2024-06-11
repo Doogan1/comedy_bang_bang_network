@@ -18,12 +18,15 @@ const Sidebar = () => {
   const [sections, setSections] = useState({
     details: true,
     actors: true,
-    episodes: true
+    episodes: true,
+    neighbors: true,
   });
 
   const episodeDetails = useSelector(state => state.episodes.episodes);
   const characterEdges = useSelector(state => state.characters.edges);
+  const characterNodes = useSelector(state => state.characters.nodes);
   const guestEdges = useSelector(state => state.guests.edges);
+  const guestNodes = useSelector(state => state.guests.nodes);
   const [isEpisodeClicked, setIsEpisodeClicked] = useState(false);
 
 
@@ -111,10 +114,12 @@ const Sidebar = () => {
     };
   }, [entityDetails]);
 
-  const handleEntityClick = (id, component) => {
+  const handleEntityClick = (id, component, isSwitch = true) => {
     const targetNetwork = currentNetwork === 'characters' ? 'guests' : 'characters';
-    dispatch(switchNetwork(targetNetwork));
-    dispatch(switchComponent(component - 1));
+    if (isSwitch) {
+      dispatch(switchNetwork(targetNetwork));
+      dispatch(switchComponent(component));
+    }
     dispatch(selectNode(id));
   };
 
@@ -184,6 +189,16 @@ const Sidebar = () => {
     dispatch(selectNode(null));
   };
 
+  const getSharedEpisodes = (characterId) => {
+    return episodeDetails.filter(episode => {
+      if (currentNetwork === 'characters') {
+        return episode.characters.map(character => character.id).includes(entityDetails.character_id) && episode.characters.map(character => character.id).includes(characterId);
+      } else {
+        return episode.guests.map(guest => guest.id).includes(entityDetails.character_id) && episode.guests.map(guest => guest.id).includes(characterId);
+      }
+    }).map(episode => episode.title).join(', ');
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -197,7 +212,7 @@ const Sidebar = () => {
       <div>
         <h4 onClick={() => toggleSection('actors')} >
           {currentNetwork === 'characters' ? 'Played By' : 'Characters'}
-          {sections.actors ? '>' : ' v'}
+          {sections.actors ? ' v' : ' >'}
         </h4>
         {sections.actors && (
           <div className='character-actor-sidebar-list'>
@@ -219,7 +234,7 @@ const Sidebar = () => {
       <div>
         <h4 onClick={() => toggleSection('episodes')}>
           Episodes
-          {sections.episodes ? ' >' : ' v'}
+          {sections.episodes ? ' v' : ' >'}
         </h4>
         {sections.episodes && (
           <table>
@@ -245,6 +260,54 @@ const Sidebar = () => {
                   <td>{episode.release_date}</td>
                 </tr>
               ))}
+            </tbody>
+          </table>
+        )}
+      </div>
+      <hr />
+      <div>
+        <h4 onClick={() => toggleSection('neighbors')}>
+          Neighbors
+          {sections.neighbors ? ' v' : ' >'}
+        </h4>
+        {sections.neighbors && (
+          <table>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Shared Episodes</th>
+              </tr>
+            </thead>
+            <tbody>
+              {currentNetwork === 'characters' && characterEdges && characterEdges.length > 0 ? (
+                characterEdges.filter((edge) => edge.source === entityDetails.character_id || edge.target === entityDetails.character_id)
+                  .map((edge) => {
+                    const characterId = edge.source === entityDetails.character_id ? edge.target : edge.source;
+                    const character = characterNodes.find(node => node.id === characterId);
+                    return (
+                      <tr key={characterId} onClick={() => handleEntityClick(characterId, 0, false)}>
+                        <td>{character && character.name}</td>
+                        <td>{getSharedEpisodes(characterId)}</td>
+                      </tr>
+                    );
+                  })
+              ) : currentNetwork === 'guests' && guestEdges && guestEdges.length > 0 ? (
+                guestEdges.filter((edge) => edge.source === entityDetails.guest_id || edge.target === entityDetails.guest_id)
+                  .map((edge) => {
+                    const guestId = edge.source === entityDetails.guest_id ? edge.target : edge.source;
+                    const guest = guestNodes.find(node => node.id === guestId);
+                    return (
+                      <tr key={guestId} onClick={() => handleEntityClick(guestId, 0, false)}>
+                        <td>{guest && guest.name}</td>
+                        <td>{getSharedEpisodes(guestId)}</td>
+                      </tr>
+                    );
+                  })
+              ) : (
+                <tr>
+                  <td colSpan="2">Unknown</td>
+                </tr>
+              )}
             </tbody>
           </table>
         )}
