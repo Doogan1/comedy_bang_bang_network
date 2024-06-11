@@ -94,7 +94,7 @@ const Visualizer = () => {
   useEffect(() => {
     const highlightData = highlights[currentNetwork]?.[currentComponent] || { nodes: [], edges: [] };
     const { nodes: nodesToHighlight = [], edges: edgesToHighlight = [] } = highlightData;
-
+    console.log(`UseEffect triggered by selectedNodeId that does some painting of highlights.`);
     if (nodeElementsRef.current) {
       if (nodesToHighlight.length > 0) {
         nodeElementsRef.current

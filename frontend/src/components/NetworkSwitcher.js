@@ -11,7 +11,7 @@ const NetworkSwitcher = () => {
     const handleSwitch = (network) => {
         dispatch(selectNode(null));
         dispatch(selectEpisode(null));
-        dispatch(switchComponent(1));
+        dispatch(switchComponent(0));
         if (network === 'characters') {
             characterButtonRef.current.classList.add('selected');
             guestButtonRef.current.classList.remove('selected');
