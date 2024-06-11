@@ -118,7 +118,7 @@ const Sidebar = () => {
     const targetNetwork = currentNetwork === 'characters' ? 'guests' : 'characters';
     if (isSwitch) {
       dispatch(switchNetwork(targetNetwork));
-      dispatch(switchComponent(component - 1));
+      dispatch(switchComponent(component));
     }
     dispatch(selectNode(id));
   };
@@ -190,8 +190,6 @@ const Sidebar = () => {
   };
 
   const getSharedEpisodes = (characterId) => {
-    console.log(`Getting shared episodes between nodes ${entityDetails.character_id} and ${characterId}`);
-    console.log(episodeDetails);
     return episodeDetails.filter(episode => {
       if (currentNetwork === 'characters') {
         return episode.characters.map(character => character.id).includes(entityDetails.character_id) && episode.characters.map(character => character.id).includes(characterId);
@@ -266,6 +264,7 @@ const Sidebar = () => {
           </table>
         )}
       </div>
+      <hr />
       <div>
         <h4 onClick={() => toggleSection('neighbors')}>
           Neighbors
@@ -285,7 +284,6 @@ const Sidebar = () => {
                   .map((edge) => {
                     const characterId = edge.source === entityDetails.character_id ? edge.target : edge.source;
                     const character = characterNodes.find(node => node.id === characterId);
-                    console.log(character);
                     return (
                       <tr key={characterId} onClick={() => handleEntityClick(characterId, 0, false)}>
                         <td>{character && character.name}</td>
