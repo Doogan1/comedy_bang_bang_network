@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
     currentNetwork: 'characters',
-    currentComponent: '1',
+    currentComponent: '0',
     currentZoomLevel: {
         k: 1,
         x: 0,
