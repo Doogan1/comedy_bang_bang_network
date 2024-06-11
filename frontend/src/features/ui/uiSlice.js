@@ -61,6 +61,7 @@ export const uiSlice = createSlice({
             state.selectedNodeId = action.payload;
         },
         setHighlights: (state, action) => {
+            console.log(`Setting highlights`);
             const { nodes, edges } = action.payload;
             const currentNetwork = state.currentNetwork;
             const currentComponent = state.currentComponent;
