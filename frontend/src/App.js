@@ -28,6 +28,7 @@ const App = () => {
     const windowHeight = windowState.height;
     
     useEffect(() => {
+        console.log("UseEffect App.js 1");
         if (currentNetwork === 'characters') {
             dispatch(fetchCharacterComponentsSummary());
         } else if (currentNetwork === 'guests') {
@@ -45,6 +46,7 @@ const App = () => {
     }, [dispatch]);
 
     useEffect(() => {
+        console.log(`UseEffect App.js 2`);
         if (currentNetwork === 'characters' && characterComponentsSummary.length > 0 && currentComponent === 0) {
             dispatch(fetchCharacters(0));
         } else if (currentNetwork === 'guests' && guestComponentsSummary.length > 0 && currentComponent === 0) {
@@ -62,6 +64,7 @@ const App = () => {
     }, [dispatch, selectedNodeId]);
 
     useEffect(() => {
+        console.log(`UseEffect App.js 3`);
         document.addEventListener('click', handleClickOutside);
         return () => {
             document.removeEventListener('click', handleClickOutside);

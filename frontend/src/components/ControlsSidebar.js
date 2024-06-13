@@ -20,6 +20,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
     const guestComponentsSummary = useSelector(state => state.guests.componentsSummary);
 
     useEffect(() => {
+        console.log("UseEffect controlssidebar 1");
         if (currentNetwork === 'characters') {
             dispatch(fetchComponentsSummary());
         } else if (currentNetwork === 'guests') {
@@ -44,6 +45,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
     };
 
     useEffect(() => {
+        console.log("UseEffect controlssidebar 2");
         let isResizing = false;
         let startX;
         let startWidth;
@@ -231,12 +233,6 @@ const styles = {
         borderRadius: '8px',
         boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
         height: '100%',
-    },
-    label: {
-        display: 'block',
-        marginBottom: '5px',
-        fontWeight: 'bold',
-        color: '#333',
     },
     select: {
         width: '100%',
