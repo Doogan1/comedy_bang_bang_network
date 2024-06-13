@@ -210,7 +210,37 @@ const Sidebar = () => {
       <button onClick={closeSidebar} style={{ position: 'absolute', top: '5px', left: `15px` }}>X</button>
       <h3>{currentNetwork === 'characters' ? 'Character Details' : 'Guest Details'}</h3>
       <div><h2>{entityDetails.character_name}</h2>
-      <h4>component: {entityDetails.component}</h4></div>
+      <h4 onClick={() => toggleSection('details')} >
+          Details
+          {sections.details ? ' v' : ' >'}
+        </h4>
+      {sections.details && (
+        <div>
+          <h5>Component: {entityDetails.component}</h5>
+          <h5>Degree: {selectedNodeId && characterNodes.length > 0 ? (
+            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).degree.toFixed(2) : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).degree.toFixed(2) : ""))
+          : (
+            ""
+          )}</h5>
+          <h5>Eigenvector: {selectedNodeId && characterNodes.length > 0 ? (
+            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).eigenvector.toFixed(2) : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).eigenvector.toFixed(2) : ""))
+          : (
+            ""
+          )}</h5>
+          <h5>Betweenness: {selectedNodeId && characterNodes.length > 0 ? (
+            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).betweenness.toFixed(2) : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).betweenness.toFixed(2) : ""))
+          : (
+            ""
+          )}</h5>
+          <h5>Closeness: {selectedNodeId && characterNodes.length > 0 ? (
+            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).closeness.toFixed(2) : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).closeness.toFixed(2) : ""))
+          : (
+            ""
+          )}</h5>
+        </div>
+      )}
+
+      </div>
       <hr />
       <div>
         <h4 onClick={() => toggleSection('actors')} >

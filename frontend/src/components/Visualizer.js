@@ -84,7 +84,7 @@ const Visualizer = () => {
   }, [dispatch, currentNetwork, currentComponent]);
 
   useEffect(() => {
-    console.log("UseEffect visualizer 3");
+    console.log(characterNodes.length > 0 ? characterNodes.find(node => node.id === selectedNodeId) : "");
     if (currentNetwork === 'characters') {
       nodesRef.current = characterNodes;
       edgesRef.current = characterEdges;
