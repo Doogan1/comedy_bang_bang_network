@@ -31,6 +31,7 @@ const Sidebar = () => {
 
 
   useEffect(() => {
+    console.log("UseEffect sidebar 1");
     dispatch(saveHighlights());
     if (selectedNodeId !== null) {
       if (currentNetwork === 'characters') {
@@ -53,6 +54,7 @@ const Sidebar = () => {
   }, [selectedNodeId, currentNetwork, dispatch]);
 
   useEffect(() => {
+    console.log("UseEffect sidebar 2");
     let isResizing = false;
     let startX;
     let startWidth;
@@ -99,6 +101,7 @@ const Sidebar = () => {
   }, [sidebarWidth, dispatch]);
 
   useEffect(() => {
+    console.log("UseEffect sidebar 3");
     const updateResizerHeight = () => {
       const resizer = resizerRef.current;
       if (sidebarRef.current) {
@@ -285,19 +288,19 @@ const Sidebar = () => {
                     const characterId = edge.source === entityDetails.character_id ? edge.target : edge.source;
                     const character = characterNodes.find(node => node.id === characterId);
                     return (
-                      <tr key={characterId} onClick={() => handleEntityClick(characterId, 0, false)}>
+                      <tr key={characterId} onClick={() => handleEntityClick(characterId, entityDetails.component, false)}>
                         <td>{character && character.name}</td>
                         <td>{getSharedEpisodes(characterId)}</td>
                       </tr>
                     );
                   })
               ) : currentNetwork === 'guests' && guestEdges && guestEdges.length > 0 ? (
-                guestEdges.filter((edge) => edge.source === entityDetails.guest_id || edge.target === entityDetails.guest_id)
+                guestEdges.filter((edge) => edge.source === entityDetails.character_id || edge.target === entityDetails.character_id)
                   .map((edge) => {
-                    const guestId = edge.source === entityDetails.guest_id ? edge.target : edge.source;
+                    const guestId = edge.source === entityDetails.character_id ? edge.target : edge.source;
                     const guest = guestNodes.find(node => node.id === guestId);
                     return (
-                      <tr key={guestId} onClick={() => handleEntityClick(guestId, 0, false)}>
+                      <tr key={guestId} onClick={() => handleEntityClick(guestId, entityDetails.component, false)}>
                         <td>{guest && guest.name}</td>
                         <td>{getSharedEpisodes(guestId)}</td>
                       </tr>

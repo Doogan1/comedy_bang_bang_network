@@ -20,12 +20,19 @@ body {
     fill: rgb(255, 153, 0);
     -webkit-text-stroke: 1px black;
     color: white;
+    opacity: 1;
     text-shadow:
         1px 1px 0 #000,
         -1px -1px 0 #000,  
         1px -1px 0 #000,
         -1px 1px 0 #000,
         1px 1px 0 #000;
+}
+
+.node-label.dimmed {
+    opacity: 1;
+    display: block;
+    fill: rgba(255, 153, 0, 0.213);
 }
 
 .control-group {
@@ -62,6 +69,13 @@ body {
 line {
     stroke-width: 5px;
     stroke: #000000;
+    opacity: 1;
+}
+
+line.dimmed {
+    opacity: 1;
+    stroke: #0000002a;
+    stroke-width: 1px;
 }
 
 circle {
@@ -69,6 +83,22 @@ circle {
     stroke: #000000;
     fill: rgb(0, 183, 255);
     cursor: pointer;
+    opacity: 1;
+}
+
+circle.highlighted {
+    fill: rgb(0, 0, 255);
+    opacity: 1;
+}
+
+circle.selected {
+    fill: red;
+    opacity: 1;
+}
+
+circle.dimmed {
+    opacity: 1;
+    fill: rgba(0, 183, 255, 0.201);
 }
 
 .slider-range-container {

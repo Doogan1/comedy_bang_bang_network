@@ -48,6 +48,7 @@ const Visualizer = () => {
   const hoverTimeoutRef = useRef(null);
 
   const getCurrentPositions = () => {
+    console.log(`Getting current positions.`);
     const nodeData = nodeElementsRef.current.data();
     return nodeData.reduce((acc, node) => ({
       ...acc,
@@ -56,6 +57,7 @@ const Visualizer = () => {
   };
 
   const updateNetworkPositions = (dispatch, currentNetwork, currentComponent, positions) => {
+    console.log(`Updating network positions.`);
     if (currentNetwork === 'characters') {
       dispatch(updatePositions({ component: currentComponent, positions }));
     } else if (currentNetwork === 'guests') {
@@ -64,6 +66,7 @@ const Visualizer = () => {
   };
 
   useEffect(() => {
+    console.log("UseEffect visualizer 1");
     const handleResize = () => {
       dispatch(setWindow({ width: window.innerWidth, height: window.innerHeight }));
     };
@@ -72,6 +75,7 @@ const Visualizer = () => {
   }, [dispatch]);
 
   useEffect(() => {
+    console.log("UseEffect visualizer 2");
     if (currentNetwork === 'characters') {
       dispatch(fetchCharacters(currentComponent));
     } else if (currentNetwork === 'guests') {
@@ -80,6 +84,7 @@ const Visualizer = () => {
   }, [dispatch, currentNetwork, currentComponent]);
 
   useEffect(() => {
+    console.log("UseEffect visualizer 3");
     if (currentNetwork === 'characters') {
       nodesRef.current = characterNodes;
       edgesRef.current = characterEdges;
@@ -91,39 +96,56 @@ const Visualizer = () => {
     }
   }, [currentNetwork, characterNodes, characterEdges, characterPositions, guestNodes, guestEdges, guestPositions]);
 
-  useEffect(() => {
-    const highlightData = highlights[currentNetwork]?.[currentComponent] || { nodes: [], edges: [] };
-    const { nodes: nodesToHighlight = [], edges: edgesToHighlight = [] } = highlightData;
 
-    if (nodeElementsRef.current) {
+  const debounce = (func, wait) => {
+    let timeout;
+    return (...args) => {
+      clearTimeout(timeout);
+      timeout = setTimeout(() => func.apply(this, args), wait);
+    };
+  };
+
+  const applyHighlights = debounce((nodesToHighlight, edgesToHighlight) => {
+    if (nodeElementsRef.current && edgeElementsRef.current && labelsRef.current) {
       if (nodesToHighlight.length > 0) {
         nodeElementsRef.current
-          .style("fill", d => d.id === selectedNodeId ? "red" : "rgb(0, 183, 255)")
-          .style("opacity", d => nodesToHighlight.includes(d.id) ? 1 : 0.2);
+          .classed("highlighted", d => nodesToHighlight.includes(d.id))
+          .classed("selected", d => d.id === selectedNodeId)
+          .classed("dimmed", d => !nodesToHighlight.includes(d.id));
 
         edgeElementsRef.current
-          .style("opacity", d => {
+          .classed("dimmed", d => {
             const edge = [d.source.id, d.target.id];
-            return edgesToHighlight.some(highlightedEdge => (highlightedEdge[0] === edge[0] && highlightedEdge[1] === edge[1])) ? 1 : 0.2;
+            return !edgesToHighlight.some(highlightedEdge => (highlightedEdge[0] === edge[0] && highlightedEdge[1] === edge[1]));
           });
 
         labelsRef.current
-          .style("opacity", d => nodesToHighlight.includes(d.id) ? 1 : 0.2);
+          .classed("dimmed", d => !nodesToHighlight.includes(d.id));
       } else {
         nodeElementsRef.current
-          .style("opacity", 1)
-          .style("fill", "rgb(0, 183, 255)");
+          .classed("highlighted", false)
+          .classed("dimmed", false)
+          .classed("selected", false);
 
         edgeElementsRef.current
-          .style("opacity", 1);
+          .classed("dimmed", false);
 
         labelsRef.current
-          .style("opacity", 1);
+          .classed("dimmed", false);
       }
     }
-  }, [highlights, currentComponent, currentNetwork, selectedNodeId]);
+  }, 10);
 
   useEffect(() => {
+    const highlightData = highlights[currentNetwork]?.[currentComponent] || { nodes: [], edges: [] };
+    const { nodes: nodesToHighlight = [], edges: edgesToHighlight = [] } = highlightData;
+    applyHighlights(nodesToHighlight, edgesToHighlight);
+  }, [highlights, currentComponent, currentNetwork, selectedNodeId]);
+  
+  
+
+  useEffect(() => {
+    console.log("UseEffect visualizer 5");
     const nodes = nodesRef.current;
     const edges = edgesRef.current;
     const positions = positionsRef.current || {};
@@ -199,8 +221,6 @@ const Visualizer = () => {
       .attr("x", d => d.x)
       .attr("y", d => d.y - 15)
       .text(d => d.name)
-      .style("display", "block")
-      .style("font-size", "30px")
       .attr("opacity", 1);
 
     labelsRef.current = labels;
@@ -275,6 +295,7 @@ const Visualizer = () => {
   }, [currentNetwork, characterNodes, characterEdges, guestNodes, guestEdges, dispatch]);
 
   useEffect(() => {
+    console.log("UseEffect visualizer 6");
     if (triggerZoomToFit) {
       const nodes = nodeElementsRef.current ? nodeElementsRef.current.data() : [];
       const zoom = d3.zoom().scaleExtent([0.01, 4]).on("zoom", (event) => {
@@ -287,6 +308,7 @@ const Visualizer = () => {
   }, [triggerZoomToFit, currentNetwork, currentComponent, dispatch]);
 
   useEffect(() => {
+    console.log("UseEffect visualizer 7");
     if (triggerZoomToSelection && highlights[currentNetwork]?.[currentComponent]) {
       const highlightVerticesIds = highlights[currentNetwork][currentComponent].nodes || [];
       const highlightVertices = nodeElementsRef.current.filter(d => highlightVerticesIds.includes(d.id));
@@ -300,6 +322,7 @@ const Visualizer = () => {
   }, [triggerZoomToSelection, selectedNodeId, highlights, dispatch]);
 
   useEffect(() => {
+    console.log("UseEffect visualizer 8");
     const centralityScores = {
       degree: nodesRef.current.map(node => node.degree),
       betweenness: nodesRef.current.map(node => node.betweenness),
@@ -330,6 +353,7 @@ const Visualizer = () => {
   }, [currentCentrality, radiusRange, isComponentChanged, triggerZoomToFit, dispatch]);
 
   useEffect(() => {
+    console.log("UseEffect visualizer 9");
     if (simulationRef.current) {
       simulationRef.current.force("charge").strength(-forceStrength);
       simulationRef.current.alpha(1).restart();
@@ -337,6 +361,7 @@ const Visualizer = () => {
   }, [forceStrength, currentNetwork, isComponentChanged, triggerZoomToFit]);
 
   useEffect(() => {
+    console.log("UseEffect visualizer 10");
     if (simulationRef.current) {
       simulationRef.current.force("link").distance(linkDistance);
       simulationRef.current.alpha(1).restart();
@@ -344,6 +369,7 @@ const Visualizer = () => {
   }, [linkDistance, currentNetwork, isComponentChanged, triggerZoomToFit]);
 
   useEffect(() => {
+    console.log("UseEffect visualizer 11");
     if (selectedNodeId === null && selectedEpisode === null) {
       dispatch(setHighlights([]));
     } else {
@@ -353,6 +379,7 @@ const Visualizer = () => {
   }, [selectedNodeId, dispatch]);
 
   useEffect(() => {
+    console.log("UseEffect visualizer 12");
     if (selectedNodeId === null && selectedEpisode === null) {
         dispatch(setHighlights([]));
       } else {
@@ -370,10 +397,12 @@ const Visualizer = () => {
   };
 
   const mapScoresToRadii = (normalizedScores, minRadius, maxRadius) => {
+    console.log(`mapScores triggered`);
     return normalizedScores.map(score => minRadius + score * (maxRadius - minRadius));
   };
 
   const highlightNodeAndNeighbors = (nodeId) => {
+    console.log(`HighlightNodeAndNeighbors triggered.`);
     const highlightedNodes = [nodeId];
     const highlightedEdges = [];
 
@@ -423,6 +452,7 @@ const Visualizer = () => {
   };
 
   const calculateGraphBounds = (vertexSelection) => {
+    console.log(`Calculating graph bounds.`);
     const positionValues = Object.values(vertexSelection);
     const minX = d3.min(positionValues, d => d.x);
     const maxX = d3.max(positionValues, d => d.x);
@@ -440,6 +470,7 @@ const Visualizer = () => {
   };
 
   const adjustView = (positions, zoom) => {
+    console.log(`Adjusting view`);
     if (!positions || Object.keys(positions).length === 0) return;
 
     const nodeData = nodeElementsRef.current.data();
@@ -489,6 +520,7 @@ const Visualizer = () => {
   };
 
   const handleMouseEnterNode = (nodeId) => {
+    console.log(`Handling mouse enter node.`);
     hoverTimeoutRef.current = setTimeout(() => {
       dispatch(saveHighlights());
       highlightNodeAndNeighbors(nodeId);
@@ -496,6 +528,7 @@ const Visualizer = () => {
   };
 
   const handleMouseLeaveNode = () => {
+    console.log("Handling mouse leave node");
     if (hoverTimeoutRef.current) {
       clearTimeout(hoverTimeoutRef.current);
       hoverTimeoutRef.current = null;
