@@ -31,6 +31,7 @@ const Sidebar = () => {
 
 
   useEffect(() => {
+    console.log("UseEffect sidebar 1");
     dispatch(saveHighlights());
     if (selectedNodeId !== null) {
       if (currentNetwork === 'characters') {
@@ -53,6 +54,7 @@ const Sidebar = () => {
   }, [selectedNodeId, currentNetwork, dispatch]);
 
   useEffect(() => {
+    console.log("UseEffect sidebar 2");
     let isResizing = false;
     let startX;
     let startWidth;
@@ -99,6 +101,7 @@ const Sidebar = () => {
   }, [sidebarWidth, dispatch]);
 
   useEffect(() => {
+    console.log("UseEffect sidebar 3");
     const updateResizerHeight = () => {
       const resizer = resizerRef.current;
       if (sidebarRef.current) {
