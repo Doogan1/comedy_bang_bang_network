@@ -220,7 +220,7 @@ const Sidebar = () => {
           <h5>Component: {entityDetails.component}</h5>
           <h5>Degree: {selectedNodeId && characterNodes.length > 0 ? (
             currentNetwork === 'characters' ? (characterNodes.find(node => node.id === selectedNodeId).degree * (characterNodes.length - 1)).toFixed(0) 
-            : (guestNodes.length > 0 ? (guestNodes.find(node => node.id === selectedNodeId).degree * (guestNodes.length - 1)).toFixed(4) : ""))
+            : (guestNodes.length > 0 ? (guestNodes.find(node => node.id === selectedNodeId).degree * (guestNodes.length - 1)).toFixed(0) : ""))
             : ("")
             }
           </h5>
