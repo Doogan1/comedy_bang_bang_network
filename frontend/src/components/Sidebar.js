@@ -32,6 +32,7 @@ const Sidebar = () => {
 
   useEffect(() => {
     console.log("UseEffect sidebar 1");
+    console.log(characterEdges.length);
     dispatch(saveHighlights());
     if (selectedNodeId !== null) {
       if (currentNetwork === 'characters') {
@@ -218,25 +219,28 @@ const Sidebar = () => {
         <div>
           <h5>Component: {entityDetails.component}</h5>
           <h5>Degree: {selectedNodeId && characterNodes.length > 0 ? (
-            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).degree.toFixed(2) : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).degree.toFixed(2) : ""))
-          : (
-            ""
-          )}</h5>
+            currentNetwork === 'characters' ? (characterNodes.find(node => node.id === selectedNodeId).degree * (characterNodes.length - 1)).toFixed(0) 
+            : (guestNodes.length > 0 ? (guestNodes.find(node => node.id === selectedNodeId).degree * (guestNodes.length - 1)).toFixed(4) : ""))
+            : ("")
+            }
+          </h5>
           <h5>Eigenvector: {selectedNodeId && characterNodes.length > 0 ? (
-            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).eigenvector.toFixed(2) : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).eigenvector.toFixed(2) : ""))
-          : (
-            ""
-          )}</h5>
+            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).eigenvector.toFixed(4)
+            : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).eigenvector.toFixed(4) : ""))
+          : ("")
+          }
+          </h5>
           <h5>Betweenness: {selectedNodeId && characterNodes.length > 0 ? (
-            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).betweenness.toFixed(2) : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).betweenness.toFixed(2) : ""))
-          : (
-            ""
-          )}</h5>
+            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).betweenness.toFixed(4)
+            : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).betweenness.toFixed(4) : ""))
+          : ("")}
+          </h5>
           <h5>Closeness: {selectedNodeId && characterNodes.length > 0 ? (
-            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).closeness.toFixed(2) : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).closeness.toFixed(2) : ""))
-          : (
-            ""
-          )}</h5>
+            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).closeness.toFixed(4)
+            : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).closeness.toFixed(4) : ""))
+          : ("")
+          }
+          </h5>
         </div>
       )}
 
