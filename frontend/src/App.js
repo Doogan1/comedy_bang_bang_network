@@ -9,7 +9,10 @@ import Sidebar from './components/Sidebar';
 import ControlsSidebar from './components/ControlsSidebar';
 import NetworkSwitcher from './components/NetworkSwitcher';
 import SearchBar from './components/SearchBar';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles.css';
+
+
 
 const App = () => {
     const dispatch = useDispatch();
@@ -42,7 +45,7 @@ const App = () => {
             dispatch(fetchEpisodes());
         }
 
-    }, [dispatch]);
+    }, [episodes, dispatch]);
 
     useEffect(() => {
         if (currentNetwork === 'characters' && characterComponentsSummary.length > 0 && currentComponent === 0) {
@@ -53,8 +56,7 @@ const App = () => {
     }, [characterComponentsSummary, guestComponentsSummary, dispatch, currentComponent , currentNetwork]);
 
     const handleClickOutside = useCallback((event) => {
-
-        if (selectedNodeId && event.target.nodeName === 'svg') {
+        if (selectedNodeId && event.target.classList.contains('network-svg')) {
             dispatch(selectNode(null)); // Deselect node
             dispatch(selectEpisode(null));
             dispatch(setHighlights({nodes: [], edges: []}));
@@ -62,9 +64,9 @@ const App = () => {
     }, [dispatch, selectedNodeId]);
 
     useEffect(() => {
-        document.addEventListener('click', handleClickOutside);
+        document.addEventListener('click', handleClickOutside, true);
         return () => {
-            document.removeEventListener('click', handleClickOutside);
+            document.removeEventListener('click', handleClickOutside, true);
         };
     }, [handleClickOutside]);
 

@@ -49,11 +49,10 @@ const CentralityChart = ({ show, handleClose, data }) => {
       .style("fill", "#69b3a2");
 
     const selectedNodeValue = data.find(d => {
-        console.log(d);
-        console.log(selectedNodeId);
+
         return d.id === selectedNodeId;
     }).value;
-    console.log(selectedNodeValue);
+
     g.append("line")
       .attr("x1", x(selectedNodeValue))
       .attr("x2", x(selectedNodeValue))

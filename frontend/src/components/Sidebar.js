@@ -253,11 +253,6 @@ const Sidebar = () => {
           </h5>
         </div>
       )}
-      <CentralityChart
-        show={showChart}
-        handleClose={() => setShowChart(false)}
-        data={centralityData}
-      />
       </div>
       <hr />
       <div>
@@ -362,7 +357,13 @@ const Sidebar = () => {
             </tbody>
           </table>
         )}
+
       </div>
+      <CentralityChart
+        show={showChart}
+        handleClose={() => setShowChart(false)}
+        data={centralityData}
+      />
     </div>
   );
 };
