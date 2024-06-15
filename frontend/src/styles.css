@@ -141,6 +141,10 @@ hr {
     overflow: auto;
 }
 
+.chart-icon:hover {
+    cursor: pointer;
+}
+
 .sidebar h3 {
     color: #333;
     border: 1px solid black;
