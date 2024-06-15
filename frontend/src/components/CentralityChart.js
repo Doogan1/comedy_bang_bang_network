@@ -7,7 +7,7 @@ const CentralityChart = ({ show, handleClose, data }) => {
   const svgRef = React.useRef();
   const selectedNodeId = useSelector(state => state.ui.selectedNodeId);
   React.useEffect(() => {
-    if (!data || data.length === 0) return;
+    if (!data || data.length === 0 || !selectedNodeId) return;
 
     const svg = d3.select(svgRef.current);
     svg.selectAll("*").remove();
