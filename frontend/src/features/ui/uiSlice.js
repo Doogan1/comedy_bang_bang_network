@@ -58,6 +58,7 @@ export const uiSlice = createSlice({
             state.zoomCache[`${network}-${component}`] = zoom;
         },
         selectNode: (state, action) => {
+            console.log(`Setting node id to ${action.payload}`);
             state.selectedNodeId = action.payload;
         },
         setHighlights: (state, action) => {

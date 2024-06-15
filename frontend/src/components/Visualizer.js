@@ -521,8 +521,8 @@ const Visualizer = () => {
   const scaledHeight = 0.85 * windowHeight;
 
   return (
-    <div id="visualizer-container" style={{ width: '100%', height: '100%' }}>
-      <svg id='network' ref={svgRef} style={{ width: scaledWidth, height: scaledHeight }}>
+    <div id="visualizer-container" className='network-svg' style={{ width: '100%', height: '100%' }}>
+      <svg id='network' className='network-svg' ref={svgRef} style={{ width: scaledWidth, height: scaledHeight }}>
       </svg>
     </div>
   );
