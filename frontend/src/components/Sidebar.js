@@ -44,7 +44,8 @@ const Sidebar = () => {
   const getDataForCentrality = (metric) => {
     // Function to fetch the centrality data based on the metric
     const nodes = currentNetwork === 'characters' ? characterNodes : guestNodes;
-    return nodes.map(node => ({ id: node.id, value: node[metric] }));
+    const degreeMultiplier = metric === 'degree' ? nodes.length - 1 : 1 // degree centrality values are divided by order - 1, so we need to multiply by this value to get the actual degree
+    return nodes.map(node => ({ id: node.id, value: node[metric] * degreeMultiplier }));
   };
 
   useEffect(() => {
@@ -363,6 +364,7 @@ const Sidebar = () => {
         show={showChart}
         handleClose={() => setShowChart(false)}
         data={centralityData}
+        selectedCentrality={selectedCentrality}
       />
     </div>
   );
