@@ -58,6 +58,7 @@ const CentralityChart = ({ show, handleClose, data , selectedCentrality}) => {
       .attr("height", d => height - y(d.length))
       .style("fill", "#69b3a2")
       .on("mouseover", function(event, d) {
+        d3.select(this).style("fill", "red");
         tooltip.transition().duration(200).style("opacity", .9);
         tooltip.html(`Frequency: ${d.length}`)
           .style("left", `${event.pageX + 5}px`)
@@ -68,6 +69,7 @@ const CentralityChart = ({ show, handleClose, data , selectedCentrality}) => {
           .style("top", `${event.pageY - 28}px`);
       })
       .on("mouseout", function() {
+        d3.select(this).style("fill", "#69b3a2")
         tooltip.transition().duration(500).style("opacity", 0);
       });
 
