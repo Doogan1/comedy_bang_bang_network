@@ -8,6 +8,8 @@ import {
   setTriggerZoomToSelection
 } from '../features/ui/uiSlice';
 import { setTriggerZoomToFit, switchNetwork, selectEpisode } from '../features/ui/uiSlice';
+import CentralityChart from './CentralityChart';
+import { BiBarChartSquare } from "react-icons/bi";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
@@ -15,6 +17,9 @@ const Sidebar = () => {
   const resizerRef = useRef(null);
   const sidebarRef = useRef(null);
   const [isOpen, setIsOpen] = useState(true);
+  const [showChart, setShowChart] = useState(false);
+  const [centralityData, setCentralityData] = useState([]);
+  const [selectedCentrality, setSelectedCentrality] = useState('');
   const [sections, setSections] = useState({
     details: true,
     actors: true,
@@ -29,9 +34,21 @@ const Sidebar = () => {
   const guestNodes = useSelector(state => state.guests.nodes);
   const [isEpisodeClicked, setIsEpisodeClicked] = useState(false);
 
+  const handleCentralityClick = (metric) => {
+    setSelectedCentrality(metric);
+    const data = getDataForCentrality(metric);
+    setCentralityData(data);
+    setShowChart(true);
+  };
+
+  const getDataForCentrality = (metric) => {
+    // Function to fetch the centrality data based on the metric
+    const nodes = currentNetwork === 'characters' ? characterNodes : guestNodes;
+    const degreeMultiplier = metric === 'degree' ? nodes.length - 1 : 1 // degree centrality values are divided by order - 1, so we need to multiply by this value to get the actual degree
+    return nodes.map(node => ({ id: node.id, value: node[metric] * degreeMultiplier }));
+  };
 
   useEffect(() => {
-    console.log("UseEffect sidebar 1");
     dispatch(saveHighlights());
     if (selectedNodeId !== null) {
       if (currentNetwork === 'characters') {
@@ -54,7 +71,6 @@ const Sidebar = () => {
   }, [selectedNodeId, currentNetwork, dispatch]);
 
   useEffect(() => {
-    console.log("UseEffect sidebar 2");
     let isResizing = false;
     let startX;
     let startWidth;
@@ -101,7 +117,6 @@ const Sidebar = () => {
   }, [sidebarWidth, dispatch]);
 
   useEffect(() => {
-    console.log("UseEffect sidebar 3");
     const updateResizerHeight = () => {
       const resizer = resizerRef.current;
       if (sidebarRef.current) {
@@ -129,7 +144,7 @@ const Sidebar = () => {
   const handleEpisodeClick = (episodeId) => {
     dispatch(saveHighlights());
     dispatch(selectEpisode(episodeId));
-    dispatch(selectNode(null));
+    // dispatch(selectNode(null));
     setIsEpisodeClicked(true);
   };
 
@@ -218,28 +233,27 @@ const Sidebar = () => {
         <div>
           <h5>Component: {entityDetails.component}</h5>
           <h5>Degree: {selectedNodeId && characterNodes.length > 0 ? (
-            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).degree.toFixed(2) : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).degree.toFixed(2) : ""))
-          : (
-            ""
-          )}</h5>
+            currentNetwork === 'characters' ? (characterNodes.find(node => node.id === selectedNodeId).degree * (characterNodes.length - 1)).toFixed(0) 
+            : (guestNodes.length > 0 ? (guestNodes.find(node => node.id === selectedNodeId).degree * (guestNodes.length - 1)).toFixed(0) : ""))
+            : ("")}<span className="chart-icon" > <BiBarChartSquare onClick={() => handleCentralityClick('degree')} /></span>
+          </h5>
           <h5>Eigenvector: {selectedNodeId && characterNodes.length > 0 ? (
-            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).eigenvector.toFixed(2) : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).eigenvector.toFixed(2) : ""))
-          : (
-            ""
-          )}</h5>
+            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).eigenvector.toFixed(4)
+            : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).eigenvector.toFixed(4) : ""))
+          : ("")} <span className="chart-icon" ><BiBarChartSquare onClick={() => handleCentralityClick('eigenvector')} /></span>
+          </h5>
           <h5>Betweenness: {selectedNodeId && characterNodes.length > 0 ? (
-            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).betweenness.toFixed(2) : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).betweenness.toFixed(2) : ""))
-          : (
-            ""
-          )}</h5>
+            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).betweenness.toFixed(4)
+            : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).betweenness.toFixed(4) : ""))
+          : ("")} <span className="chart-icon" ><BiBarChartSquare onClick={() => handleCentralityClick('betweenness')} /></span>
+          </h5>
           <h5>Closeness: {selectedNodeId && characterNodes.length > 0 ? (
-            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).closeness.toFixed(2) : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).closeness.toFixed(2) : ""))
-          : (
-            ""
-          )}</h5>
+            currentNetwork === 'characters' ? characterNodes.find(node => node.id === selectedNodeId).closeness.toFixed(4)
+            : (guestNodes.length > 0 ? guestNodes.find(node => node.id === selectedNodeId).closeness.toFixed(4) : ""))
+          : ("")} <span className="chart-icon" ><BiBarChartSquare onClick={() => handleCentralityClick('closeness')} /></span>
+          </h5>
         </div>
       )}
-
       </div>
       <hr />
       <div>
@@ -344,7 +358,14 @@ const Sidebar = () => {
             </tbody>
           </table>
         )}
+
       </div>
+      <CentralityChart
+        show={showChart}
+        handleClose={() => setShowChart(false)}
+        data={centralityData}
+        selectedCentrality={selectedCentrality}
+      />
     </div>
   );
 };
