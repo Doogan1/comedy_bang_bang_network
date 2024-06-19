@@ -2,14 +2,17 @@ import React, { useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCharacters, setSelectedComponent as setSelectedCharacterComponent, fetchComponentsSummary as fetchCharacterComponentsSummary } from './features/characters/characterSlice';
 import { fetchGuests, setSelectedGuestComponent as setSelectedGuestComponent, fetchGuestComponentsSummary as fetchGuestComponentsSummary } from './features/guests/guestSlice';
-import { selectNode, switchNetwork , switchComponent , setHighlights , selectEpisode} from './features/ui/uiSlice';
+import { selectNode, switchNetwork , switchComponent , setHighlights , selectEpisode , saveHighlights} from './features/ui/uiSlice';
 import { fetchEpisodes , setEpisodes} from './features/episodes/episodeSlice';
 import Visualizer from './components/Visualizer';
 import Sidebar from './components/Sidebar';
 import ControlsSidebar from './components/ControlsSidebar';
 import NetworkSwitcher from './components/NetworkSwitcher';
 import SearchBar from './components/SearchBar';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles.css';
+
+
 
 const App = () => {
     const dispatch = useDispatch();
@@ -28,7 +31,6 @@ const App = () => {
     const windowHeight = windowState.height;
     
     useEffect(() => {
-        console.log("UseEffect App.js 1");
         if (currentNetwork === 'characters') {
             dispatch(fetchCharacterComponentsSummary());
         } else if (currentNetwork === 'guests') {
@@ -43,10 +45,9 @@ const App = () => {
             dispatch(fetchEpisodes());
         }
 
-    }, [dispatch]);
+    }, [episodes, dispatch]);
 
     useEffect(() => {
-        console.log(`UseEffect App.js 2`);
         if (currentNetwork === 'characters' && characterComponentsSummary.length > 0 && currentComponent === 0) {
             dispatch(fetchCharacters(0));
         } else if (currentNetwork === 'guests' && guestComponentsSummary.length > 0 && currentComponent === 0) {
@@ -55,19 +56,18 @@ const App = () => {
     }, [characterComponentsSummary, guestComponentsSummary, dispatch, currentComponent , currentNetwork]);
 
     const handleClickOutside = useCallback((event) => {
-
-        if (selectedNodeId && event.target.nodeName === 'svg') {
-            dispatch(selectNode(null)); // Deselect node
+        if ((selectedNodeId || selectEpisode) && event.target.classList.contains('network-svg')) {
             dispatch(selectEpisode(null));
             dispatch(setHighlights({nodes: [], edges: []}));
+            dispatch(saveHighlights({nodes: [], edges: []}));
+            dispatch(selectNode(null)); // Deselect node
         }
     }, [dispatch, selectedNodeId]);
 
     useEffect(() => {
-        console.log(`UseEffect App.js 3`);
-        document.addEventListener('click', handleClickOutside);
+        document.addEventListener('click', handleClickOutside, true);
         return () => {
-            document.removeEventListener('click', handleClickOutside);
+            document.removeEventListener('click', handleClickOutside, true);
         };
     }, [handleClickOutside]);
 

@@ -20,7 +20,6 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
     const guestComponentsSummary = useSelector(state => state.guests.componentsSummary);
 
     useEffect(() => {
-        console.log("UseEffect controlssidebar 1");
         if (currentNetwork === 'characters') {
             dispatch(fetchComponentsSummary());
         } else if (currentNetwork === 'guests') {
@@ -45,7 +44,6 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
     };
 
     useEffect(() => {
-        console.log("UseEffect controlssidebar 2");
         let isResizing = false;
         let startX;
         let startWidth;
