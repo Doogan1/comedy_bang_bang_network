@@ -1,11 +1,12 @@
 import React from 'react';
 import { Modal, Button } from 'react-bootstrap';
-import { useSelector, useDispatch } from 'react-redux';
+import { useSelector } from 'react-redux';
 import * as d3 from 'd3';
 
 const CentralityChart = ({ show, handleClose, data }) => {
   const svgRef = React.useRef();
   const selectedNodeId = useSelector(state => state.ui.selectedNodeId);
+
   React.useEffect(() => {
     if (!data || data.length === 0 || !selectedNodeId) return;
 
@@ -19,7 +20,7 @@ const CentralityChart = ({ show, handleClose, data }) => {
     const g = svg.append("g").attr("transform", `translate(${margin.left},${margin.top})`);
 
     const x = d3.scaleLinear()
-      .domain([0, d3.max(data)])
+      .domain([0, d3.max(data, d => d.value)])
       .range([0, width]);
 
     g.append("g")
@@ -27,10 +28,14 @@ const CentralityChart = ({ show, handleClose, data }) => {
       .call(d3.axisBottom(x));
 
     const histogram = d3.bin()
+      .value(d => d.value) // Ensure the histogram uses the correct value accessor
       .domain(x.domain())
       .thresholds(x.ticks(70));
 
     const bins = histogram(data);
+
+    console.log('Data:', JSON.stringify(data));
+    console.log('Bins:', JSON.stringify(bins));
 
     const y = d3.scaleLinear()
       .range([height, 0])
@@ -48,18 +53,17 @@ const CentralityChart = ({ show, handleClose, data }) => {
       .attr("height", d => height - y(d.length))
       .style("fill", "#69b3a2");
 
-    const selectedNodeValue = data.find(d => {
+    const selectedNodeValue = data.find(d => d.id === selectedNodeId)?.value;
 
-        return d.id === selectedNodeId;
-    }).value;
-
-    g.append("line")
-      .attr("x1", x(selectedNodeValue))
-      .attr("x2", x(selectedNodeValue))
-      .attr("y1", 0)
-      .attr("y2", height)
-      .attr("stroke", "red")
-      .attr("stroke-width", 2);
+    if (selectedNodeValue !== undefined) {
+      g.append("line")
+        .attr("x1", x(selectedNodeValue))
+        .attr("x2", x(selectedNodeValue))
+        .attr("y1", 0)
+        .attr("y2", height)
+        .attr("stroke", "red")
+        .attr("stroke-width", 2);
+    }
   }, [data, selectedNodeId]);
 
   return (

@@ -143,7 +143,7 @@ const Sidebar = () => {
   const handleEpisodeClick = (episodeId) => {
     dispatch(saveHighlights());
     dispatch(selectEpisode(episodeId));
-    dispatch(selectNode(null));
+    // dispatch(selectNode(null));
     setIsEpisodeClicked(true);
   };
 
