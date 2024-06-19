@@ -3,7 +3,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import * as d3 from 'd3';
 import {
   selectNode, updateZoomCache, setTriggerZoomToFit, setTriggerZoomToSelection,
-  setWindow, setHighlights, saveHighlights, retrieveHighlightsSave
+  setWindow, setHighlights, saveHighlights, retrieveHighlightsSave , selectEpisode
 } from '../features/ui/uiSlice';
 import { fetchCharacters, updatePositions, setIsComponentChanged } from '../features/characters/characterSlice';
 import { fetchGuests, updateGuestPositions } from '../features/guests/guestSlice';
@@ -200,6 +200,7 @@ const Visualizer = () => {
         .on("end", dragEnd))
       .on("click", (event, d) => {
         event.stopPropagation();
+        dispatch(selectEpisode(null));
         dispatch(selectNode(d.id));
         highlightNodeAndNeighbors(d.id);
       })
