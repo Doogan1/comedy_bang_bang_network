@@ -222,9 +222,10 @@ const Sidebar = () => {
   return (
     <div className="sidebar" id="entityDetails" ref={sidebarRef} style={{ display: selectedNodeId || selectedEpisode ? 'block' : 'none', width: `${sidebarWidth}px` }}>
       <div className="resizer" ref={resizerRef}></div>
-      <button onClick={closeSidebar} style={{ position: 'absolute', top: '5px', left: `15px` }}>X</button>
+      <button onClick={closeSidebar} className="close-sidebar-btn">X</button>
       <h3>{currentNetwork === 'characters' ? 'Character Details' : 'Guest Details'}</h3>
       <div><h2>{entityDetails.character_name}</h2>
+      <hr />
       <h4 onClick={() => toggleSection('details')} >
           Details
           {sections.details ? ' v' : ' >'}
