@@ -238,15 +238,7 @@ const Sidebar = () => {
           <div>
             <h5>Component: {entityDetails?.component ?? 'N/A'}</h5>
             <h5>
-              Degree: 
-              {selectedNodeId && characterNodes.length > 0 
-                ? (currentNetwork === 'characters'
-                    ? (characterNodes.find(node => node.id === selectedNodeId)?.degree ?? 0) * (characterNodes.length - 1)
-                    : (guestNodes.length > 0 
-                        ? (guestNodes.find(node => node.id === selectedNodeId)?.degree ?? 0) * (guestNodes.length - 1) 
-                        : 'N/A')
-                  ).toFixed(0)
-                : 'N/A'}
+              Degree: {getCentralityValue(currentNetwork === 'characters' ? characterNodes : guestNodes, 'degree')}
               <span className="chart-icon">
                 <BiBarChartSquare onClick={() => handleCentralityClick('degree')} />
               </span>
