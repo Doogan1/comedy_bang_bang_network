@@ -219,7 +219,9 @@ const Sidebar = () => {
 
   const getCentralityValue = (nodes, metric) => {
     const node = nodes.find(node => node.id === selectedNodeId);
-    return node && !isNaN(node[metric]) ? Number(node[metric]).toFixed(4) : 'N/A';
+    const order = nodes.length;
+    const centralityValue = node && !isNaN(node[metric]) ? (metric === "degree" ? Number(node[metric] * (order - 1)).toFixed(0) : Number(node[metric]).toFixed(4)) : 'N/A';
+    return centralityValue;
   };
 
   return (
