@@ -34,7 +34,7 @@ export const fetchGuests = createAsyncThunk(
         return state.guests.cache[component];
       }
       try {
-        const response = await fetch(`http://localhost:8000/api/network/guests/?component=${component}`);
+        const response = await fetch(`https://dpolejni.pythonanywhere.com/api/network/guests/?component=${component}`);
         if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
         const data = await response.json();
         return data;
