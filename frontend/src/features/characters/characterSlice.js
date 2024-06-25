@@ -26,7 +26,7 @@ export const fetchCharacters = createAsyncThunk(
     }
 
     try {
-      const response = await fetch(`http://localhost:8000/api/network/characters/?component=${component}`);
+      const response = await fetch(`https://dpolejni.pythonanywhere.com/api/network/characters/?component=${component}`);
       if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
       const data = await response.json();
       return data;
@@ -40,7 +40,7 @@ export const fetchComponentsSummary = createAsyncThunk(
   'characters/fetchComponentsSummary',
   async (entityType, { rejectWithValue }) => {
       try {
-          const response = await fetch(`http://localhost:8000/api/components-summary/characters/`);
+          const response = await fetch(`https://dpolejni.pythonanywhere.com/api/components-summary/characters/`);
           if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
           const data = await response.json();
           return data;
@@ -54,7 +54,7 @@ export const fetchCharacterDetails = createAsyncThunk(
   'characters/fetchCharacterDetails',
   async (characterId, { rejectWithValue }) => {
       try {
-          const response = await fetch(`http://localhost:8000/api/characters/${characterId}/`);
+          const response = await fetch(`https://dpolejni.pythonanywhere.com/api/characters/${characterId}/`);
           if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
           const data = await response.json();
           return data;

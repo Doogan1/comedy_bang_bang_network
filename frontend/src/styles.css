@@ -14,6 +14,7 @@ body {
     border: 1px solid #000000;
     background-color: #9a9a9a;
     border-radius: 5px;
+    max-width: 1275px;
 }
 
 .node-label {
@@ -44,6 +45,7 @@ body {
 .controls-sidebar {
     position: relative;
     top: 0;
+    left: 0;
     height: 100%;
     width: 15%;
     min-width: 192px;
@@ -63,7 +65,10 @@ body {
     height: 100%;
     width: 100%;
     align-items: center;
+    justify-content: center;
+    flex-direction: row;
     margin-top: 20px;
+    margin-left: 0;
 }
 
 line {
@@ -121,6 +126,7 @@ hr {
     padding: 10px;
     width: 15%;
     margin: auto;
+    width: 100%;
 }
 
 
@@ -139,6 +145,17 @@ hr {
     display: none;  /* Hide by default */
     resize: horizontal;
     overflow: auto;
+    text-align: center;
+}
+
+.sidebar h3 {
+    margin: auto;
+    margin-bottom: 15px;
+}
+
+.close-sidebar-btn {
+    position: fixed;
+    right: 15px;
 }
 
 .chart-icon:hover {
@@ -164,9 +181,11 @@ hr {
     margin: auto;
 }
 .sidebar h3 {
+    margin-top: 30px;
     color: #333;
     border: 1px solid black;
     border-radius: 5px;
+    max-width: 300px;
 }
 
 .sidebar ul {

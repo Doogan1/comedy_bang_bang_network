@@ -7,7 +7,7 @@ module.exports = {
 
   // Where to output the bundle
   output: {
-    path: path.resolve(__dirname, 'dist'),
+    path: path.resolve(__dirname, 'build'),
     filename: 'bundle.js'
   },
 
@@ -52,5 +52,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/index.html' // Path to your template file
     })
-  ]
+  ],
+  devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
 };
