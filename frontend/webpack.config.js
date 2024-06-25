@@ -52,5 +52,6 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './src/index.html' // Path to your template file
     })
-  ]
+  ],
+  devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
 };
