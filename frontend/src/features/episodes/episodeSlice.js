@@ -10,7 +10,7 @@ export const fetchEpisodes = createAsyncThunk(
   'characters/fetchEpisodes',
   async ( _ , { rejectWithValue }) => {
       try {
-          const response = await fetch(`http://localhost:8000/api/episodes/`);
+          const response = await fetch(`https://dpolejni.pythonanywhere.com/api/episodes/`);
           if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
           const data = await response.json();
           return data;

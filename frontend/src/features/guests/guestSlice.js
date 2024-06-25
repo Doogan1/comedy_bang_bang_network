@@ -34,7 +34,7 @@ export const fetchGuests = createAsyncThunk(
         return state.guests.cache[component];
       }
       try {
-        const response = await fetch(`http://localhost:8000/api/network/guests/?component=${component}`);
+        const response = await fetch(`https://dpolejni.pythonanywhere.com/api/network/guests/?component=${component}`);
         if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
         const data = await response.json();
         return data;
@@ -49,7 +49,7 @@ export const fetchGuests = createAsyncThunk(
     'guests/fetchGuestComponentsSummary',
     async (entityType, { rejectWithValue }) => {
       try {
-        const response = await fetch(`http://localhost:8000/api/components-summary/guests/`);
+        const response = await fetch(`https://dpolejni.pythonanywhere.com/api/components-summary/guests/`);
         if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
         const data = await response.json();
         return data;
@@ -64,7 +64,7 @@ export const fetchGuestDetails = createAsyncThunk(
     'guests/fetchGuestDetails',
     async (guestId, { rejectWithValue }) => {
         try {
-            const response = await fetch(`http://localhost:8000/api/guests/${guestId}/`);
+            const response = await fetch(`https://dpolejni.pythonanywhere.com/api/guests/${guestId}/`);
             if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
             const data = await response.json();
             return data;
