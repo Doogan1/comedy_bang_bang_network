@@ -27,7 +27,7 @@ const App = () => {
     const episodes = useSelector((state) => state.episodes.episodes);
     const windowState = useSelector((state) => state.ui.window);
     const windowWidth = windowState.width;
-    const topbarWidth = windowWidth * 0.85;
+    const topbarWidth = windowWidth * 0.75;
     const windowHeight = windowState.height;
     
     useEffect(() => {
@@ -77,12 +77,13 @@ const App = () => {
 
     const componentsSummary = currentNetwork === 'characters' ? characterComponentsSummary : guestComponentsSummary;
 
+
     return (
         <div className='container'>
             <ControlsSidebar
-                selectedComponent={currentComponent}
-                setSelectedComponent={handleComponentChange}
-                componentsSummary={componentsSummary}
+            selectedComponent={currentComponent}
+            setSelectedComponent={handleComponentChange}
+            componentsSummary={componentsSummary}
             />
             <div className='visualizer-container'>
                 <div className="top-bar" style={{width: topbarWidth}}>

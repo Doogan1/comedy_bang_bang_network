@@ -524,13 +524,18 @@ const Visualizer = () => {
     dispatch(retrieveHighlightsSave());
   };
 
-  const scaledWidth = 0.85 * windowWidth;
-  const scaledHeight = 0.85 * windowHeight;
+  useEffect(() => {
+    console.log(JSON.stringify(nodeElementsRef.current));
+    dispatch(setTriggerZoomToFit(true));
+  }, [currentComponent]);
+
+  const scaledWidth = 0.75 * windowWidth;
+  const scaledHeight = 0.75 * windowHeight;
 
   const isLoading = loadingCharacters || loadingGuests;
 
   return (
-    <div id="visualizer-container" className='network-svg' style={{ width: '100%', height: '100%' }}>
+    <div id="visualizer-container" className='network-svg'>
       { isLoading && (
         <div className="loading-spinner">
           <Vortex />
