@@ -203,6 +203,8 @@ const Visualizer = () => {
         dispatch(selectEpisode(null));
         dispatch(selectNode(d.id));
         highlightNodeAndNeighbors(d.id);
+        dispatch(saveHighlights());
+        dispatch(retrieveHighlightsSave());
       })
       .on("mouseenter", (event, d) => handleMouseEnterNode(d.id))
       .on("mouseleave", handleMouseLeaveNode);
@@ -403,6 +405,7 @@ const Visualizer = () => {
       nodes: highlightedNodes,
       edges: highlightedEdges
     };
+    console.log(`Setting highlights with ${JSON.stringify(payload)}`);
     dispatch(setHighlights(payload));
   };
 

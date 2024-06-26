@@ -132,11 +132,11 @@ hr {
 
 .sidebar {
     border-radius: 5px;
-    position: fixed;
+    position: absolute;
     right: 0;
     top: 0;
     width: 300px;
-    min-width: 150px;
+    min-width: 175px;
     height: 100%;
     background-color: #f4f4f4;
     border-left: 2px solid #ccc;
@@ -156,6 +156,7 @@ hr {
 .close-sidebar-btn {
     position: fixed;
     right: 15px;
+    top: 5px;
 }
 
 .chart-icon:hover {
