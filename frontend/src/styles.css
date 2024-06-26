@@ -51,13 +51,19 @@ body {
     min-width: 192px;
 }
 .visualizer-container {
-    width: 100%;
-    height: 100%;
+    display: inline-block;
+    width: fit-content;
+    block-size: fit-content;
     border: 1px solid black;
     background: #f9f9f9;
     padding: 10px;
     border-radius: 10px;
 
+}
+
+.network-svg {
+    display: inline-block;
+    width: fit-content;
 }
 
 .container {
