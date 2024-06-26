@@ -1,5 +1,6 @@
 import React, { useEffect, useRef , useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Vortex } from 'react-loader-spinner'
 import * as d3 from 'd3';
 import {
   selectNode, updateZoomCache, setTriggerZoomToFit, setTriggerZoomToSelection,
@@ -41,6 +42,8 @@ const Visualizer = () => {
   const guestPositions = useSelector(state => state.guests.positions[currentComponent]);
   const episodes = useSelector(state => state.episodes.episodes);
   const highlights = useSelector(state => state.ui.highlights);
+  const loadingCharacters = useSelector((state) => state.characters.loading);
+  const loadingGuests = useSelector((state) => state.guests.loading);
 
   const nodesRef = useRef([]);
   const edgesRef = useRef([]);
@@ -524,8 +527,15 @@ const Visualizer = () => {
   const scaledWidth = 0.85 * windowWidth;
   const scaledHeight = 0.85 * windowHeight;
 
+  const isLoading = loadingCharacters || loadingGuests;
+
   return (
     <div id="visualizer-container" className='network-svg' style={{ width: '100%', height: '100%' }}>
+      { isLoading && (
+        <div className="loading-spinner">
+          <Vortex />
+        </div>
+      )}
       <svg id='network' className='network-svg' ref={svgRef} style={{ width: scaledWidth, height: scaledHeight }}>
       </svg>
     </div>

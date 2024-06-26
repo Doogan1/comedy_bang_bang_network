@@ -148,6 +148,13 @@ hr {
     text-align: center;
 }
 
+.loading-spinner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+}
+
 .sidebar h3 {
     margin: auto;
     margin-bottom: 15px;
