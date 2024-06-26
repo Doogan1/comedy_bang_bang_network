@@ -13,7 +13,7 @@ import { BiBarChartSquare } from "react-icons/bi";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
-  const { currentNetwork, selectedNodeId, entityDetails, sidebarWidth, selectedEpisode, currentComponent } = useSelector(state => state.ui);
+  const { currentNetwork, selectedNodeId, entityDetails, sidebarWidth, selectedEpisode, currentComponent , highlights , highlightsSave} = useSelector(state => state.ui);
   const resizerRef = useRef(null);
   const sidebarRef = useRef(null);
   const [isOpen, setIsOpen] = useState(true);
@@ -206,6 +206,11 @@ const Sidebar = () => {
   };
 
   const getSharedEpisodes = (characterId) => {
+
+    if (!Array.isArray(episodeDetails)) {
+      return '';
+    }
+    
     return episodeDetails.filter(episode => {
       if (currentNetwork === 'characters') {
         return episode.characters.map(character => character.id).includes(entityDetails.character_id) && episode.characters.map(character => character.id).includes(characterId);
@@ -223,6 +228,9 @@ const Sidebar = () => {
     const centralityValue = node && !isNaN(node[metric]) ? (metric === "degree" ? Number(node[metric] * (order - 1)).toFixed(0) : Number(node[metric]).toFixed(4)) : 'N/A';
     return centralityValue;
   };
+
+  console.log(highlights);
+  console.log(highlightsSave);
 
   return (
     <div className="sidebar" id="entityDetails" ref={sidebarRef} style={{ display: selectedNodeId || selectedEpisode ? 'block' : 'none', width: `${sidebarWidth}px` }}>
