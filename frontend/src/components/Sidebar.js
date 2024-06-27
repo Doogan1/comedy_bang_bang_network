@@ -107,13 +107,25 @@ const Sidebar = () => {
       e.stopPropagation();
     };
 
-    const resizer = document.querySelector('.resizer');
-    resizer.addEventListener('mousedown', handleMouseDown);
-
-    return () => {
-      resizer.removeEventListener('mousedown', handleMouseDown);
+    const attachResizerEvents = () => {
+      const resizer = resizerRef.current;
+      if (resizer) {
+        resizer.addEventListener('mousedown', handleMouseDown);
+      }
     };
-  }, [sidebarWidth, dispatch]);
+
+    const removeResizerEvents = () => {
+      const resizer = resizerRef.current;
+      if (resizer) {
+        resizer.removeEventListener('mousedown', handleMouseDown);
+      }
+    };
+
+    attachResizerEvents();
+    return () => {
+      removeResizerEvents();
+    };
+  }, [sidebarWidth, dispatch, isOpen]);
 
   useEffect(() => {
     const updateResizerHeight = () => {
