@@ -157,7 +157,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                             checked={currentCentrality === 'none'}
                             onChange={handleCentralityChange}
                         />
-                        <label htmlFor="none">None</label>
+                        <label htmlFor="none">Uniform</label>
                     </div>
                     <div>
                         <input
