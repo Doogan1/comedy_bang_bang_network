@@ -146,35 +146,38 @@ const Visualizer = () => {
     const nodes = nodesRef.current;
     const edges = edgesRef.current;
     const positions = positionsRef.current || {};
-
+  
     if (!nodes || !edges) return;
-
+  
     const mutableNodes = nodes.map(node => ({
       ...node,
       x: positions[node.id]?.x || node.x,
       y: positions[node.id]?.y || node.y
     }));
-
-    const mutableEdges = edges.map(link => ({ ...link }));
-
+  
+    const mutableEdges = edges.map(link => ({
+      ...link,
+      distance: Math.sqrt(Math.pow(link.source.x - link.target.x, 2) + Math.pow(link.source.y - link.target.y, 2))
+    }));
+  
     const svg = d3.select(svgRef.current)
       .attr('width', 0.85 * windowWidth)
       .attr('height', 0.9 * windowHeight);
-
+  
     svg.selectAll("*").remove();
-
+  
     const { width, height } = svgRef.current.getBoundingClientRect();
     const contentGroup = svg.append("g");
-
+  
     const zoom = d3.zoom()
       .scaleExtent([0.01, 4])
       .on("zoom", (event) => {
         contentGroup.attr("transform", event.transform);
         zoomRef.current = event.transform;
       });
-
+  
     svg.call(zoom);
-
+  
     const componentKey = `${currentNetwork}-${currentComponent}`;
     if (zoomCache[componentKey]) {
       const { k, x, y } = zoomCache[componentKey];
@@ -184,14 +187,14 @@ const Visualizer = () => {
     } else {
       dispatch(setTriggerZoomToFit(true));
     }
-
+  
     const edgeElements = contentGroup.selectAll("line")
       .data(mutableEdges)
       .enter().append("line")
       .attr("stroke", "#ddd");
-
+  
     edgeElementsRef.current = edgeElements;
-
+  
     const nodeElements = contentGroup.selectAll("circle")
       .data(mutableNodes)
       .enter().append("circle")
@@ -211,10 +214,9 @@ const Visualizer = () => {
       })
       .on("mouseenter", (event, d) => handleMouseEnterNode(d.id))
       .on("mouseleave", handleMouseLeaveNode);
-    
-
+  
     nodeElementsRef.current = nodeElements;
-
+  
     const labels = contentGroup.selectAll(".node-label")
       .data(mutableNodes)
       .enter().append("text")
@@ -223,34 +225,36 @@ const Visualizer = () => {
       .attr("y", d => d.y - 15)
       .text(d => d.name)
       .attr("opacity", 1);
-
+  
     labelsRef.current = labels;
-
+  
     nodeElements.append("title").text(d => d.name);
-
+  
     function dragStart(event, d) {
       if (!event.active) simulationRef.current.alphaTarget(0.3).restart();
       d.fx = d.x;
       d.fy = d.y;
     }
-
+  
     function dragging(event, d) {
       d.fx = event.x;
       d.fy = event.y;
     }
-
+  
     function dragEnd(event, d) {
       if (!event.active) simulationRef.current.alphaTarget(0);
       d.fx = null;
       d.fy = null;
     }
-
+  
     let tickCounter = 0;
     const tickUpdateFrequency = 50;
-
+  
     simulationRef.current = d3.forceSimulation(mutableNodes)
       .force("link", d3.forceLink(mutableEdges).id(d => d.id))
       .force("charge", d3.forceManyBody().strength(-forceStrength))
+      .force("x", d3.forceX())
+      .force("y", d3.forceY())
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collide", d3.forceCollide().radius(d => d.currentRadius || 30))
       .alphaDecay(currentComponent === 0 ? 0.005 : 0.0228)
@@ -260,15 +264,15 @@ const Visualizer = () => {
           .attr("y1", d => d.source.y)
           .attr("x2", d => d.target.x)
           .attr("y2", d => d.target.y);
-
+  
         nodeElements
           .attr("cx", d => d.x)
           .attr("cy", d => d.y);
-
+  
         labels
           .attr("x", d => d.x)
           .attr("y", d => d.y - 25);
-
+  
         if (tickCounter === 10) {
           const nodes = nodeElementsRef.current ? nodeElementsRef.current.data() : [];
           const zoom = d3.zoom().scaleExtent([0.01, 4]).on('zoom', (event) => {
@@ -286,10 +290,8 @@ const Visualizer = () => {
           }), {}));
         }
         tickCounter += 1;
-      })
-
-;
-
+      });
+  
     return () => {
       const currentPositions = getCurrentPositions();
       const componentKey = `${currentNetwork}-${currentComponent}`;
@@ -303,8 +305,10 @@ const Visualizer = () => {
       svg.on('.zoom', null);
       dispatch(setIsComponentChanged(true));
     };
-
+  
   }, [currentNetwork, characterNodes, characterEdges, guestNodes, guestEdges, dispatch]);
+  
+  
 
   useEffect(() => {
     if (currentNetwork === 'characters') {
