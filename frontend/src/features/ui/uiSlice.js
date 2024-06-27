@@ -20,12 +20,12 @@ const initialState = {
         episodes: []
     },
     sidebarWidth: 300,
-    forceStrength: 5000,
-    linkDistance: 500,
-    currentCentrality: 'none',
+    forceStrength: 10000,
+    linkDistance: 1000,
+    currentCentrality: 'eigenvector',
     radiusRange: {
-        minRadius: 1,
-        maxRadius: 30
+        minRadius: 35,
+        maxRadius: 175
     },
     triggerZoomToFit: false, 
     triggerZoomToSelection: false,
