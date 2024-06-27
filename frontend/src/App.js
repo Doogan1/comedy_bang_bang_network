@@ -72,6 +72,7 @@ const App = () => {
     }, [handleClickOutside]);
 
     const handleComponentChange = (component) => {
+        dispatch(selectNode(null));
         dispatch(switchComponent(component));
     };
 
