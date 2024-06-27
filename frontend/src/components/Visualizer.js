@@ -497,7 +497,7 @@ const Visualizer = () => {
   
     let scale;
     if (bounds.width === 0 && bounds.height === 0) {
-      scale = 1;
+      scale = .8;
     } else {
       scale = 0.8 / Math.max(bounds.width / svgRef.current.clientWidth, bounds.height / svgRef.current.clientHeight);
     }
