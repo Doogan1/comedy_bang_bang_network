@@ -22,7 +22,7 @@ const initialState = {
     sidebarWidth: 300,
     forceStrength: 10000,
     linkDistance: 1000,
-    currentCentrality: 'none',
+    currentCentrality: 'eigenvector',
     radiusRange: {
         minRadius: 35,
         maxRadius: 175
