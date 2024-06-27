@@ -273,13 +273,17 @@ const Visualizer = () => {
           .attr("x", d => d.x)
           .attr("y", d => d.y - 25);
   
-        if (tickCounter === 10) {
+        if (tickCounter === 5) {
           const nodes = nodeElementsRef.current ? nodeElementsRef.current.data() : [];
           const zoom = d3.zoom().scaleExtent([0.01, 4]).on('zoom', (event) => {
             d3.select(svgRef.current).select('g').attr('transform', event.transform);
             zoomRef.current = event.transform;
           });
           adjustView(nodes, zoom);
+          if (selectedNodeId) {
+            console.log(selectedNodeId);
+            highlightNodeAndNeighbors(selectedNodeId);
+          }
           dispatch(setTriggerZoomToFit(false));
         }
         if (tickCounter % tickUpdateFrequency === 0) {
@@ -391,6 +395,13 @@ const Visualizer = () => {
       simulationRef.current.alpha(1).restart();
     }
   }, [linkDistance, currentNetwork, isComponentChanged, triggerZoomToFit]);
+
+  useEffect(() => {
+    console.log(`Current network changed and selectedNodeId is ${selectedNodeId}`);
+    if (selectedNodeId) {
+      highlightNodeAndNeighbors(selectedNodeId);
+    }
+  }, [currentNetwork]);
 
   useEffect(() => {
     if (selectedNodeId === null && selectedEpisode === null) {
