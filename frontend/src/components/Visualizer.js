@@ -204,14 +204,15 @@ const Visualizer = () => {
         .on("start", dragStart)
         .on("drag", dragging)
         .on("end", dragEnd))
-      .on("click", (event, d) => {
-        event.stopPropagation();
-        dispatch(selectEpisode(null));
-        dispatch(selectNode(d.id));
-        highlightNodeAndNeighbors(d.id);
-        dispatch(saveHighlights());
-        dispatch(retrieveHighlightsSave());
-      })
+        .on("click", (event, d) => {
+          event.stopPropagation();
+          if (selectedEpisode !== null) {
+            dispatch(selectEpisode(null));
+            dispatch(saveHighlights()); // Save the current highlights before changing the selection
+          }
+          dispatch(selectNode(d.id));
+          highlightNodeAndNeighbors(d.id); // Pass the clicked node ID to highlight
+        })        
       .on("mouseenter", (event, d) => handleMouseEnterNode(d.id))
       .on("mouseleave", handleMouseLeaveNode);
   
@@ -283,6 +284,7 @@ const Visualizer = () => {
           if (selectedNodeId) {
             console.log(selectedNodeId);
             highlightNodeAndNeighbors(selectedNodeId);
+            dispatch(saveHighlights());
           }
           dispatch(setTriggerZoomToFit(false));
         }
@@ -434,6 +436,7 @@ const Visualizer = () => {
   };
 
   const highlightNodeAndNeighbors = (nodeId) => {
+    console.log(`Highlighting node and neighbors of ${nodeId}`);
     const highlightedNodes = [nodeId];
     const highlightedEdges = [];
 
