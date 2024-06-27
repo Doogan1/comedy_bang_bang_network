@@ -1,5 +1,6 @@
 import React, { useEffect, useRef , useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
+import { Vortex } from 'react-loader-spinner'
 import * as d3 from 'd3';
 import {
   selectNode, updateZoomCache, setTriggerZoomToFit, setTriggerZoomToSelection,
@@ -41,6 +42,8 @@ const Visualizer = () => {
   const guestPositions = useSelector(state => state.guests.positions[currentComponent]);
   const episodes = useSelector(state => state.episodes.episodes);
   const highlights = useSelector(state => state.ui.highlights);
+  const loadingCharacters = useSelector((state) => state.characters.loading);
+  const loadingGuests = useSelector((state) => state.guests.loading);
 
   const nodesRef = useRef([]);
   const edgesRef = useRef([]);
@@ -143,35 +146,38 @@ const Visualizer = () => {
     const nodes = nodesRef.current;
     const edges = edgesRef.current;
     const positions = positionsRef.current || {};
-
+  
     if (!nodes || !edges) return;
-
+  
     const mutableNodes = nodes.map(node => ({
       ...node,
       x: positions[node.id]?.x || node.x,
       y: positions[node.id]?.y || node.y
     }));
-
-    const mutableEdges = edges.map(link => ({ ...link }));
-
+  
+    const mutableEdges = edges.map(link => ({
+      ...link,
+      distance: Math.sqrt(Math.pow(link.source.x - link.target.x, 2) + Math.pow(link.source.y - link.target.y, 2))
+    }));
+  
     const svg = d3.select(svgRef.current)
       .attr('width', 0.85 * windowWidth)
       .attr('height', 0.9 * windowHeight);
-
+  
     svg.selectAll("*").remove();
-
+  
     const { width, height } = svgRef.current.getBoundingClientRect();
     const contentGroup = svg.append("g");
-
+  
     const zoom = d3.zoom()
       .scaleExtent([0.01, 4])
       .on("zoom", (event) => {
         contentGroup.attr("transform", event.transform);
         zoomRef.current = event.transform;
       });
-
+  
     svg.call(zoom);
-
+  
     const componentKey = `${currentNetwork}-${currentComponent}`;
     if (zoomCache[componentKey]) {
       const { k, x, y } = zoomCache[componentKey];
@@ -181,14 +187,14 @@ const Visualizer = () => {
     } else {
       dispatch(setTriggerZoomToFit(true));
     }
-
+  
     const edgeElements = contentGroup.selectAll("line")
       .data(mutableEdges)
       .enter().append("line")
       .attr("stroke", "#ddd");
-
+  
     edgeElementsRef.current = edgeElements;
-
+  
     const nodeElements = contentGroup.selectAll("circle")
       .data(mutableNodes)
       .enter().append("circle")
@@ -203,12 +209,14 @@ const Visualizer = () => {
         dispatch(selectEpisode(null));
         dispatch(selectNode(d.id));
         highlightNodeAndNeighbors(d.id);
+        dispatch(saveHighlights());
+        dispatch(retrieveHighlightsSave());
       })
       .on("mouseenter", (event, d) => handleMouseEnterNode(d.id))
       .on("mouseleave", handleMouseLeaveNode);
-
+  
     nodeElementsRef.current = nodeElements;
-
+  
     const labels = contentGroup.selectAll(".node-label")
       .data(mutableNodes)
       .enter().append("text")
@@ -217,34 +225,36 @@ const Visualizer = () => {
       .attr("y", d => d.y - 15)
       .text(d => d.name)
       .attr("opacity", 1);
-
+  
     labelsRef.current = labels;
-
+  
     nodeElements.append("title").text(d => d.name);
-
+  
     function dragStart(event, d) {
       if (!event.active) simulationRef.current.alphaTarget(0.3).restart();
       d.fx = d.x;
       d.fy = d.y;
     }
-
+  
     function dragging(event, d) {
       d.fx = event.x;
       d.fy = event.y;
     }
-
+  
     function dragEnd(event, d) {
       if (!event.active) simulationRef.current.alphaTarget(0);
       d.fx = null;
       d.fy = null;
     }
-
+  
     let tickCounter = 0;
     const tickUpdateFrequency = 50;
-
+  
     simulationRef.current = d3.forceSimulation(mutableNodes)
       .force("link", d3.forceLink(mutableEdges).id(d => d.id))
       .force("charge", d3.forceManyBody().strength(-forceStrength))
+      .force("x", d3.forceX())
+      .force("y", d3.forceY())
       .force("center", d3.forceCenter(width / 2, height / 2))
       .force("collide", d3.forceCollide().radius(d => d.currentRadius || 30))
       .alphaDecay(currentComponent === 0 ? 0.005 : 0.0228)
@@ -254,16 +264,24 @@ const Visualizer = () => {
           .attr("y1", d => d.source.y)
           .attr("x2", d => d.target.x)
           .attr("y2", d => d.target.y);
-
+  
         nodeElements
           .attr("cx", d => d.x)
           .attr("cy", d => d.y);
-
+  
         labels
           .attr("x", d => d.x)
           .attr("y", d => d.y - 25);
-
-        tickCounter += 1;
+  
+        if (tickCounter === 10) {
+          const nodes = nodeElementsRef.current ? nodeElementsRef.current.data() : [];
+          const zoom = d3.zoom().scaleExtent([0.01, 4]).on('zoom', (event) => {
+            d3.select(svgRef.current).select('g').attr('transform', event.transform);
+            zoomRef.current = event.transform;
+          });
+          adjustView(nodes, zoom);
+          dispatch(setTriggerZoomToFit(false));
+        }
         if (tickCounter % tickUpdateFrequency === 0) {
           const nodeData = nodeElements.data();
           updateNetworkPositions(dispatch, currentNetwork, currentComponent, nodeData.reduce((acc, node) => ({
@@ -271,8 +289,9 @@ const Visualizer = () => {
             [node.id]: { x: node.x, y: node.y }
           }), {}));
         }
+        tickCounter += 1;
       });
-
+  
     return () => {
       const currentPositions = getCurrentPositions();
       const componentKey = `${currentNetwork}-${currentComponent}`;
@@ -286,20 +305,34 @@ const Visualizer = () => {
       svg.on('.zoom', null);
       dispatch(setIsComponentChanged(true));
     };
-
+  
   }, [currentNetwork, characterNodes, characterEdges, guestNodes, guestEdges, dispatch]);
+  
+  
 
   useEffect(() => {
+    if (currentNetwork === 'characters') {
+      nodeElementsRef.current = d3.select(svgRef.current).selectAll("circle");
+    } else if (currentNetwork === 'guests') {
+      nodeElementsRef.current = d3.select(svgRef.current).selectAll("circle");
+    }
+  }, [currentNetwork, currentComponent, characterNodes, guestNodes]);
+  
+  useEffect(() => {
     if (triggerZoomToFit) {
+      // Ensure nodeElementsRef is updated with the latest data
       const nodes = nodeElementsRef.current ? nodeElementsRef.current.data() : [];
       const zoom = d3.zoom().scaleExtent([0.01, 4]).on("zoom", (event) => {
         d3.select(svgRef.current).select("g").attr("transform", event.transform);
         zoomRef.current = event.transform;
       });
+      console.log(`Adjusting view from useEffect #1`);
+  
       adjustView(nodes, zoom);
       dispatch(setTriggerZoomToFit(false));
     }
   }, [triggerZoomToFit, currentNetwork, currentComponent, dispatch]);
+  
 
   useEffect(() => {
     if (triggerZoomToSelection && highlights[currentNetwork]?.[currentComponent]) {
@@ -309,6 +342,7 @@ const Visualizer = () => {
         d3.select(svgRef.current).select("g").attr("transform", event.transform);
         zoomRef.current = event.transform;
       });
+      console.log(`Adjusting view from useEffect #2`);
       adjustView(highlightVertices.data(), zoom);
       dispatch(setTriggerZoomToSelection(false));
     }
@@ -403,6 +437,7 @@ const Visualizer = () => {
       nodes: highlightedNodes,
       edges: highlightedEdges
     };
+    console.log(`Setting highlights with ${JSON.stringify(payload)}`);
     dispatch(setHighlights(payload));
   };
 
@@ -437,13 +472,14 @@ const Visualizer = () => {
     dispatch(setHighlights(payload));
   };
 
-  const calculateGraphBounds = (vertexSelection) => {
-    const positionValues = Object.values(vertexSelection);
+  const calculateGraphBounds = (positions) => {
+    const positionValues = Object.values(positions);
+    console.log(positionValues.map(node => [node.x, node.y]));
     const minX = d3.min(positionValues, d => d.x);
     const maxX = d3.max(positionValues, d => d.x);
     const minY = d3.min(positionValues, d => d.y);
     const maxY = d3.max(positionValues, d => d.y);
-
+  
     return {
       x: minX,
       y: minY,
@@ -453,55 +489,56 @@ const Visualizer = () => {
       centerY: (minY + maxY) / 2
     };
   };
+  
 
   const adjustView = (positions, zoom) => {
-    if (!positions || Object.keys(positions).length === 0) return;
-
-    const nodeData = nodeElementsRef.current.data();
-    updateNetworkPositions(dispatch, currentNetwork, currentComponent, nodeData.reduce((acc, node) => ({
-      ...acc,
-      [node.id]: { x: node.x, y: node.y }
-    }), {}));
-
+    if (!positions || positions.length === 0) return;
+    console.log(`Positions here upon adjusting view: ${JSON.stringify(positions.map((node) => node.name))}`);
+  
     const bounds = calculateGraphBounds(positions);
-    let scale = 0.80 / Math.max(bounds.width / svgRef.current.clientWidth, bounds.height / svgRef.current.clientHeight);
-
+    console.log(bounds);
+    if (!bounds) return;
+  
+    let scale;
     if (bounds.width === 0 && bounds.height === 0) {
-      scale = 1;
+      scale = .8;
+    } else {
+      scale = 0.8 / Math.max(bounds.width / svgRef.current.clientWidth, bounds.height / svgRef.current.clientHeight);
     }
-
+    console.log(`The scale is ${scale}`);
     const translate = [
       (svgRef.current.clientWidth / 2) - scale * (bounds.centerX),
       (svgRef.current.clientHeight / 2) - scale * (bounds.centerY)
     ];
-
+  
     const transform = d3.zoomIdentity.translate(translate[0], translate[1]).scale(scale);
     const svgSelection = d3.select(svgRef.current);
-
+  
     svgSelection.transition()
       .duration(500)
       .call(zoom.transform, transform);
-
+  
     zoomRef.current = transform;
-
-    nodeElementsRef.current.each(function(d, i) {
+  
+    nodeElementsRef.current.each(function (d, i) {
       const node = d3.select(this);
       const currentRadius = d.currentRadius || node.attr('r');
       node.attr('r', currentRadius);
     });
-
-    labelsRef.current.each(function(d, i) {
+  
+    labelsRef.current.each(function (d, i) {
       const label = d3.select(this);
       const currentRadius = nodeElementsRef.current.data()[i].r;
       label.style('font-size', `${Math.max(30, currentRadius)}px`);
     });
-
+  
     dispatch(updateZoomCache({
       network: currentNetwork,
       component: currentComponent,
       zoom: { k: transform.k, x: transform.x, y: transform.y }
     }));
   };
+  
 
   const handleMouseEnterNode = (nodeId) => {
     hoverTimeoutRef.current = setTimeout(() => {
@@ -518,11 +555,23 @@ const Visualizer = () => {
     dispatch(retrieveHighlightsSave());
   };
 
-  const scaledWidth = 0.85 * windowWidth;
-  const scaledHeight = 0.85 * windowHeight;
+  // useEffect(() => {
+  //   console.log(JSON.stringify(nodeElementsRef.current));
+  //   dispatch(setTriggerZoomToFit(true));
+  // }, [currentComponent]);
+
+  const scaledWidth = 0.75 * windowWidth;
+  const scaledHeight = 0.75 * windowHeight;
+
+  const isLoading = loadingCharacters || loadingGuests;
 
   return (
-    <div id="visualizer-container" className='network-svg' style={{ width: '100%', height: '100%' }}>
+    <div id="visualizer-container" className='network-svg'>
+      { isLoading && (
+        <div className="loading-spinner">
+          <Vortex />
+        </div>
+      )}
       <svg id='network' className='network-svg' ref={svgRef} style={{ width: scaledWidth, height: scaledHeight }}>
       </svg>
     </div>

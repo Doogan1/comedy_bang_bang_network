@@ -51,13 +51,19 @@ body {
     min-width: 192px;
 }
 .visualizer-container {
-    width: 100%;
-    height: 100%;
+    display: inline-block;
+    width: fit-content;
+    block-size: fit-content;
     border: 1px solid black;
     background: #f9f9f9;
     padding: 10px;
     border-radius: 10px;
 
+}
+
+.network-svg {
+    display: inline-block;
+    width: fit-content;
 }
 
 .container {
@@ -132,11 +138,11 @@ hr {
 
 .sidebar {
     border-radius: 5px;
-    position: fixed;
+    position: absolute;
     right: 0;
     top: 0;
     width: 300px;
-    min-width: 150px;
+    min-width: 175px;
     height: 100%;
     background-color: #f4f4f4;
     border-left: 2px solid #ccc;
@@ -148,6 +154,13 @@ hr {
     text-align: center;
 }
 
+.loading-spinner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+}
+
 .sidebar h3 {
     margin: auto;
     margin-bottom: 15px;
@@ -156,6 +169,7 @@ hr {
 .close-sidebar-btn {
     position: fixed;
     right: 15px;
+    top: 5px;
 }
 
 .chart-icon:hover {
