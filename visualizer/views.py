@@ -138,7 +138,6 @@ class ShortestPathView(APIView):
             return Response({'error': 'Invalid network type'}, status=400)
         
         return Response({
-            'network': network,
             'start_node': start_node_id,
             'end_node': end_node_id,
             'path': shortest_path.path,
