@@ -2,15 +2,6 @@ from django.db import models
 import json
 import datetime
 
-class Node(models.Model):
-    name = models.CharField(max_length=100)
-    attributes = models.JSONField(default=dict)
-
-class Edge(models.Model):
-    source = models.ForeignKey(Node, related_name='outgoing_edges', on_delete=models.CASCADE)
-    target = models.ForeignKey(Node, related_name='incoming_edges', on_delete=models.CASCADE)
-    weight = models.FloatField(default=1.0)
-
 
 class CharacterComponent(models.Model):
     name = models.CharField(max_length=100)
@@ -47,3 +38,11 @@ class Episode(models.Model):
     release_date = models.CharField(max_length=255)
     characters = models.ManyToManyField(Character, related_name='episodes')
     guests = models.ManyToManyField(Guest, related_name='episodes')
+
+class ShortestPath(models.Model):
+    start_node_guest = models.ForeignKey(Guest, related_name='start_node_guest', null=True, blank=True, on_delete=models.CASCADE)
+    end_node_guest = models.ForeignKey(Guest, related_name='end_node_guest', null=True, blank=True, on_delete=models.CASCADE)
+    start_node_character = models.ForeignKey(Character, related_name='start_node_character', null=True, blank=True, on_delete=models.CASCADE)
+    end_node_character = models.ForeignKey(Character, related_name='end_node_character', null=True, blank=True, on_delete=models.CASCADE)
+    path = models.JSONField()  # Store the path as a list of node IDs
+    length = models.IntegerField()

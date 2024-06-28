@@ -2,8 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 import json
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 import os
-from visualizer.models import Character, Guest, Episode, CharacterComponent, GuestComponent
+from visualizer.models import Character, Guest, Episode, CharacterComponent, GuestComponent, ShortestPath
 from django.http import Http404
 
 class NetworkData(APIView):
@@ -122,3 +123,24 @@ class EpisodeDetailView(APIView):
             return Response(details)
         except Episode.DoesNotExist:
             raise Http404
+
+class ShortestPathView(APIView):
+    def get(self, request, start_node_id, end_node_id, format=None):
+        start_node_guest = Guest.objects.filter(id=start_node_id).first()
+        end_node_guest = Guest.objects.filter(id=end_node_id).first()
+        start_node_character = Character.objects.filter(id=start_node_id).first()
+        end_node_character = Character.objects.filter(id=end_node_id).first()
+        
+        if start_node_guest and end_node_guest:
+            shortest_path = get_object_or_404(ShortestPath, start_node_guest=start_node_guest, end_node_guest=end_node_guest)
+        elif start_node_character and end_node_character:
+            shortest_path = get_object_or_404(ShortestPath, start_node_character=start_node_character, end_node_character=end_node_character)
+        else:
+            return Response({'error': 'Invalid node IDs'}, status=404)
+        
+        return Response({
+            'start_node': start_node_id,
+            'end_node': end_node_id,
+            'path': shortest_path.path,
+            'length': shortest_path.length
+        })
