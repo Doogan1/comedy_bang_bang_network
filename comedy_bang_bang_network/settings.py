@@ -28,9 +28,9 @@ NETWORK_DATA_DIR = os.path.join(settings.BASE_DIR, 'network_data')
 # See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['Dpolejni.pythonanywhere.com', 'localhost', '127.0.0.1']
 
 
 # Application definition
@@ -45,7 +45,6 @@ INSTALLED_APPS = [
     'visualizer',
     'rest_framework',
     'corsheaders',
-    'frontend',
 ]
 
 MIDDLEWARE = [
@@ -128,7 +127,6 @@ USE_TZ = True
 STATIC_URL = '/static/'
 
 STATICFILES_DIRS = [
-    os.path.join(BASE_DIR, 'frontend/dist'),  
 ]
 
 STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
@@ -138,6 +136,12 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
-CORS_ALLOW_ALL_ORIGINS = True  # For development only, adjust accordingly for production
+CORS_ALLOW_ALL_ORIGINS = False  # For development only, adjust accordingly for production
 
+CORS_ALLOWED_ORIGINS = [
+    "https://doogan1.github.io",
+    "http://localhost:3000",
+]
 
+if DEBUG:
+    CORS_ALLOW_ALL_ORIGINS = True
