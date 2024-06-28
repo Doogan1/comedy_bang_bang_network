@@ -2,7 +2,7 @@ import React, { useEffect, useCallback } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCharacters, setSelectedComponent as setSelectedCharacterComponent, fetchComponentsSummary as fetchCharacterComponentsSummary } from './features/characters/characterSlice';
 import { fetchGuests, setSelectedGuestComponent as setSelectedGuestComponent, fetchGuestComponentsSummary as fetchGuestComponentsSummary } from './features/guests/guestSlice';
-import { selectNode, switchNetwork , switchComponent , setHighlights , selectEpisode , saveHighlights} from './features/ui/uiSlice';
+import { selectNode, switchNetwork , switchComponent , setHighlights , selectEpisode , saveHighlights , resetNodeSelection} from './features/ui/uiSlice';
 import { fetchEpisodes , setEpisodes} from './features/episodes/episodeSlice';
 import Visualizer from './components/Visualizer';
 import Sidebar from './components/Sidebar';
@@ -58,6 +58,7 @@ const App = () => {
     const handleClickOutside = useCallback((event) => {
         if ((selectedNodeId || selectEpisode) && event.target.classList.contains('network-svg')) {
             dispatch(selectEpisode(null));
+            dispatch(resetNodeSelection());
             dispatch(setHighlights({nodes: [], edges: []}));
             dispatch(saveHighlights({nodes: [], edges: []}));
             dispatch(selectNode(null)); // Deselect node

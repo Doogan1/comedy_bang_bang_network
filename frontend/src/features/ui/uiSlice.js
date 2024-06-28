@@ -14,6 +14,8 @@ const initialState = {
     },
     zoomCache: {},
     selectedNodeId: null,
+    areMultipleNodesSelected: false,
+    selectedNodeSet: [],
     selectedEpisode: null,
     entityDetails: {
         name: '',
@@ -60,6 +62,29 @@ export const uiSlice = createSlice({
         selectNode: (state, action) => {
             console.log(`Setting node id to ${action.payload}`);
             state.selectedNodeId = action.payload;
+        },
+        setMultipleNodesSelected: (state, action) => {
+            state.areMultipleNodesSelected = action.payload;
+        },
+        addNodeToSet: (state, action) => {
+            if (action.payload) {
+                console.log(`Adding selected node to set.  action.payload: ${action.payload}`);
+                console.log(`current state.selectedNodeSet: ${[...state.selectedNodeSet]}`);
+                state.selectedNodeSet = [...state.selectedNodeSet, action.payload];
+                console.log(`Still in the reducer and the state after adding the new node to selectedNodeSet is ${[...state.selectedNodeSet]}`);
+            }
+
+        },
+        removeNodeFromSet: (state, action) => {
+            console.log(`Removing node from set. action.payload: ${action.payload}`);
+            state.selectedNodeSet = state.selectedNodeSet.filter(id => id !== action.payload);
+            console.log(`New state.selectedNodeSet: ${state.selectedNodeSet}`);
+        },
+        resetNodeSelection: (state) => {
+            console.log(`Resetting nodeSelection`);
+            state.selectedNodeId = null;
+            state.areMultipleNodesSelected = false;
+            state.selectedNodeSet = [];
         },
         setHighlights: (state, action) => {
             const { nodes, edges } = action.payload;
@@ -114,6 +139,10 @@ export const uiSlice = createSlice({
     }
 });
 
-export const { switchNetwork, switchComponent, setCurrentZoomLevel, updateZoomCache, selectNode, selectEpisode, setHighlights, setEntityDetails, setSidebarWidth, setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit, setTriggerZoomToSelection, setWindow, saveHighlights, retrieveHighlightsSave } = uiSlice.actions;
+export const { switchNetwork, switchComponent, setCurrentZoomLevel, updateZoomCache, 
+    selectNode, selectEpisode, setHighlights, setEntityDetails, setSidebarWidth, 
+    setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit, 
+    setTriggerZoomToSelection, setWindow, saveHighlights, retrieveHighlightsSave , 
+    setMultipleNodesSelected, addNodeToSet, removeNodeFromSet, resetNodeSelection } = uiSlice.actions;
 
 export default uiSlice.reducer;

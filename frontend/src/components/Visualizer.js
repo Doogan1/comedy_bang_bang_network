@@ -4,7 +4,8 @@ import { Vortex } from 'react-loader-spinner'
 import * as d3 from 'd3';
 import {
   selectNode, updateZoomCache, setTriggerZoomToFit, setTriggerZoomToSelection,
-  setWindow, setHighlights, saveHighlights, retrieveHighlightsSave , selectEpisode
+  setWindow, setHighlights, saveHighlights, retrieveHighlightsSave , selectEpisode, 
+  setMultipleNodesSelected, addNodeToSet, removeNodeFromSet, resetNodeSelection
 } from '../features/ui/uiSlice';
 import { fetchCharacters, updatePositions, setIsComponentChanged } from '../features/characters/characterSlice';
 import { fetchGuests, updateGuestPositions } from '../features/guests/guestSlice';
@@ -30,7 +31,9 @@ const Visualizer = () => {
   const triggerZoomToFit = useSelector(state => state.ui.triggerZoomToFit);
   const triggerZoomToSelection = useSelector(state => state.ui.triggerZoomToSelection);
   const isComponentChanged = useSelector(state => state.characters.isComponentChanged);
-  const selectedNodeId = useSelector(state => state.ui.selectedNodeId);
+  const { selectedNodeId, areMultipleNodesSelected, selectedNodeSet } = useSelector(state => state.ui);
+  console.log(`Current selectedNodeSet in component: ${selectedNodeSet}`);
+
   const selectedEpisode = useSelector(state => state.ui.selectedEpisode);
   const currentNetwork = useSelector(state => state.ui.currentNetwork);
   const currentComponent = useSelector(state => state.ui.currentComponent);
@@ -49,6 +52,7 @@ const Visualizer = () => {
   const edgesRef = useRef([]);
   const positionsRef = useRef({});
   const hoverTimeoutRef = useRef(null);
+  const selectedNodeSetRef = useRef(selectedNodeSet);
 
   const getCurrentPositions = () => {
     const nodeData = nodeElementsRef.current.data();
@@ -65,6 +69,7 @@ const Visualizer = () => {
       dispatch(updateGuestPositions({ component: currentComponent, positions }));
     }
   };
+
 
   useEffect(() => {
     const handleResize = () => {
@@ -108,7 +113,7 @@ const Visualizer = () => {
       if (nodesToHighlight.length > 0) {
         nodeElementsRef.current
           .classed("highlighted", d => nodesToHighlight.includes(d.id))
-          .classed("selected", d => d.id === selectedNodeId)
+          .classed("selected", d => selectedNodeSet.includes(d.id))
           .classed("dimmed", d => !nodesToHighlight.includes(d.id));
 
         edgeElementsRef.current
@@ -140,7 +145,16 @@ const Visualizer = () => {
     applyHighlights(nodesToHighlight, edgesToHighlight);
   }, [highlights, currentComponent, currentNetwork, selectedNodeId]);
   
-  
+  useEffect(() => {
+    selectedNodeSetRef.current = selectedNodeSet;
+    if (selectedNodeSet.length >= 2) {
+      dispatch(setMultipleNodesSelected(true));
+    }
+    if (selectedNodeSet.length > 0 || selectedNodeId) {
+      console.log('highlightSelectedNodes running. The current selectedNodeSet is', selectedNodeSet);
+      highlightSelectedNodes();
+    }
+  }, [selectedNodeSet, selectedNodeId]);
 
   useEffect(() => {
     const nodes = nodesRef.current;
@@ -204,15 +218,7 @@ const Visualizer = () => {
         .on("start", dragStart)
         .on("drag", dragging)
         .on("end", dragEnd))
-        .on("click", (event, d) => {
-          event.stopPropagation();
-          if (selectedEpisode !== null) {
-            dispatch(selectEpisode(null));
-            dispatch(saveHighlights()); // Save the current highlights before changing the selection
-          }
-          dispatch(selectNode(d.id));
-          highlightNodeAndNeighbors(d.id); // Pass the clicked node ID to highlight
-        })        
+        .on("click", handleNodeClick)        
       .on("mouseenter", (event, d) => handleMouseEnterNode(d.id))
       .on("mouseleave", handleMouseLeaveNode);
   
@@ -407,16 +413,20 @@ const Visualizer = () => {
 
   useEffect(() => {
     if (selectedNodeId === null && selectedEpisode === null) {
+      console.log(`Setting highlights to empty because selectedNodeId changed and there is no current selectedNodeId or selectedEpisode`);
       dispatch(setHighlights([]));
-    } else {
+    } else if (!areMultipleNodesSelected) {
+      console.log(`DURRRRRR i'm gonna go ahead and highlight nodes and neighbors DUHHHHHHH`);
       highlightNodeAndNeighbors(selectedNodeId);
       setTriggerZoomToSelection(true);
     }
-  }, [selectedNodeId, dispatch]);
+  }, [selectedNodeId, selectedEpisode, areMultipleNodesSelected, dispatch]);
+  
 
   useEffect(() => {
     if (selectedNodeId === null && selectedEpisode === null) {
-        dispatch(setHighlights([]));
+      console.log(`Setting highlights to empty because selectedEpisode changed and there is no current selectedNodeId or selectedEpisode`);
+      dispatch(setHighlights([]));
       } else {
         highlightEpisode(selectedEpisode);
       }
@@ -482,7 +492,7 @@ const Visualizer = () => {
       nodes: nodeIdsToHighlight,
       edges: edgesToHighlight
     };
-
+    console.log(`Setting highlights from highlightEpisode using ${payload}`);
     dispatch(setHighlights(payload));
   };
 
@@ -553,10 +563,85 @@ const Visualizer = () => {
     }));
   };
   
+  const handleNodeClick = (event, d) => {
+    event.stopPropagation();
+    const currentSelectedNodeSet = selectedNodeSetRef.current;
+
+    if (event.ctrlKey || event.metaKey) {
+      console.log(`User clicked on node with ctrlKey down.`);
+      console.log(`The selected node is ${d.id} and the selectedNodeSet is ${currentSelectedNodeSet}, so selectedNodeSet.includes(d.id) is ${currentSelectedNodeSet.includes(d.id)}`);
+      if (currentSelectedNodeSet.includes(d.id)) {
+        console.log(`.. and the selectedNodeSet includes the selected node already`);
+        dispatch(removeNodeFromSet(d.id));
+        if (d.id === selectedNodeId) {
+          console.log(`... it was the only one selected, so deselect it`);
+          dispatch(selectNode(null));
+        }
+        if (currentSelectedNodeSet.length <= 2) {
+          console.log('...2 or less nodes are already selected, so were turning off multiplenodesselected');
+          dispatch(setMultipleNodesSelected(false));
+        }
+      } else {
+        console.log('... and the selectedNode is not already selected');
+        if (currentSelectedNodeSet.length >= 2) {
+          console.log(`but at least two nodes have already been selected, so do nothing.`);
+          return;
+        }
+        if (currentSelectedNodeSet.length === 0) {
+          console.log('... since the selectedNodeSet has length 0, select the node');
+          dispatch(selectNode(d.id));
+        } else if (currentSelectedNodeSet.length === 1) {
+          console.log('... because theres already a node in selectedNodeSet, add the new node to the nodeSet and setMultipleNodesSelected true');
+          dispatch(setMultipleNodesSelected(true));
+          dispatch(addNodeToSet(selectedNodeId));
+        }
+        if (currentSelectedNodeSet.length < 2) {
+          console.log('... 0 or 1 nodes in selectedNodeSet so add the ctrl-clicked node to the set');
+          dispatch(addNodeToSet(d.id));
+          console.log(`... and the node set is now ${[...currentSelectedNodeSet, d.id]}`);
+        }
+      }
+    } else {
+      console.log('User clicked on a node but ctrl was not down');
+      if (currentSelectedNodeSet.includes(d.id)) {
+        dispatch(resetNodeSelection());
+      } else {
+        dispatch(resetNodeSelection());
+        dispatch(selectNode(d.id));
+        dispatch(addNodeToSet(d.id));
+        highlightNodeAndNeighbors(d.id);
+      }
+
+    }
+
+    // Highlight the nodes
+    highlightSelectedNodes();
+  };
+
+  const highlightSelectedNodes = () => {
+    const currentSelectedNodeSet = selectedNodeSetRef.current;
+    console.log(`highlightSelectedNodes running.  The current selectedNodeSet is ${currentSelectedNodeSet}`);
+    const nodesToHighlight = [...currentSelectedNodeSet];
+    // if (selectedNodeId) {
+    //   nodesToHighlight.push(selectedNodeId);
+    // }
+    const payload = {
+      nodes: nodesToHighlight,
+      edges: []
+    };
+    console.log(`Setting highlights from highlightSelectedNodes function with ${JSON.stringify(payload)}`);
+    if (currentSelectedNodeSet.length === 1) {
+      console.log(`The current selected node set has length 1 so go ahead and highlight nodes and neighbors`);
+      highlightNodeAndNeighbors(nodesToHighlight[0]);
+    }
+    dispatch(setHighlights(payload));
+    dispatch(saveHighlights(payload));
+  };
 
   const handleMouseEnterNode = (nodeId) => {
     hoverTimeoutRef.current = setTimeout(() => {
       dispatch(saveHighlights());
+      console.log(`highlighting node and neighborfrom mouseEnterNode handler`);
       highlightNodeAndNeighbors(nodeId);
     }, 500);
   };

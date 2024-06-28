@@ -197,7 +197,7 @@ const Sidebar = () => {
       nodes: nodesToHighlight,
       edges: edgesToHighlight
     };
-
+    console.log(`Setting highlights from sidebar component handleMouseEnter function with ${JSON.stringify(payload)}`);
     dispatch(setHighlights(payload));
   };
 
@@ -243,6 +243,7 @@ const Sidebar = () => {
 
   console.log(highlights);
   console.log(highlightsSave);
+  console.log(selectedNodeId);
 
   return (
     <div className="sidebar" id="entityDetails" ref={sidebarRef} style={{ display: selectedNodeId || selectedEpisode ? 'block' : 'none', width: `${sidebarWidth}px` }}>
