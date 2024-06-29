@@ -84,13 +84,15 @@ export const uiSlice = createSlice({
             state.areMultipleNodesSelected = action.payload;
         },
         addNodeToSet: (state, action) => {
-            if (action.payload) {
-                console.log(`Adding selected node to set.  action.payload: ${action.payload}`);
-                console.log(`current state.selectedNodeSet: ${[...state.selectedNodeSet]}`);
-                state.selectedNodeSet = [...state.selectedNodeSet, action.payload];
-                console.log(`Still in the reducer and the state after adding the new node to selectedNodeSet is ${[...state.selectedNodeSet]}`);
+            const nodeId = action.payload;
+            if (nodeId && !state.selectedNodeSet.includes(nodeId)) {
+                console.log(`Adding selected node to set. action.payload: ${nodeId}`);
+                console.log(`Current state.selectedNodeSet: ${[...state.selectedNodeSet]}`);
+                state.selectedNodeSet = [...state.selectedNodeSet, nodeId];
+                console.log(`State after adding the new node to selectedNodeSet: ${[...state.selectedNodeSet]}`);
+            } else {
+                console.log(`Node ${nodeId} is already in the selectedNodeSet or payload is invalid.`);
             }
-
         },
         removeNodeFromSet: (state, action) => {
             console.log(`Removing node from set. action.payload: ${action.payload}`);

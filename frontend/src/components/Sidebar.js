@@ -7,7 +7,7 @@ import {
   switchComponent, setHighlights, saveHighlights, retrieveHighlightsSave,
   setTriggerZoomToSelection
 } from '../features/ui/uiSlice';
-import { setTriggerZoomToFit, switchNetwork, selectEpisode } from '../features/ui/uiSlice';
+import { setTriggerZoomToFit, switchNetwork, selectEpisode, addNodeToSet , resetNodeSelection} from '../features/ui/uiSlice';
 import CentralityChart from './CentralityChart';
 import { BiBarChartSquare } from "react-icons/bi";
 
@@ -149,6 +149,9 @@ const Sidebar = () => {
       dispatch(switchNetwork(targetNetwork));
       dispatch(switchComponent(component));
     }
+    dispatch(resetNodeSelection());
+    console.log(`Dispatching select node id to ${id}`);
+    dispatch(addNodeToSet(id));
     dispatch(selectNode(id));
   };
 
