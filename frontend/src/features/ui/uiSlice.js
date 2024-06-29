@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice , createAsyncThunk} from '@reduxjs/toolkit';
 
 const initialState = {
     currentNetwork: 'characters',
@@ -47,6 +47,7 @@ export const fetchShortestPath = createAsyncThunk(
     'ui/fetchShortestPath',
     async ({ network, startNodeId, endNodeId }, { rejectWithValue }) => {
       try {
+        console.log(`Fetching shortest path with network: ${network}, ${startNodeId}, ${endNodeId}`);
         const response = await fetch(`/api/shortest_path/${network}/${startNodeId}/${endNodeId}/`);
         if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
         const data = await response.json();
@@ -104,6 +105,7 @@ export const uiSlice = createSlice({
         },
         setHighlights: (state, action) => {
             const { nodes, edges } = action.payload;
+            console.log(`Incoming highlights nodes: ${nodes} and edges ${edges}`);
             const currentNetwork = state.currentNetwork;
             const currentComponent = state.currentComponent;
 
