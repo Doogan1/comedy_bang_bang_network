@@ -5,7 +5,8 @@ import * as d3 from 'd3';
 import {
   selectNode, updateZoomCache, setTriggerZoomToFit, setTriggerZoomToSelection,
   setWindow, setHighlights, saveHighlights, retrieveHighlightsSave , selectEpisode, 
-  setMultipleNodesSelected, addNodeToSet, removeNodeFromSet, resetNodeSelection
+  setMultipleNodesSelected, addNodeToSet, removeNodeFromSet, resetNodeSelection, 
+  fetchShortestPath, clearHighlightedPath
 } from '../features/ui/uiSlice';
 import { fetchCharacters, updatePositions, setIsComponentChanged } from '../features/characters/characterSlice';
 import { fetchGuests, updateGuestPositions } from '../features/guests/guestSlice';
@@ -45,6 +46,7 @@ const Visualizer = () => {
   const guestPositions = useSelector(state => state.guests.positions[currentComponent]);
   const episodes = useSelector(state => state.episodes.episodes);
   const highlights = useSelector(state => state.ui.highlights);
+  const highlightedPath = useSelector(state => state.ui.highlightedPath);
   const loadingCharacters = useSelector((state) => state.characters.loading);
   const loadingGuests = useSelector((state) => state.guests.loading);
 
@@ -422,6 +424,22 @@ const Visualizer = () => {
     }
   }, [selectedNodeId, selectedEpisode, areMultipleNodesSelected, dispatch]);
   
+  useEffect(() => {
+    const fetchPath = async () => {
+      if (selectedNodeSet.length === 2) {
+        const [startNodeId, endNodeId] = selectedNodeSet;
+        dispatch(fetchShortestPath({ currentNetwork, startNodeId, endNodeId }));
+      } else {
+        dispatch(clearHighlightedPath());
+      }
+    };
+
+    fetchPath();
+  }, [selectedNodeSet, currentNetwork, dispatch]);
+
+  useEffect(() => {
+    // Logic to highlight path here
+  }, [highlightedPath, dispatch]);
 
   useEffect(() => {
     if (selectedNodeId === null && selectedEpisode === null) {
