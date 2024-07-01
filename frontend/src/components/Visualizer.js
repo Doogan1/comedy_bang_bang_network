@@ -648,7 +648,7 @@ const Visualizer = () => {
         } else if (currentSelectedNodeSet.length === 1) {
           console.log('... because theres already a node in selectedNodeSet, add the new node to the nodeSet and setMultipleNodesSelected true');
           dispatch(setMultipleNodesSelected(true));
-          dispatch(addNodeToSet(selectedNodeId));
+          dispatch(addNodeToSet(d.id));
         }
         if (currentSelectedNodeSet.length < 2) {
           console.log('... 0 or 1 nodes in selectedNodeSet so add the ctrl-clicked node to the set');
