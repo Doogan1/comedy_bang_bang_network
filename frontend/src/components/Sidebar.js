@@ -304,7 +304,6 @@ const Sidebar = () => {
             </h4>
             {sections.details && (
               <div>
-                <h5>Component: {entityDetails?.component ?? 'N/A'}</h5>
                 <h5>
                   Degree: {getCentralityValue(currentNetwork === 'characters' ? characterNodes : guestNodes, 'degree')}
                   <span className="chart-icon">

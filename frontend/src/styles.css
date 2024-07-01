@@ -124,14 +124,14 @@ circle.dimmed {
     border-radius: 5px;
 }
 
-hr {
+.sidebar hr {
     display: block;
-    height: 1px;
     border: 0;
-    border-top: 1px solid #ccc;
-    padding: 10px;
+    border-top: 3px solid #ccc;
+    padding: 5px;
     width: 15%;
     margin: auto;
+    margin-bottom: 0px;
     width: 100%;
 }
 
