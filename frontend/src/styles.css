@@ -317,6 +317,7 @@ hr {
 .sidebar h4 {
     cursor: pointer;
     width: 100%;
+    margin-bottom: 15px;
     
 }
 
