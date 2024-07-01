@@ -77,9 +77,13 @@ class Command(BaseCommand):
         components.sort(key=lambda x: x['size'], reverse=True)
         return components
 
+
     def compute_and_store_shortest_paths(self, G, network_type):
-        shortest_paths = dict(nx.all_pairs_dijkstra_path(G))
-        shortest_path_lengths = dict(nx.all_pairs_dijkstra_path_length(G))
+        def constant_weight(u, v, d):
+            return 1
+        
+        shortest_paths = dict(nx.all_pairs_dijkstra_path(G, weight=constant_weight))
+        shortest_path_lengths = dict(nx.all_pairs_dijkstra_path_length(G, weight=constant_weight))
 
         Model = Character if network_type == 'characters' else Guest
 
