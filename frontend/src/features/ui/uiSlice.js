@@ -1,4 +1,4 @@
-import { createSlice } from '@reduxjs/toolkit';
+import { createSlice , createAsyncThunk} from '@reduxjs/toolkit';
 
 const initialState = {
     currentNetwork: 'characters',
@@ -35,11 +35,28 @@ const initialState = {
         characters: {},
         guests: {}
     },
+    highlightedPath: [],
     highlightsSave: {
         characters: {},
         guests: {}
     }
 };
+
+// Define a thunk for fetching the shortest path
+export const fetchShortestPath = createAsyncThunk(
+    'ui/fetchShortestPath',
+    async ({ network, startNodeId, endNodeId }, { rejectWithValue }) => {
+      try {
+        console.log(`Fetching shortest path with network: ${network}, ${startNodeId}, ${endNodeId}`);
+        const response = await fetch(`/api/shortest_path/${network}/${startNodeId}/${endNodeId}/`);
+        if (!response.ok) throw new Error(`Network response was not ok: ${response.statusText}`);
+        const data = await response.json();
+        return data.path;
+      } catch (error) {
+        return rejectWithValue(error.message);
+      }
+    }
+  );
 
 export const uiSlice = createSlice({
     name: 'ui',
@@ -67,13 +84,15 @@ export const uiSlice = createSlice({
             state.areMultipleNodesSelected = action.payload;
         },
         addNodeToSet: (state, action) => {
-            if (action.payload) {
-                console.log(`Adding selected node to set.  action.payload: ${action.payload}`);
-                console.log(`current state.selectedNodeSet: ${[...state.selectedNodeSet]}`);
-                state.selectedNodeSet = [...state.selectedNodeSet, action.payload];
-                console.log(`Still in the reducer and the state after adding the new node to selectedNodeSet is ${[...state.selectedNodeSet]}`);
+            const nodeId = action.payload;
+            if (nodeId && !state.selectedNodeSet.includes(nodeId)) {
+                console.log(`Adding selected node to set. action.payload: ${nodeId}`);
+                console.log(`Current state.selectedNodeSet: ${[...state.selectedNodeSet]}`);
+                state.selectedNodeSet = [...state.selectedNodeSet, nodeId];
+                console.log(`State after adding the new node to selectedNodeSet: ${[...state.selectedNodeSet]}`);
+            } else {
+                console.log(`Node ${nodeId} is already in the selectedNodeSet or payload is invalid.`);
             }
-
         },
         removeNodeFromSet: (state, action) => {
             console.log(`Removing node from set. action.payload: ${action.payload}`);
@@ -88,6 +107,7 @@ export const uiSlice = createSlice({
         },
         setHighlights: (state, action) => {
             const { nodes, edges } = action.payload;
+            console.log(`Incoming highlights nodes: ${nodes} and edges ${edges}`);
             const currentNetwork = state.currentNetwork;
             const currentComponent = state.currentComponent;
 
@@ -96,6 +116,9 @@ export const uiSlice = createSlice({
             }
 
             state.highlights[currentNetwork][currentComponent] = { nodes, edges };
+        },
+        clearHighlightedPath: (state) => {
+            state.highlightedPath = [];
         },
         saveHighlights: (state) => {
             state.highlightsSave = state.highlights[state.currentNetwork][state.currentComponent];
@@ -136,6 +159,20 @@ export const uiSlice = createSlice({
             state.window.width = action.payload.width;
             state.window.height = action.payload.height;
         }
+    },
+    extraReducers: (builder) => {
+        builder
+            .addCase(fetchShortestPath.pending, (state) => {
+                state.loading = true;
+            })
+            .addCase(fetchShortestPath.fulfilled, (state, action) => {
+                state.highlightedPath = action.payload;
+                state.loading = false;
+            })
+            .addCase(fetchShortestPath.rejected, (state, action) => {
+                state.error = action.payload;
+                state.loading = false;
+            })
     }
 });
 
@@ -143,6 +180,7 @@ export const { switchNetwork, switchComponent, setCurrentZoomLevel, updateZoomCa
     selectNode, selectEpisode, setHighlights, setEntityDetails, setSidebarWidth, 
     setForceStrength, setLinkDistance, setCentrality, setRadiusRange, setTriggerZoomToFit, 
     setTriggerZoomToSelection, setWindow, saveHighlights, retrieveHighlightsSave , 
-    setMultipleNodesSelected, addNodeToSet, removeNodeFromSet, resetNodeSelection } = uiSlice.actions;
+    setMultipleNodesSelected, addNodeToSet, removeNodeFromSet, resetNodeSelection ,
+    clearHighlightedPath} = uiSlice.actions;
 
 export default uiSlice.reducer;
