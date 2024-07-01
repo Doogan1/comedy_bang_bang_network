@@ -1,0 +1,452 @@
+
+
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    margin: 0;
+    width: 100%;
+    height: 100%;
+    background: rgb(17, 0, 63);
+}
+
+#network {
+    margin: auto;
+    border: 1px solid #000000;
+    background-color: #9a9a9a;
+    border-radius: 5px;
+    max-width: 1275px;
+}
+
+.node-label {
+    fill: rgb(255, 153, 0);
+    -webkit-text-stroke: 1px black;
+    color: white;
+    opacity: 1;
+    text-shadow:
+        1px 1px 0 #000,
+        -1px -1px 0 #000,  
+        1px -1px 0 #000,
+        -1px 1px 0 #000,
+        1px 1px 0 #000;
+}
+
+.node-label.dimmed {
+    opacity: 1;
+    display: block;
+    fill: rgba(255, 153, 0, 0.213);
+}
+
+.control-group {
+    display: flex;
+    flex-direction: column;
+    padding: 0;
+    margin-bottom: 15px;
+}
+.controls-sidebar {
+    position: relative;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: 15%;
+    min-width: 192px;
+}
+.visualizer-container {
+    display: inline-block;
+    width: fit-content;
+    block-size: fit-content;
+    border: 1px solid black;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 10px;
+
+}
+
+.network-svg {
+    display: inline-block;
+    width: fit-content;
+}
+
+.container {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    align-items: center;
+    justify-content: center;
+    flex-direction: row;
+    margin-top: 20px;
+    margin-left: 0;
+}
+
+line {
+    stroke-width: 5px;
+    stroke: #000000;
+    opacity: 1;
+}
+
+line.dimmed {
+    opacity: 1;
+    stroke: #0000002a;
+    stroke-width: 1px;
+}
+
+circle {
+    stroke-width: 5px;
+    stroke: #000000;
+    fill: rgb(0, 183, 255);
+    cursor: pointer;
+    opacity: 1;
+}
+
+circle.highlighted {
+    fill: rgb(0, 0, 255);
+    opacity: 1;
+}
+
+circle.selected {
+    fill: red;
+    opacity: 1;
+}
+
+circle.dimmed {
+    opacity: 1;
+    fill: rgba(0, 183, 255, 0.201);
+}
+
+.slider-range-container {
+    border: 1px solid black;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.centrality-container {
+    border: 1px solid black;
+    padding: 10px;
+    border-radius: 5px;
+}
+
+.sidebar hr {
+    display: block;
+    border: 0;
+    border-top: 3px solid #ccc;
+    padding: 5px;
+    width: 15%;
+    margin: auto;
+    margin-bottom: 0px;
+    width: 100%;
+}
+
+
+.sidebar {
+    border-radius: 5px;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 300px;
+    min-width: 175px;
+    height: 100%;
+    background-color: #f4f4f4;
+    border-left: 2px solid #ccc;
+    padding: 15px;
+    overflow-y: auto;  /* Enables scrolling if the content is taller than the sidebar */
+    display: none;  /* Hide by default */
+    resize: horizontal;
+    overflow: auto;
+    text-align: center;
+}
+
+.loading-spinner {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    z-index: 1;
+}
+
+.sidebar h3 {
+    margin: auto;
+    margin-bottom: 15px;
+}
+
+.close-sidebar-btn {
+    position: fixed;
+    right: 15px;
+    top: 5px;
+}
+
+.chart-icon:hover {
+    cursor: pointer;
+}
+
+.tooltip {
+    position: absolute;
+    text-align: center;
+    width: auto;
+    padding: 5px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0px;
+    border-radius: 8px;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s;
+  }
+
+.modal .modal-content{
+    width: 600px;
+    margin: auto;
+}
+.sidebar h3 {
+    margin-top: 30px;
+    color: #333;
+    border: 1px solid black;
+    border-radius: 5px;
+    max-width: 300px;
+}
+
+.sidebar ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+#characterName {
+    font-size: large;
+    font-weight: bold;
+    background-color: black;
+    color: white;
+    width: 100%;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
+#entityDetails table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#entityDetails th, #entityDetails td {
+    border-radius: 5px;
+    padding: 8px;
+    text-align: center;
+    border-bottom: 1px solid #ddd; /* Add horizontal line between rows */
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+
+#characterDetails th {
+    text-align: center;
+}
+
+#characterDetails td:first-child {
+    border-left: none;
+}
+
+#characterDetails td:last-child {
+    border-right: none;
+}
+#entityDetails th {
+    background-color: #a9c8d4; /* Light grey background for the header */
+    color: #333333;
+    cursor: default;
+}
+
+#entityDetails tr:hover { 
+    background-color: #63b8da7a;
+    cursor: pointer;
+}
+
+#guestName {
+    font-size: large;
+    font-weight: bold;
+    background-color: black;
+    color: white;
+    width: 100%;
+    margin-bottom: 5px;
+    border-radius: 5px;
+}
+
+#guestDetails table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#guestDetails th, #guestDetails td {
+    border-radius: 5px;
+    padding: 8px;
+    text-align: left;
+    border-bottom: 1px solid #ddd; /* Add horizontal line between rows */
+    border-left: 1px solid #ddd;
+    border-right: 1px solid #ddd;
+}
+
+#guestDetails th {
+    text-align: center;
+}
+
+#guestDetails td:first-child {
+    border-left: none;
+}
+
+#guestDetails td:last-child {
+    border-right: none;
+}
+#guestDetails th {
+    background-color: #63b8da; /* Light grey background for the header */
+    color: #333333;
+}
+
+#guestDetails tr:hover { /* Optional: highlight rows on hover */
+    background-color: #f5f5f5;
+}
+
+#entityDetails table tbody::after {
+    content: '';
+    display: table-row;
+    height: 25px;
+}
+
+.resizer {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 10px; /* Width of the draggable area */
+    height: 100%;
+    cursor: ew-resize; /* Cursor appears as left-right resize arrow */
+    background-color: #ccc; /* Just to make it visible */
+    height: calc(100% + 25px);
+}
+
+.sidebar h4 {
+    cursor: pointer;
+    width: 100%;
+    margin-bottom: 15px;
+    
+}
+
+.tabs {
+    padding-top: 5px;
+    left: 5px;
+    position: relative;
+    width: 290px;
+    margin: 0;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-start;
+}
+
+.tab.selected {
+    background-color: #dadeff;
+}
+
+.tab {
+    padding: 10px 20px;
+    background-color: inherit;
+    cursor: pointer;
+    border: 1px solid black;
+    border-radius: 15px 15px 0 0;
+}
+
+.tab:hover {
+    background-color: #ddd;
+}
+
+.tab.active {
+    border-bottom: 2px solid blue;
+}
+
+.slider-range-container {
+    -webkit-user-select: none; /* Chrome/Safari/Opera */
+    -moz-user-select: none; /* Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera, Firefox, Safari */
+}
+
+.top-bar {
+    border: none;
+    left: 5px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    position: relative;
+    min-width: 600px;
+}
+
+.search-bar-container {
+    /* position: absolute;
+    left: calc(100% - 300px);
+    width: 290px; */
+    position: relative;
+    left: 5%;
+    width: 300px;
+  }
+  
+  .search-input {
+    width: 100%;
+    padding: 8px;
+    box-sizing: border-box;
+  }
+  
+  .search-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    background-color: white;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    max-height: 150px; /* Adjust the height as needed */
+    overflow-y: auto;
+    z-index: 1000;
+  }
+  
+  .search-item {
+    padding: 8px;
+    cursor: pointer;
+  }
+  
+  .search-item:hover {
+    background-color: #f0f0f0;
+  }
+  
+  .character-actor-sidebar-list {
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .character-actor-sidebar-list > span {
+    padding: 5px;
+    margin: 5px;
+    border: 1px solid black;
+    border-radius: 3px;
+  }
+
+  .character-actor-sidebar-list > span:hover {
+    background-color:#63b8da;
+    cursor: pointer;
+  }
+
+  .clickSpan {
+    padding: 5px;
+    margin: 5px;
+    border: 1px solid black;
+    border-radius: 3px;
+  }
+
+  .clickSpan:hover {
+    background-color: #63b8da;
+    cursor: pointer;
+  }
+
+  .arrow-bottom {
+    margin-top: -12px;
+    margin-bottom: 5px;
+  }
+
+  .arrow-body {
+    margin-top: 5px;
+    margin-bottom: 0px;
+  }
+  .current-episode {
+    background:#63b8da;
+  }

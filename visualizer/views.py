@@ -2,8 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 import json
 from django.conf import settings
+from django.shortcuts import get_object_or_404
 import os
-from visualizer.models import Character, Guest, Episode, CharacterComponent, GuestComponent
+from visualizer.models import Character, Guest, Episode, CharacterComponent, GuestComponent, ShortestPath
 from django.http import Http404
 
 class NetworkData(APIView):
@@ -122,3 +123,23 @@ class EpisodeDetailView(APIView):
             return Response(details)
         except Episode.DoesNotExist:
             raise Http404
+
+class ShortestPathView(APIView):
+    def get(self, request, network, start_node_id, end_node_id, format=None):
+        if network == 'guests':
+            start_node = get_object_or_404(Guest, id=start_node_id)
+            end_node = get_object_or_404(Guest, id=end_node_id)
+            shortest_path = get_object_or_404(ShortestPath, start_node_guest=start_node, end_node_guest=end_node)
+        elif network == 'characters':
+            start_node = get_object_or_404(Character, id=start_node_id)
+            end_node = get_object_or_404(Character, id=end_node_id)
+            shortest_path = get_object_or_404(ShortestPath, start_node_character=start_node, end_node_character=end_node)
+        else:
+            return Response({'error': 'Invalid network type'}, status=400)
+        
+        return Response({
+            'start_node': start_node_id,
+            'end_node': end_node_id,
+            'path': shortest_path.path,
+            'length': shortest_path.length
+        })
