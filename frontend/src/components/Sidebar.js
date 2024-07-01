@@ -5,7 +5,7 @@ import { fetchGuestDetails } from '../features/guests/guestSlice';
 import {
   setEntityDetails, setSidebarWidth, selectNode,
   switchComponent, setHighlights, saveHighlights, retrieveHighlightsSave,
-  setTriggerZoomToSelection, addNodeToSet, resetNodeSelection
+  setTriggerZoomToSelection, addNodeToSet, resetNodeSelection, selectEpisode
 } from '../features/ui/uiSlice';
 import CentralityChart from './CentralityChart';
 import { BiBarChartSquare } from "react-icons/bi";
