@@ -425,6 +425,27 @@ hr {
     cursor: pointer;
   }
 
+  .clickSpan {
+    padding: 5px;
+    margin: 5px;
+    border: 1px solid black;
+    border-radius: 3px;
+  }
+
+  .clickSpan:hover {
+    background-color: #63b8da;
+    cursor: pointer;
+  }
+
+  .arrow-bottom {
+    margin-top: -12px;
+    margin-bottom: 5px;
+  }
+
+  .arrow-body {
+    margin-top: 5px;
+    margin-bottom: 0px;
+  }
   .current-episode {
     background:#63b8da;
   }

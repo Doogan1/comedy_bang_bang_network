@@ -5,15 +5,22 @@ import { fetchGuestDetails } from '../features/guests/guestSlice';
 import {
   setEntityDetails, setSidebarWidth, selectNode,
   switchComponent, setHighlights, saveHighlights, retrieveHighlightsSave,
-  setTriggerZoomToSelection
+  setTriggerZoomToSelection, addNodeToSet, resetNodeSelection
 } from '../features/ui/uiSlice';
-import { setTriggerZoomToFit, switchNetwork, selectEpisode, addNodeToSet , resetNodeSelection} from '../features/ui/uiSlice';
 import CentralityChart from './CentralityChart';
 import { BiBarChartSquare } from "react-icons/bi";
 
 const Sidebar = () => {
   const dispatch = useDispatch();
-  const { currentNetwork, selectedNodeId, entityDetails, sidebarWidth, selectedEpisode, currentComponent , highlights , highlightsSave} = useSelector(state => state.ui);
+  const {
+    currentNetwork, selectedNodeId, entityDetails, sidebarWidth, selectedEpisode,
+    currentComponent, highlights, highlightsSave, areMultipleNodesSelected,
+    selectedNodeSet, highlightedPath
+  } = useSelector(state => state.ui);
+
+  const characterNodes = useSelector(state => state.characters.nodes);
+  const guestNodes = useSelector(state => state.guests.nodes);
+
   const resizerRef = useRef(null);
   const sidebarRef = useRef(null);
   const [isOpen, setIsOpen] = useState(true);
@@ -29,9 +36,7 @@ const Sidebar = () => {
 
   const episodeDetails = useSelector(state => state.episodes.episodes);
   const characterEdges = useSelector(state => state.characters.edges);
-  const characterNodes = useSelector(state => state.characters.nodes);
   const guestEdges = useSelector(state => state.guests.edges);
-  const guestNodes = useSelector(state => state.guests.nodes);
   const [isEpisodeClicked, setIsEpisodeClicked] = useState(false);
 
   const handleCentralityClick = (metric) => {
@@ -45,6 +50,12 @@ const Sidebar = () => {
     const nodes = currentNetwork === 'characters' ? characterNodes : guestNodes;
     const degreeMultiplier = metric === 'degree' ? nodes.length - 1 : 1;
     return nodes.map(node => ({ id: node.id, value: node[metric] * degreeMultiplier }));
+  };
+
+  const getNodeNameById = (id) => {
+    const nodes = currentNetwork === 'characters' ? characterNodes : guestNodes;
+    const node = nodes.find(node => node.id === id);
+    return node ? node.name : 'Unknown';
   };
 
   useEffect(() => {
@@ -221,7 +232,6 @@ const Sidebar = () => {
   };
 
   const getSharedEpisodes = (characterId) => {
-
     if (!Array.isArray(episodeDetails)) {
       return '';
     }
@@ -230,7 +240,7 @@ const Sidebar = () => {
       if (currentNetwork === 'characters') {
         return episode.characters.map(character => character.id).includes(entityDetails.character_id) && episode.characters.map(character => character.id).includes(characterId);
       } else {
-        return episode.guests.map(guest => guest.id).includes(entityDetails.character_id) && episode.guests.map(guest => guest.id).includes(characterId);
+        return episode.guests.map(guest => guest.id).includes(entityDetails.character_id) && episode.guests.map(guest.id).includes(characterId);
       }
     }).map(episode => episode.title).join(', ');
   };
@@ -252,152 +262,187 @@ const Sidebar = () => {
     <div className="sidebar" id="entityDetails" ref={sidebarRef} style={{ display: selectedNodeId || selectedEpisode ? 'block' : 'none', width: `${sidebarWidth}px` }}>
       <div className="resizer" ref={resizerRef}></div>
       <button onClick={closeSidebar} className="close-sidebar-btn">X</button>
-      <h3>{currentNetwork === 'characters' ? 'Character Details' : 'Guest Details'}</h3>
-      <div>
-        <h2>{entityDetails?.character_name ?? 'No Character Selected'}</h2>
-        <hr />
-        <h4 onClick={() => toggleSection('details')}>
-          Details
-          {sections.details ? ' v' : ' >'}
-        </h4>
-        {sections.details && (
-          <div>
-            <h5>Component: {entityDetails?.component ?? 'N/A'}</h5>
-            <h5>
-              Degree: {getCentralityValue(currentNetwork === 'characters' ? characterNodes : guestNodes, 'degree')}
-              <span className="chart-icon">
-                <BiBarChartSquare onClick={() => handleCentralityClick('degree')} />
-              </span>
-            </h5>
-            <h5>
-              Eigenvector: {getCentralityValue(currentNetwork === 'characters' ? characterNodes : guestNodes, 'eigenvector')}
-              <span className="chart-icon">
-                <BiBarChartSquare onClick={() => handleCentralityClick('eigenvector')} />
-              </span>
-            </h5>
-            <h5>
-              Betweenness: {getCentralityValue(currentNetwork === 'characters' ? characterNodes : guestNodes, 'betweenness')}
-              <span className="chart-icon">
-                <BiBarChartSquare onClick={() => handleCentralityClick('betweenness')} />
-              </span>
-            </h5>
-            <h5>
-              Closeness: {getCentralityValue(currentNetwork === 'characters' ? characterNodes : guestNodes, 'closeness')}
-              <span className="chart-icon">
-                <BiBarChartSquare onClick={() => handleCentralityClick('closeness')} />
-              </span>
-            </h5>
-          </div>
-        )}
-      </div>
-      <hr />
-      <div>
-        <h4 onClick={() => toggleSection('actors')}>
-          {currentNetwork === 'characters' ? 'Played By' : 'Characters'}
-          {sections.actors ? ' v' : ' >'}
-        </h4>
-        {sections.actors && (
-          <div className='character-actor-sidebar-list'>
-            {currentNetwork === 'characters' && entityDetails?.actors?.length > 0 
-              ? entityDetails.actors.map(actor => (
-                  <span className="clickSpan" key={actor.id} onClick={() => handleEntityClick(actor.id, actor.component)}>
-                    {actor.name}
-                  </span>
-                ))
-              : currentNetwork === 'guests' && entityDetails?.characters?.length > 0 
-                ? entityDetails.characters.map(character => (
-                    <span className="clickSpan" key={character.id} onClick={() => handleEntityClick(character.id, character.component)}>
-                      {character.name}
+      { areMultipleNodesSelected && selectedNodeSet.length === 2 && (
+        <div>
+          <h3>Selected Nodes</h3>
+          <h4>{getNodeNameById(selectedNodeSet[0])} - {getNodeNameById(selectedNodeSet[1])}</h4>
+          <h5>Distance: {highlightedPath.length - 1}</h5>
+          <hr></hr>
+          <h4>Shortest Path</h4>
+          {highlightedPath.length > 0 ? (
+            <div>
+              {highlightedPath.map((nodeId, index) => {
+                return (
+                  <div key={index} className="path-segment">
+                    <span className="clickSpan" key={nodeId} onClick={() => handleEntityClick(nodeId, currentComponent, false)}>
+                      {getNodeNameById(nodeId)}
                     </span>
-                  ))
-                : <span>Unknown</span>}
+                    {index < highlightedPath.length - 1 && (
+                      <>
+                        <p className="arrow-body">|</p>
+                        <p className="arrow-bottom">V</p>
+                      </>
+                    )}
+                  </div>
+                )
+              })}
+            </div>
+          ) : (
+            <p>No path found between the selected nodes.</p>
+          )}
+        </div>
+      )}
+      { !areMultipleNodesSelected && (
+        <div>
+          <h3>{currentNetwork === 'characters' ? 'Character Details' : 'Guest Details'}</h3>
+          <div>
+            <h2>{entityDetails?.character_name ?? 'No Character Selected'}</h2>
+            <hr />
+            <h4 onClick={() => toggleSection('details')}>
+              Details
+              {sections.details ? ' v' : ' >'}
+            </h4>
+            {sections.details && (
+              <div>
+                <h5>Component: {entityDetails?.component ?? 'N/A'}</h5>
+                <h5>
+                  Degree: {getCentralityValue(currentNetwork === 'characters' ? characterNodes : guestNodes, 'degree')}
+                  <span className="chart-icon">
+                    <BiBarChartSquare onClick={() => handleCentralityClick('degree')} />
+                  </span>
+                </h5>
+                <h5>
+                  Eigenvector: {getCentralityValue(currentNetwork === 'characters' ? characterNodes : guestNodes, 'eigenvector')}
+                  <span className="chart-icon">
+                    <BiBarChartSquare onClick={() => handleCentralityClick('eigenvector')} />
+                  </span>
+                </h5>
+                <h5>
+                  Betweenness: {getCentralityValue(currentNetwork === 'characters' ? characterNodes : guestNodes, 'betweenness')}
+                  <span className="chart-icon">
+                    <BiBarChartSquare onClick={() => handleCentralityClick('betweenness')} />
+                  </span>
+                </h5>
+                <h5>
+                  Closeness: {getCentralityValue(currentNetwork === 'characters' ? characterNodes : guestNodes, 'closeness')}
+                  <span className="chart-icon">
+                    <BiBarChartSquare onClick={() => handleCentralityClick('closeness')} />
+                  </span>
+                </h5>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      <hr />
-      <div>
-        <h4 onClick={() => toggleSection('episodes')}>
-          Episodes
-          {sections.episodes ? ' v' : ' >'}
-        </h4>
-        {sections.episodes && (
-          <table>
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>Episode Number</th>
-                <th>Release Date</th>
-              </tr>
-            </thead>
-            <tbody>
-              {entityDetails?.episodes?.length > 0
-                ? entityDetails.episodes.map((episode, index) => (
-                    <tr
-                      key={index}
-                      onClick={() => handleEpisodeClick(episode.episode_number)}
-                      onMouseEnter={() => handleEpisodeMouseEnter(episode.episode_number)}
-                      onMouseLeave={() => handleEpisodeMouseLeave()}
-                      onDoubleClick={() => handleEpisodeDoubleClick(episode.episode_number)}
-                      className={selectedEpisode && selectedEpisode === episode.episode_number ? 'current-episode' : ''}
-                    >
-                      <td>{episode.title}</td>
-                      <td>{episode.episode_number}</td>
-                      <td>{episode.release_date}</td>
-                    </tr>
-                  ))
-                : <tr>
-                    <td colSpan="3">No episodes available</td>
-                  </tr>}
-            </tbody>
-          </table>
-        )}
-      </div>
-      <hr />
-      <div>
-        <h4 onClick={() => toggleSection('neighbors')}>
-          Neighbors
-          {sections.neighbors ? ' v' : ' >'}
-        </h4>
-        {sections.neighbors && (
-          <table>
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Shared Episodes</th>
-              </tr>
-            </thead>
-            <tbody>
-              {currentNetwork === 'characters' && characterEdges?.length > 0
-                ? characterEdges.filter(edge => edge.source === entityDetails.character_id || edge.target === entityDetails.character_id)
-                    .map(edge => {
-                      const characterId = edge.source === entityDetails.character_id ? edge.target : edge.source;
-                      const character = characterNodes.find(node => node.id === characterId);
-                      return (
-                        <tr key={characterId} onClick={() => handleEntityClick(characterId, entityDetails.component, false)}>
-                          <td>{character?.name ?? 'N/A'}</td>
-                          <td>{getSharedEpisodes(characterId)}</td>
+          <hr />
+          <div>
+            <h4 onClick={() => toggleSection('actors')}>
+              {currentNetwork === 'characters' ? 'Played By' : 'Characters'}
+              {sections.actors ? ' v' : ' >'}
+            </h4>
+            {sections.actors && (
+              <div className='character-actor-sidebar-list'>
+                {currentNetwork === 'characters' && entityDetails?.actors?.length > 0 
+                  ? entityDetails.actors.map(actor => (
+                      <span className="clickSpan" key={actor.id} onClick={() => handleEntityClick(actor.id, actor.component)}>
+                        {actor.name}
+                      </span>
+                    ))
+                  : currentNetwork === 'guests' && entityDetails?.characters?.length > 0 
+                    ? entityDetails.characters.map(character => (
+                        <span className="clickSpan" key={character.id} onClick={() => handleEntityClick(character.id, character.component)}>
+                          {character.name}
+                        </span>
+                      ))
+                    : <span>Unknown</span>}
+              </div>
+            )}
+          </div>
+          <hr />
+          <div>
+            <h4 onClick={() => toggleSection('episodes')}>
+              Episodes
+              {sections.episodes ? ' v' : ' >'}
+            </h4>
+            {sections.episodes && (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Title</th>
+                    <th>Episode Number</th>
+                    <th>Release Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {entityDetails?.episodes?.length > 0
+                    ? entityDetails.episodes.map((episode, index) => (
+                        <tr
+                          key={index}
+                          onClick={() => handleEpisodeClick(episode.episode_number)}
+                          onMouseEnter={() => handleEpisodeMouseEnter(episode.episode_number)}
+                          onMouseLeave={() => handleEpisodeMouseLeave()}
+                          onDoubleClick={() => handleEpisodeDoubleClick(episode.episode_number)}
+                          className={selectedEpisode && selectedEpisode === episode.episode_number ? 'current-episode' : ''}
+                        >
+                          <td>{episode.title}</td>
+                          <td>{episode.episode_number}</td>
+                          <td>{episode.release_date}</td>
                         </tr>
-                      );
-                    })
-                : currentNetwork === 'guests' && guestEdges?.length > 0
-                  ? guestEdges.filter(edge => edge.source === entityDetails.character_id || edge.target === entityDetails.character_id)
-                      .map(edge => {
-                        const guestId = edge.source === entityDetails.character_id ? edge.target : edge.source;
-                        const guest = guestNodes.find(node => node.id === guestId);
-                        return (
-                          <tr key={guestId} onClick={() => handleEntityClick(guestId, entityDetails.component, false)}>
-                            <td>{guest?.name ?? 'N/A'}</td>
-                            <td>{getSharedEpisodes(guestId)}</td>
-                          </tr>
-                        );
-                      })
-                  : <tr>
-                      <td colSpan="2">Unknown</td>
-                    </tr>}
-            </tbody>
-          </table>
-        )}
-      </div>
+                      ))
+                    : <tr>
+                        <td colSpan="3">No episodes available</td>
+                      </tr>}
+                </tbody>
+              </table>
+            )}
+          </div>
+          <hr />
+          <div>
+            <h4 onClick={() => toggleSection('neighbors')}>
+              Neighbors
+              {sections.neighbors ? ' v' : ' >'}
+            </h4>
+            {sections.neighbors && (
+              <table>
+                <thead>
+                  <tr>
+                    <th>Name</th>
+                    <th>Shared Episodes</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {currentNetwork === 'characters' && characterEdges?.length > 0
+                    ? characterEdges.filter(edge => edge.source === entityDetails.character_id || edge.target === entityDetails.character_id)
+                        .map(edge => {
+                          const characterId = edge.source === entityDetails.character_id ? edge.target : edge.source;
+                          const character = characterNodes.find(node => node.id === characterId);
+                          return (
+                            <tr key={characterId} onClick={() => handleEntityClick(characterId, entityDetails.component, false)}>
+                              <td>{character?.name ?? 'N/A'}</td>
+                              <td>{getSharedEpisodes(characterId)}</td>
+                            </tr>
+                          );
+                        })
+                    : currentNetwork === 'guests' && guestEdges?.length > 0
+                      ? guestEdges.filter(edge => edge.source === entityDetails.character_id || edge.target === entityDetails.character_id)
+                          .map(edge => {
+                            const guestId = edge.source === entityDetails.character_id ? edge.target : edge.source;
+                            const guest = guestNodes.find(node => node.id === guestId);
+                            return (
+                              <tr key={guestId} onClick={() => handleEntityClick(guestId, entityDetails.component, false)}>
+                                <td>{guest?.name ?? 'N/A'}</td>
+                                <td>{getSharedEpisodes(guestId)}</td>
+                              </tr>
+                            );
+                          })
+                      : <tr>
+                          <td colSpan="2">Unknown</td>
+                        </tr>}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+      )}
+      
       <CentralityChart
         show={showChart}
         handleClose={() => setShowChart(false)}
