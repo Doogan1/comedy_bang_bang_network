@@ -5,7 +5,8 @@ import * as d3 from 'd3';
 import {
   selectNode, updateZoomCache, setTriggerZoomToFit, setTriggerZoomToSelection,
   setWindow, setHighlights, saveHighlights, retrieveHighlightsSave , selectEpisode, 
-  setMultipleNodesSelected, addNodeToSet, removeNodeFromSet, resetNodeSelection
+  setMultipleNodesSelected, addNodeToSet, removeNodeFromSet, resetNodeSelection, 
+  fetchShortestPath, clearHighlightedPath
 } from '../features/ui/uiSlice';
 import { fetchCharacters, updatePositions, setIsComponentChanged } from '../features/characters/characterSlice';
 import { fetchGuests, updateGuestPositions } from '../features/guests/guestSlice';
@@ -45,6 +46,7 @@ const Visualizer = () => {
   const guestPositions = useSelector(state => state.guests.positions[currentComponent]);
   const episodes = useSelector(state => state.episodes.episodes);
   const highlights = useSelector(state => state.ui.highlights);
+  const highlightedPath = useSelector(state => state.ui.highlightedPath);
   const loadingCharacters = useSelector((state) => state.characters.loading);
   const loadingGuests = useSelector((state) => state.guests.loading);
 
@@ -108,31 +110,49 @@ const Visualizer = () => {
     };
   };
 
+  const normalizeEdge = ([node1, node2]) => {
+    return [Math.min(node1, node2), Math.max(node1, node2)];
+  };
+
   const applyHighlights = debounce((nodesToHighlight, edgesToHighlight) => {
+    console.log(`Applying highlights from applyHighlights. Edges: ${edgesToHighlight}`);
+    
+    // Normalize the edges
+    const normalizedEdgesToHighlight = new Set(edgesToHighlight.map(normalizeEdge).map(edge => JSON.stringify(edge)));
+    
     if (nodeElementsRef.current && edgeElementsRef.current && labelsRef.current) {
       if (nodesToHighlight.length > 0) {
         nodeElementsRef.current
           .classed("highlighted", d => nodesToHighlight.includes(d.id))
           .classed("selected", d => selectedNodeSet.includes(d.id))
           .classed("dimmed", d => !nodesToHighlight.includes(d.id));
-
+  
         edgeElementsRef.current
           .classed("dimmed", d => {
-            const edge = [d.source.id, d.target.id];
-            return !edgesToHighlight.some(highlightedEdge => (highlightedEdge[0] === edge[0] && highlightedEdge[1] === edge[1]));
+            const edge = JSON.stringify(normalizeEdge([d.source.id, d.target.id]));
+            return !normalizedEdgesToHighlight.has(edge);
           });
-
+  
         labelsRef.current
           .classed("dimmed", d => !nodesToHighlight.includes(d.id));
+  
+        // Log non-dimmed edges
+        const nonDimmedEdges = edgeElementsRef.current
+          .filter(function() {
+            return !d3.select(this).classed('dimmed');
+          })
+          .data();
+  
+        console.log('Non-dimmed edges:', nonDimmedEdges);
       } else {
         nodeElementsRef.current
           .classed("highlighted", false)
           .classed("dimmed", false)
           .classed("selected", false);
-
+  
         edgeElementsRef.current
           .classed("dimmed", false);
-
+  
         labelsRef.current
           .classed("dimmed", false);
       }
@@ -142,7 +162,9 @@ const Visualizer = () => {
   useEffect(() => {
     const highlightData = highlights[currentNetwork]?.[currentComponent] || { nodes: [], edges: [] };
     const { nodes: nodesToHighlight = [], edges: edgesToHighlight = [] } = highlightData;
+    console.log(`About to apply highlights with edges: ${edgesToHighlight}`);
     applyHighlights(nodesToHighlight, edgesToHighlight);
+
   }, [highlights, currentComponent, currentNetwork, selectedNodeId]);
   
   useEffect(() => {
@@ -422,6 +444,39 @@ const Visualizer = () => {
     }
   }, [selectedNodeId, selectedEpisode, areMultipleNodesSelected, dispatch]);
   
+  useEffect(() => {
+    const fetchPath = async () => {
+      const currentSelectedNodeSet = selectedNodeSetRef.current;
+      console.log(`UseEffect that fetches shortest path triggered with selected node set ${currentSelectedNodeSet}`);
+      if (currentSelectedNodeSet.length === 2) {
+        console.log(`... and the length was 2, so now we're going to fetchShortestPath`);
+        const [startNodeId, endNodeId] = currentSelectedNodeSet;
+        console.log(`...with ${startNodeId} and ${endNodeId}`);
+        dispatch(fetchShortestPath({ network: currentNetwork , startNodeId, endNodeId }));
+      } else {
+        dispatch(clearHighlightedPath());
+      }
+    };
+
+    fetchPath();
+  }, [selectedNodeSet, currentNetwork, dispatch]);
+
+  useEffect(() => {
+    console.log(`highlighted path: ${highlightedPath} with length ${highlightedPath.length}`);
+    if (highlightedPath.length > 0) {
+      const edges = highlightedPath
+        .map((node, index) => {
+          if (index < highlightedPath.length - 1) {
+            return [node, highlightedPath[index + 1]];
+          }
+          return null;
+        })
+        .filter(edge => edge !== null); // Filter out null values
+      console.log(`About to set highlights using edges: ${JSON.stringify(edges)}`);
+      dispatch(setHighlights({ nodes: highlightedPath, edges: edges }));
+      dispatch(saveHighlights({ nodes: highlightedPath, edges: edges }));
+    }
+  }, [highlightedPath, dispatch]);
 
   useEffect(() => {
     if (selectedNodeId === null && selectedEpisode === null) {
@@ -593,7 +648,7 @@ const Visualizer = () => {
         } else if (currentSelectedNodeSet.length === 1) {
           console.log('... because theres already a node in selectedNodeSet, add the new node to the nodeSet and setMultipleNodesSelected true');
           dispatch(setMultipleNodesSelected(true));
-          dispatch(addNodeToSet(selectedNodeId));
+          dispatch(addNodeToSet(d.id));
         }
         if (currentSelectedNodeSet.length < 2) {
           console.log('... 0 or 1 nodes in selectedNodeSet so add the ctrl-clicked node to the set');
