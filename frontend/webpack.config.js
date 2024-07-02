@@ -2,56 +2,45 @@ const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
 module.exports = {
-  // Entry point of application
   entry: './src/index.js',
-
-  // Where to output the bundle
   output: {
-    path: path.resolve(__dirname, 'build'),
+    path: path.resolve(__dirname, 'build'), // Ensure this points to 'build'
     filename: 'bundle.js'
   },
-
-  // Define how different types of modules will be treated
   module: {
     rules: [
       {
-        test: /\.js$/, // Apply this rule to files ending in .js
-        exclude: /node_modules/, // Do not apply to files within node_modules
+        test: /\.js$/,
+        exclude: /node_modules/,
         use: {
-          loader: 'babel-loader', // Use babel-loader to transform these files
+          loader: 'babel-loader',
           options: {
-            presets: ['@babel/preset-react', '@babel/preset-env'] // Presets used for React and modern JavaScript
+            presets: ['@babel/preset-react', '@babel/preset-env']
           }
         }
       },
       {
-        test: /\.css$/, // Apply this rule to files ending in .css
-        use: ['style-loader', 'css-loader'] // Use these loaders to deal with CSS files
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
       }
     ]
   },
-
-  // Optional: Configure how source maps are generated
-  devtool: 'inline-source-map',
-
-  // Optional: Setup development server
+  devtool: process.env.NODE_ENV === 'production' ? false : 'inline-source-map',
   devServer: {
-    static: './dist',
+    static: './build', // Ensure this matches your output directory
     hot: true,
-    port: 3000, // You can specify a port that doesn't conflict with Django
-    historyApiFallback: true, // This option is useful for single-page applications, redirects all to index.html
+    port: 3000,
+    historyApiFallback: true,
     proxy: [{
-        context: ['/api'],  // Proxy paths that start with /api
-        target: 'http://localhost:8000', // Django server
-        secure: false, // Set to false if https is not used for localhost
-        changeOrigin: true // Necessary for virtual hosted sites
+      context: ['/api'],
+      target: 'http://localhost:8000',
+      secure: false,
+      changeOrigin: true
     }]
-},
-
+  },
   plugins: [
     new HtmlWebpackPlugin({
-      template: './src/index.html' // Path to your template file
+      template: './src/index.html'
     })
-  ],
-  devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
+  ]
 };
