@@ -17,6 +17,15 @@ body {
     max-width: 1275px;
 }
 
+.centrality-container h6 {
+    font-size: 15px;
+    text-align: left;
+}
+
+.node-sizing-container h3 {
+    margin: auto;
+    text-align: center;
+}
 .node-label {
     fill: rgb(255, 153, 0);
     -webkit-text-stroke: 1px black;
@@ -39,9 +48,15 @@ body {
 .control-group {
     display: flex;
     flex-direction: column;
+    align-items: center;
     padding: 0;
-    margin-bottom: 15px;
+    margin-bottom: 0;
 }
+
+.control-group label {
+    font-weight: 500;
+}
+
 .controls-sidebar {
     position: relative;
     top: 0;
@@ -113,28 +128,60 @@ circle.dimmed {
 }
 
 .slider-range-container {
-    border: 1px solid black;
+    border: 0 solid black;
     padding: 10px;
     border-radius: 5px;
+}
+
+.slider-range-container label {
+    font-size: 15px;
+    font-weight: 500;
 }
 
 .centrality-container {
-    border: 1px solid black;
+    border: 0 solid black;
     padding: 10px;
     border-radius: 5px;
 }
 
-.sidebar hr {
+.centrality-container div {
     display: block;
-    border: 0;
+    align-items: center;
+    justify-content: center;
+}
+.centrality-container div label {
+    margin-left: 5px;
+}
+
+hr {
+    display: block;
+    margin: auto;
+    margin-bottom: 0px;
+    padding: 0;
+}
+.sidebar hr {
     border-top: 3px solid #ccc;
     padding: 5px;
-    width: 15%;
     margin: auto;
     margin-bottom: 0px;
     width: 100%;
 }
 
+.controls-sidebar hr {
+    border-top: 3px solid #ccc;
+}
+
+.controls-sidebar .node-sizing-container hr {
+    margin: auto;
+    width: 50%;
+    border-top: 1px solid black;
+}
+
+.node-sizing-container {
+    margin: auto;
+    justify-content: center;
+    align-items: center;
+}
 
 .sidebar {
     border-radius: 5px;

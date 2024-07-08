@@ -105,7 +105,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
             <div className="controls-resizer"></div>
             <div style={styles.container}>
                 <div  className="control-group">
-                    <label htmlFor="component-selector" style={styles.label}>Select Component:</label>
+                    <label htmlFor="component-selector" className='label'>Select Component</label>
                     <select
                         id="component-selector"
                         value={selectedComponent}
@@ -119,8 +119,9 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                         ))}
                     </select>
                 </div>
+                <hr />
                 <div className="control-group">
-                    <label htmlFor="chargeStrength" style={styles.label}>Charge Strength:</label>
+                    <label htmlFor="chargeStrength" className='label'>Charge Strength: {forceStrength}</label>
                     <input
                         type="range"
                         id="chargeStrength"
@@ -130,10 +131,11 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                         onChange={handleForceStrengthChange}
                         style={styles.slider}
                     />
-                    <span style={styles.value}>{forceStrength}</span>
+                    
                 </div>
+                <hr />
                 <div className='control-group'>
-                    <label htmlFor="linkDistance" style={styles.label}>Link Distance:</label>
+                    <label htmlFor="linkDistance" className='label'>Link Distance: {linkDistance}</label>
                     <input
                         type="range"
                         id="linkDistance"
@@ -143,77 +145,82 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                         onChange={handleLinkDistanceChange}
                         style={styles.slider}
                     />
-                    <span style={styles.value}>{linkDistance}</span>
                 </div>
-                <div className="centrality-container">
+                <hr />
+                <div className="node-sizing-container">
                     <h3>Node Sizing</h3>
-                    <div>
-                        <input
-                            type="radio"
-                            id="none"
-                            name="centrality"
-                            value="none"
-                            checked={currentCentrality === 'none'}
-                            onChange={handleCentralityChange}
-                        />
-                        <label htmlFor="none">Uniform</label>
+                    <div className="centrality-container">
+                        <h6>Size by Centrality Rank</h6>
+                        <div>
+                            <input
+                                type="radio"
+                                id="none"
+                                name="centrality"
+                                value="none"
+                                checked={currentCentrality === 'none'}
+                                onChange={handleCentralityChange}
+                            />
+                            <label htmlFor="none">Uniform</label>
+                        </div>
+                        <div>
+                            <input
+                                type="radio"
+                                id="degree"
+                                name="centrality"
+                                value="degree"
+                                checked={currentCentrality === 'degree'}
+                                onChange={handleCentralityChange}
+                            />
+                            <label htmlFor="degree">Degree</label>
+                        </div>
+                        <div>
+                            <input
+                                type="radio"
+                                id="betweenness"
+                                name="centrality"
+                                value="betweenness"
+                                checked={currentCentrality === 'betweenness'}
+                                onChange={handleCentralityChange}
+                            />
+                            <label htmlFor="betweenness">Betweenness</label>
+                        </div>
+                        <div>
+                            <input
+                                type="radio"
+                                id="eigenvector"
+                                name="centrality"
+                                value="eigenvector"
+                                checked={currentCentrality === 'eigenvector'}
+                                onChange={handleCentralityChange}
+                            />
+                            <label htmlFor="eigenvector">Eigenvector</label>
+                        </div>
+                        <div>
+                            <input
+                                type="radio"
+                                id="closeness"
+                                name="centrality"
+                                value="closeness"
+                                checked={currentCentrality === 'closeness'}
+                                onChange={handleCentralityChange}
+                            />
+                            <label htmlFor="closeness">Closeness</label>
+                        </div>
                     </div>
-                    <div>
-                        <input
-                            type="radio"
-                            id="degree"
-                            name="centrality"
-                            value="degree"
-                            checked={currentCentrality === 'degree'}
-                            onChange={handleCentralityChange}
+                    <hr />
+                    <div className="slider-range-container">
+                        <label>Node Radius Range</label>
+                        <Slider range
+                            min={1}
+                            max={200}
+                            defaultValue={[radiusRange.minRadius, radiusRange.maxRadius]}
+                            onChange={handleRadiusChange}
                         />
-                        <label htmlFor="degree">Degree</label>
+                        <div>Min Radius: {radiusRange.minRadius}</div>
+                        <div>Max Radius: {radiusRange.maxRadius}</div>
                     </div>
-                    <div>
-                        <input
-                            type="radio"
-                            id="betweenness"
-                            name="centrality"
-                            value="betweenness"
-                            checked={currentCentrality === 'betweenness'}
-                            onChange={handleCentralityChange}
-                        />
-                        <label htmlFor="betweenness">Betweenness</label>
-                    </div>
-                    <div>
-                        <input
-                            type="radio"
-                            id="eigenvector"
-                            name="centrality"
-                            value="eigenvector"
-                            checked={currentCentrality === 'eigenvector'}
-                            onChange={handleCentralityChange}
-                        />
-                        <label htmlFor="eigenvector">Eigenvector</label>
-                    </div>
-                    <div>
-                        <input
-                            type="radio"
-                            id="closeness"
-                            name="centrality"
-                            value="closeness"
-                            checked={currentCentrality === 'closeness'}
-                            onChange={handleCentralityChange}
-                        />
-                        <label htmlFor="closeness">Closeness</label>
-                    </div>
-                </div>
-                <div className="slider-range-container">
-                    <label>Node Radius Range</label>
-                    <Slider range
-                        min={1}
-                        max={200}
-                        defaultValue={[radiusRange.minRadius, radiusRange.maxRadius]}
-                        onChange={handleRadiusChange}
-                    />
-                    <div>Min Radius: {radiusRange.minRadius}</div>
-                    <div>Max Radius: {radiusRange.maxRadius}</div>
-                </div>
+                    <hr />
+                </div>  
                 <button onClick={handleZoomToFit} style={styles.button}>Zoom to Fit</button>
                 <button onClick={handleZoomToSelection} style={styles.button}>Zoom to Selection</button>
             </div>  
