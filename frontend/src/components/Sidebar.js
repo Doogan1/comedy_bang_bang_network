@@ -240,7 +240,7 @@ const Sidebar = () => {
       if (currentNetwork === 'characters') {
         return episode.characters.map(character => character.id).includes(entityDetails.character_id) && episode.characters.map(character => character.id).includes(characterId);
       } else {
-        return episode.guests.map(guest => guest.id).includes(entityDetails.character_id) && episode.guests.map(guest.id).includes(characterId);
+        return episode.guests.map(guest => guest.id).includes(entityDetails.character_id) && episode.guests.map(guest => guest.id).includes(characterId);
       }
     }).map(episode => episode.title).join(', ');
   };
