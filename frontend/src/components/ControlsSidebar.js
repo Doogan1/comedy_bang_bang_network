@@ -105,7 +105,6 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
             <div className="controls-resizer"></div>
             <div style={styles.container}>
                 <div  className="control-group">
-                    <h4>Current component: {currentComponent}</h4>
                     <label htmlFor="component-selector" style={styles.label}>Select Component:</label>
                     <select
                         id="component-selector"
