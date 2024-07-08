@@ -26,6 +26,8 @@ body {
     margin: auto;
     text-align: center;
 }
+
+
 .node-label {
     fill: rgb(255, 153, 0);
     -webkit-text-stroke: 1px black;
@@ -156,6 +158,19 @@ circle.dimmed {
     align-items: center;
     justify-content: center;
 }
+
+.centrality-container div.heading-info-question {
+    display: flex;
+}
+
+.circled-icon {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border: 1px solid black;
+    border-radius: 100%;
+}
+
 .centrality-container div label {
     margin-left: 5px;
 }

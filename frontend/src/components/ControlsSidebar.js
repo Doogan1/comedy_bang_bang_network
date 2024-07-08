@@ -5,6 +5,7 @@ import { fetchComponentsSummary } from '../features/characters/characterSlice';
 import { fetchGuestComponentsSummary , setSelectedGuestComponent} from '../features/guests/guestSlice';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
+import { BiInfoCircle } from "react-icons/bi";
 
 const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSummary }) => {
     const dispatch = useDispatch();
@@ -151,7 +152,10 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                 <div className="node-sizing-container">
                     <h4>Node Sizing</h4>
                     <div className="centrality-container">
-                        <h6>Size by Centrality Rank</h6>
+                        <div className="heading-info-question">
+                            <h6>Size by Centrality Rank</h6>
+                            <BiInfoCircle />
+                        </div>
                         <div>
                             <input
                                 type="radio"
