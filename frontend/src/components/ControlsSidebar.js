@@ -170,19 +170,29 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                                 <Modal.Body>
                                     <h5>Degree Centrality</h5>
                                     <p>
-                                    Degree centrality is the simplest centrality measure and is defined as the number of edges incident with the vertex which also corresponds to the number of neighbors of the node. For more information, see <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Degree_centrality">Degree Centrality</a>.
+                                    Degree centrality is the simplest centrality measure and is defined as the number of edges incident with the vertex which also corresponds to the number of neighbors of the node. 
+                                    For more information, see <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Degree_centrality">Degree Centrality</a>.
                                     </p>
                                     <h5>Betweenness Centrality</h5>
                                     <p>
-                                    Betweenness centrality quantifies the number of times a node contributes to the shortest path between two other nodes. It is a measure of the influence a node has over the flow of information, materials, or other substance communicated between nodes in a network assuming the substance takes the shortest path between nodes. Nodes with high betweenness centrality lie on many shortest paths between nodes, so they play an important role in communication between nodes. For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Betweenness_centrality">Betweenness Centrality</a>.
+                                    Betweenness centrality quantifies the number of times a node contributes to the shortest path between two other nodes. 
+                                    It is a measure of the influence a node has over the flow of information, materials, or other substance communicated between nodes in a network assuming the substance takes the shortest path between nodes. 
+                                    Nodes with high betweenness centrality lie on many shortest paths between nodes, so they play an important role in communication between nodes. 
+                                    For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Betweenness_centrality">Betweenness Centrality</a>.
                                     </p>
                                     <h5>Eigenvector Centrality</h5>
                                     <p>
-                                    Eigenvector centrality measures the influence of a node within a network. It assigns relative scores to all nodes in the network based on the concept that connections to high-scoring nodes contribute more to the score of the node in question than equal connections to low-scoring nodes. This means that a node is considered more central if it is connected to many nodes that themselves are highly central. For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Eigenvector_centrality">Eigenvector Centrality</a>.
+                                    Eigenvector centrality measures the influence of a node within a network. 
+                                    It assigns relative scores to all nodes in the network based on the concept that connections to high-scoring nodes contribute more to the score of the node in question than equal connections to low-scoring nodes. 
+                                    This means that a node is considered more central if it is connected to many nodes that themselves are highly central. 
+                                    For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Eigenvector_centrality">Eigenvector Centrality</a>.
                                     </p>
                                     <h5>Closeness Centrality</h5>
                                     <p>
-                                    Closeness centrality measures how "close" (in terms of graphical distance) a node is to the rest of the nodes in the network. It is defined as the inverse of the sum of the shortest path distances from the node to all other nodes in the network. Nodes with high closeness centrality have shorter average distances to all other nodes, indicating they are closer to the center of the network. For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Closeness_centrality">Closeness Centrality</a>.
+                                    Closeness centrality measures how "close" (in terms of graphical distance) a node is to the rest of the nodes in the network. 
+                                    It is defined as the inverse of the sum of the shortest path distances from the node to all other nodes in the network. 
+                                    Nodes with high closeness centrality have shorter average distances to all other nodes, indicating they are closer to the center of the network. 
+                                    For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Closeness_centrality">Closeness Centrality</a>.
                                     </p>
                                 </Modal.Body>
                                 <Modal.Footer>
