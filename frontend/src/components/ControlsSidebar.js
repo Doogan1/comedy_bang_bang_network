@@ -6,6 +6,7 @@ import { fetchGuestComponentsSummary , setSelectedGuestComponent} from '../featu
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
 import { BiInfoCircle } from "react-icons/bi";
+import { Modal , Button} from 'react-bootstrap';
 
 const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSummary }) => {
     const dispatch = useDispatch();
@@ -161,8 +162,18 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                     <div className="centrality-container">
                         <div className="heading-info-question">
                             <h6>Size by Centrality Rank</h6>
-                            <BiInfoCircle onClick={toggleCentralityInfo} style={{cursor: 'pointer' }}/>
-                            {/* {isCentralityInfoOpen && <Modal onClose={toggleModal} />} */}
+                            <BiInfoCircle onClick={toggleCentralityInfo} style={{cursor: 'pointer' }}/> 
+                            <Modal show={isCentralityInfoOpen} onHide={toggleCentralityInfo}>
+                                <Modal.Header closeButton>
+                                  <Modal.Title>Centrality Info</Modal.Title>
+                                </Modal.Header>
+                                <Modal.Body>
+                                  <p>This is where we will write information describing centrality measures.</p>
+                                </Modal.Body>
+                                <Modal.Footer>
+                                  <Button variant="secondary" onClick={toggleCentralityInfo}>Close</Button>
+                                </Modal.Footer>
+                            </Modal>
                         </div>
                         <div>
                             <input
