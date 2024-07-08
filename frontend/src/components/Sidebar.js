@@ -5,7 +5,8 @@ import { fetchGuestDetails } from '../features/guests/guestSlice';
 import {
   setEntityDetails, setSidebarWidth, selectNode,
   switchComponent, setHighlights, saveHighlights, retrieveHighlightsSave,
-  setTriggerZoomToSelection, addNodeToSet, resetNodeSelection, selectEpisode
+  setTriggerZoomToSelection, addNodeToSet, resetNodeSelection, selectEpisode,
+  switchNetwork
 } from '../features/ui/uiSlice';
 import CentralityChart from './CentralityChart';
 import { BiBarChartSquare } from "react-icons/bi";
@@ -341,13 +342,13 @@ const Sidebar = () => {
               <div className='character-actor-sidebar-list'>
                 {currentNetwork === 'characters' && entityDetails?.actors?.length > 0 
                   ? entityDetails.actors.map(actor => (
-                      <span className="clickSpan" key={actor.id} onClick={() => handleEntityClick(actor.id, actor.component)}>
+                      <span className="clickSpan" key={actor.id} onClick={() => handleEntityClick(actor.id, actor.component, true)}>
                         {actor.name}
                       </span>
                     ))
                   : currentNetwork === 'guests' && entityDetails?.characters?.length > 0 
                     ? entityDetails.characters.map(character => (
-                        <span className="clickSpan" key={character.id} onClick={() => handleEntityClick(character.id, character.component)}>
+                        <span className="clickSpan" key={character.id} onClick={() => handleEntityClick(character.id, character.component, true)}>
                           {character.name}
                         </span>
                       ))
