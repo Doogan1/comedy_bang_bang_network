@@ -104,6 +104,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
         <div className="controls-sidebar" >
             <div className="controls-resizer"></div>
             <div style={styles.container}>
+                <h3>Controls</h3>
                 <div  className="control-group">
                     <label htmlFor="component-selector" className='label'>Select Component</label>
                     <select
@@ -148,7 +149,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                 </div>
                 <hr />
                 <div className="node-sizing-container">
-                    <h3>Node Sizing</h3>
+                    <h4>Node Sizing</h4>
                     <div className="centrality-container">
                         <h6>Size by Centrality Rank</h6>
                         <div>
