@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react';
+import React, { useEffect , useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setForceStrength, setLinkDistance, setSidebarWidth, setCentrality, setRadiusRange, setTriggerZoomToFit , setTriggerZoomToSelection} from '../features/ui/uiSlice';
 import { fetchComponentsSummary } from '../features/characters/characterSlice';
@@ -19,6 +19,13 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
 
     const characterComponentsSummary = useSelector(state => state.characters.componentsSummary);
     const guestComponentsSummary = useSelector(state => state.guests.componentsSummary);
+
+    const [isCentralityInfoOpen, setIsCentralityInfoOpen] = useState(false);
+
+    const toggleCentralityInfo = () => {
+        setIsCentralityInfoOpen(!isCentralityInfoOpen);
+        console.log(`You clicked the info button!  The current value of isCentralityInfoOpen after toggling is ${isCentralityInfoOpen}`);
+      };
 
     useEffect(() => {
         if (currentNetwork === 'characters') {
@@ -154,7 +161,8 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                     <div className="centrality-container">
                         <div className="heading-info-question">
                             <h6>Size by Centrality Rank</h6>
-                            <BiInfoCircle />
+                            <BiInfoCircle onClick={toggleCentralityInfo} style={{cursor: 'pointer' }}/>
+                            {/* {isCentralityInfoOpen && <Modal onClose={toggleModal} />} */}
                         </div>
                         <div>
                             <input
