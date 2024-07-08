@@ -25,7 +25,7 @@ module.exports = {
       }
     ]
   },
-  devtool: process.env.NODE_ENV === 'production' ? false : 'inline-source-map',
+  devtool: process.env.NODE_ENV === 'production' ? false : 'source-map',
   devServer: {
     static: './build', // Ensure this matches your output directory
     hot: true,
