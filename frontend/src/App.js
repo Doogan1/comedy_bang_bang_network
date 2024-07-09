@@ -109,6 +109,11 @@ const App = () => {
                             Each episode typically features Aukerman engaging with comedians, actors, and musicians, alongside recurring fictional characters played by guest comedians. 
                             The podcast has garnered a dedicated fan base and has been praised for its innovative approach to comedy and its ability to blend spontaneous humor with structured segments.
                         </p>
+                        <p>
+                            You can listen to recent episodes and some archived episodes of Comedy Bang! Bang! wherever you get your podcasts.  
+                            You can also subscribe to <a target="_blank" href="https://www.comedybangbangworld.com/">Comedy Bang! Bang! World</a> to get ad-free episodes and the complete archive of episodes.  
+                            The information used for this website was scraped from the <a target="_blank" href="https://comedybangbang.fandom.com/wiki/Main_Page">Comedy Bang Bang Fandom</a> - thank you to all those involved in maintaining that wiki.
+                        </p>
                         <h6>The Character Network</h6>
                         <p>
                             The character network in the Comedy Bang! Bang! project represents the relationships and interactions between the various fictional characters that have appeared on the podcast over the years. 
