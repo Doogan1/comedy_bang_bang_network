@@ -81,32 +81,32 @@ const App = () => {
 
 
     return (
-        <div className='container'>
+        <div className="full-width-container">
             <ControlsSidebar
             selectedComponent={currentComponent}
             setSelectedComponent={handleComponentChange}
             componentsSummary={componentsSummary}
             />
-            <div className='middle-bit'>
-                <div className='title'>
-                    <h1>Comedy Bang! Bang!</h1>
-                    <h2> Network Explorer</h2>
-                </div>
-                <div className='visualizer-container'>
-                    <div className="top-bar" style={{width: topbarWidth}}>
-                        <NetworkSwitcher /> 
-                        <SearchBar />
-                        <div className='click-explainer'>
-                            <ul>
-                                <li>Click to select a node and view its details</li>
-                                <li>Ctrl + Click to select multiple nodes and view a shortest path between them.</li>
-                            </ul>
-                        </div>
+            <div className="title">
+                <h1>Comedy Bang! Bang!</h1>
+                <h2> Network Explorer</h2>
+            </div>
+            <div className="visualizer-container-big">
+                <div className="top-bar">
+                    <NetworkSwitcher /> 
+                    <SearchBar />
+                    <div className='click-explainer'>
+                        <ul>
+                            <li>Click to select a node and view its details</li>
+                            <li>Ctrl + Click to select multiple nodes and view a shortest path between them.</li>
+                        </ul>
                     </div>
+                </div>
+                <div className="visualizer">
                     <Visualizer />
                 </div>
-                <Sidebar />
             </div>
+            <Sidebar />
         </div>
     );
 };

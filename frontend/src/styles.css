@@ -19,7 +19,9 @@ body {
 
 .centrality-container h6 {
     font-size: 15px;
-    text-align: left;
+    text-align: center;
+    margin-bottom: 0;
+    margin-right: 5px;
 }
 
 .node-sizing-container h4 {
@@ -49,6 +51,7 @@ body {
 
 .control-group {
     display: flex;
+    color: rgb(255, 255, 255);
     flex-direction: column;
     align-items: center;
     padding: 0;
@@ -60,30 +63,13 @@ body {
     margin-bottom: 5px;
 }
 
-.controls-sidebar {
-    position: relative;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: 15%;
-    min-width: 225px;
-}
 
 .controls-sidebar h3 {
     margin: auto;
+    color: rgb(246,184,19);
     margin-bottom: 10px;
 }
 
-.visualizer-container {
-    display: inline-block;
-    width: fit-content;
-    block-size: fit-content;
-    border: 1px solid black;
-    background: #f9f9f9;
-    padding: 10px;
-    border-radius: 10px;
-
-}
 
 .network-svg {
     display: inline-block;
@@ -105,16 +91,6 @@ body {
 
 .title h2 {
     color: rgb(246,184,19);
-}
-
-#root .container {
-    display: flex;
-    height: 100%;
-    width: 100%;
-    align-items: center;
-    justify-content: center;
-    flex-direction: row;
-    margin: 20px;
 }
 
 line {
@@ -175,8 +151,11 @@ circle.dimmed {
     justify-content: center;
 }
 
-.centrality-container div.heading-info-question {
+.heading-info-question {
     display: flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
 }
 
 .circled-icon {
@@ -206,16 +185,12 @@ hr {
 }
 
 .controls-sidebar hr {
-    border-top: 3px solid #ccc;
+    border-top: 3px solid rgb(186,34,22);
 }
 
-.controls-sidebar .node-sizing-container hr {
-    margin: auto;
-    width: 50%;
-    border-top: 1px solid black;
-}
 
 .node-sizing-container {
+    color: rgb(255, 255, 255);
     margin: auto;
     justify-content: center;
     align-items: center;
@@ -410,6 +385,7 @@ hr {
     padding-top: 5px;
     left: 5px;
     position: relative;
+    bottom: 0px;
     width: 235px;
     margin: 0;
     display: flex;
@@ -444,14 +420,9 @@ hr {
     user-select: none; /* Non-prefixed version, currently supported by Chrome, Edge, Opera, Firefox, Safari */
 }
 
-.top-bar {
-    border: none;
-    left: 5px;
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    position: relative;
-    min-width: 600px;
+.slider {
+    accent-color: rgb(246,184,19);
+    width: 93%;
 }
 
 .click-explainer {
@@ -467,12 +438,11 @@ hr {
 }
 
 .search-bar-container {
-    /* position: absolute;
-    left: calc(100% - 300px);
-    width: 290px; */
     position: relative;
+    display: flex;
+    align-items: center;
     left: 0;
-    width: 300px;
+    width: 250px;
   }
   
   .search-input {
@@ -547,3 +517,79 @@ hr {
   .current-episode {
     background:#63b8da;
   }
+
+  #root .container {
+    margin: 0;
+    padding-top: 5px;
+  }
+  .full-width-container {
+    max-width: none;
+    width: 95%;
+    padding: 10px;
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-rows: 0.7fr 1.3fr 1fr 1fr 1fr;
+    gap: 0px 20px;
+    grid-auto-flow: row;
+    grid-template-areas:
+      "controls-sidebar Title Title Title Title Title Title sidebar"
+      "controls-sidebar visualizer-container visualizer-container visualizer-container visualizer-container visualizer-container visualizer-container sidebar"
+      "controls-sidebar visualizer-container visualizer-container visualizer-container visualizer-container visualizer-container visualizer-container sidebar"
+      "controls-sidebar visualizer-container visualizer-container visualizer-container visualizer-container visualizer-container visualizer-container sidebar"
+      "controls-sidebar visualizer-container visualizer-container visualizer-container visualizer-container visualizer-container visualizer-container sidebar";
+  }
+
+  
+  .controls-sidebar { 
+    grid-area: controls-sidebar;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    border: 0px solid black;
+    border-radius: 5px;
+    padding: 5px;
+    background-color: rgb(5,155,216);
+}
+  
+  .title { grid-area: Title; }
+  
+  .visualizer-container-big {  display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-template-rows: .4fr 1.6fr 1fr 1fr 1fr 1fr 1fr;
+    gap: 0px 0px;
+    grid-auto-flow: row;
+    grid-template-areas:
+      "top-bar top-bar top-bar"
+      "Visualizer Visualizer Visualizer"
+      "Visualizer Visualizer Visualizer"
+      "Visualizer Visualizer Visualizer"
+      "Visualizer Visualizer Visualizer"
+      "Visualizer Visualizer Visualizer"
+      "Visualizer Visualizer Visualizer";
+    grid-area: visualizer-container;
+  }
+  
+  .visualizer-container {
+    width: 100%;
+  }
+
+  .top-bar {
+    display: grid; 
+    grid-template-columns: .5fr 1fr 1.5fr; 
+    grid-template-rows: 1fr; 
+    gap: 0px 0px; 
+    grid-template-areas: 
+      ". . ."; 
+    grid-area: top-bar; 
+  }
+  
+  .visualizer { 
+    grid-area: Visualizer;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .sidebar { grid-area: sidebar; }
+  
+  
