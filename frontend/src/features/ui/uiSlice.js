@@ -27,7 +27,7 @@ const initialState = {
     currentCentrality: 'eigenvector',
     radiusRange: {
         minRadius: 70,
-        maxRadius: 340
+        maxRadius: 215
     },
     triggerZoomToFit: false, 
     triggerZoomToSelection: false,
