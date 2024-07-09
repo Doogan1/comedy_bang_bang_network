@@ -31,14 +31,14 @@ const NetworkSwitcher = () => {
                 className={`tab ${currentNetwork === 'characters' ? 'selected' : ''}`}
                 ref={characterButtonRef}
             >
-                Character Network
+                Characters
             </button>
             <button
                 onClick={() => handleSwitch('guests')}
                 className={`tab ${currentNetwork === 'guests' ? 'selected' : ''}`}
                 ref={guestButtonRef}
             >
-                Guest Network
+                Guests
             </button>
         </div>
     );

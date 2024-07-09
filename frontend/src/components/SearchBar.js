@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
-import { selectNode } from '../features/ui/uiSlice';
+import { selectNode , addNodeToSet} from '../features/ui/uiSlice';
 import { selectCharacterNames } from '../features/characters/characterSlice';
 import { selectGuestNames } from '../features/guests/guestSlice';
 import '../styles.css'; 
@@ -19,6 +19,7 @@ const SearchBar = () => {
 
   const handleSelect = (id) => {
     dispatch(selectNode(id));
+    dispatch(addNodeToSet(id));
     setQuery(''); // Clear the search query after selection
   };
 
