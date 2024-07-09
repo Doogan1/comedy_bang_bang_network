@@ -18,7 +18,7 @@ body {
 }
 
 .centrality-container h6 {
-    font-size: 15px;
+    font-size: 13px;
     text-align: center;
     margin-bottom: 0;
     margin-right: 5px;
@@ -66,10 +66,18 @@ body {
 
 .controls-sidebar h3 {
     margin: auto;
-    color: rgb(246,184,19);
+    margin-top: 0;
+    color: rgb(255, 255, 255);
     margin-bottom: 10px;
 }
 
+.by-line {
+    font-size: small;
+}
+
+.by-line a {
+    color: rgb(246,184,19);
+}
 
 .network-svg {
     display: inline-block;
@@ -145,14 +153,15 @@ circle.dimmed {
     border-radius: 5px;
 }
 
-.centrality-container div {
+/* .centrality-container div {
     display: block;
     align-items: center;
     justify-content: center;
-}
+} */
 
 .heading-info-question {
     display: flex;
+    flex-direction: row;
     align-items: center;
     justify-content: center;
     text-align: center;
@@ -192,6 +201,8 @@ hr {
 .node-sizing-container {
     color: rgb(255, 255, 255);
     margin: auto;
+    margin-top: 0;
+    margin-bottom: 0;
     justify-content: center;
     align-items: center;
 }
@@ -381,6 +392,19 @@ hr {
     
 }
 
+.rc-slider-rail {
+    background: rgb(59,59,59);
+}
+
+.rc-slider-track {
+    background: rgb(246,184,19);
+}
+
+.rc-slider-handle {
+    background: rgb(246,184,19);
+    border-color: rgb(246,184,19);
+    opacity: 1;
+}
 .tabs {
     padding-top: 5px;
     left: 5px;
@@ -529,7 +553,7 @@ hr {
     display: grid;
     grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr 1fr 1fr;
     grid-template-rows: 0.7fr 1.3fr 1fr 1fr 1fr;
-    gap: 0px 20px;
+    gap: 0px 5px;
     grid-auto-flow: row;
     grid-template-areas:
       "controls-sidebar Title Title Title Title Title Title sidebar"
@@ -553,7 +577,8 @@ hr {
   
   .title { grid-area: Title; }
   
-  .visualizer-container-big {  display: grid;
+  .visualizer-container-big {
+    display: grid;
     grid-template-columns: 1fr 1fr 1fr;
     grid-template-rows: .4fr 1.6fr 1fr 1fr 1fr 1fr 1fr;
     gap: 0px 0px;

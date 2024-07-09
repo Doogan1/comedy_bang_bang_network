@@ -291,8 +291,8 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                     <div>Min Radius: {radiusRange.minRadius}</div>
                     <div>Max Radius: {radiusRange.maxRadius}</div>
                 </div>
-                <hr />
-            </div>  
+            </div>
+            <hr />  
             <button onClick={handleZoomToFit} style={styles.button}>Zoom to Fit</button>
             <button onClick={handleZoomToSelection} style={styles.button}>Zoom to Selection</button> 
         </div>

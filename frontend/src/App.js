@@ -89,7 +89,7 @@ const App = () => {
             />
             <div className="title">
                 <h1>Comedy Bang! Bang!</h1>
-                <h2> Network Explorer</h2>
+                <h2> Network Explorer <span className='by-line'>by <a target="_blank" href='https://sites.google.com/view/drake-olejniczak/home'>Drake Olejniczak</a></span></h2>
             </div>
             <div className="visualizer-container-big">
                 <div className="top-bar">
@@ -98,7 +98,7 @@ const App = () => {
                     <div className='click-explainer'>
                         <ul>
                             <li>Click to select a node and view its details</li>
-                            <li>Ctrl + Click to select multiple nodes and view a shortest path between them.</li>
+                            <li>Ctrl + Click to select multiple nodes and view a shortest path between them</li>
                         </ul>
                     </div>
                 </div>

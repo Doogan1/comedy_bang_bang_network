@@ -587,7 +587,7 @@ const Visualizer = () => {
     if (bounds.width === 0 && bounds.height === 0) {
       scale = .8;
     } else {
-      scale = 0.8 / Math.max(bounds.width / svgRef.current.clientWidth, bounds.height / svgRef.current.clientHeight);
+      scale = .8 / Math.max(bounds.width / svgRef.current.clientWidth, bounds.height / svgRef.current.clientHeight);
     }
     console.log(`The scale is ${scale}`);
     const translate = [
