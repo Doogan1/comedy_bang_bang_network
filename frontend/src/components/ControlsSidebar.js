@@ -136,7 +136,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                         type="range"
                         id="chargeStrength"
                         min="0"
-                        max="10000"
+                        max="40000"
                         value={forceStrength}
                         onChange={handleForceStrengthChange}
                         style={styles.slider}
@@ -150,7 +150,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                         type="range"
                         id="linkDistance"
                         min="1"
-                        max="1000"
+                        max="2000"
                         value={linkDistance}
                         onChange={handleLinkDistanceChange}
                         style={styles.slider}
@@ -284,7 +284,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                         <label>Node Radius Range</label>
                         <Slider range
                             min={1}
-                            max={200}
+                            max={1000}
                             defaultValue={[radiusRange.minRadius, radiusRange.maxRadius]}
                             onChange={handleRadiusChange}
                         />

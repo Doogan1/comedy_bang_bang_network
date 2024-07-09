@@ -96,6 +96,12 @@ const App = () => {
                     <div className="top-bar" style={{width: topbarWidth}}>
                         <NetworkSwitcher /> 
                         <SearchBar />
+                        <div className='click-explainer'>
+                            <ul>
+                                <li>Click to select a node and view its details</li>
+                                <li>Ctrl + Click to select multiple nodes and view a shortest path between them.</li>
+                            </ul>
+                        </div>
                     </div>
                     <Visualizer />
                 </div>

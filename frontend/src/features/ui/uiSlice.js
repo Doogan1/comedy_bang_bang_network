@@ -22,12 +22,12 @@ const initialState = {
         episodes: []
     },
     sidebarWidth: 300,
-    forceStrength: 10000,
+    forceStrength: 20000,
     linkDistance: 1000,
     currentCentrality: 'eigenvector',
     radiusRange: {
-        minRadius: 35,
-        maxRadius: 175
+        minRadius: 70,
+        maxRadius: 340
     },
     triggerZoomToFit: false, 
     triggerZoomToSelection: false,
