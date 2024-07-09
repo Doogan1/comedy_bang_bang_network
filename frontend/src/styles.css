@@ -90,15 +90,18 @@ body {
     width: fit-content;
 }
 
-.container {
+.title {
+    text-align: center;
+}
+
+#root .container {
     display: flex;
     height: 100%;
     width: 100%;
     align-items: center;
     justify-content: center;
     flex-direction: row;
-    margin-top: 20px;
-    margin-left: 0;
+    margin: 20px;
 }
 
 line {

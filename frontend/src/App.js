@@ -87,14 +87,20 @@ const App = () => {
             setSelectedComponent={handleComponentChange}
             componentsSummary={componentsSummary}
             />
-            <div className='visualizer-container'>
-                <div className="top-bar" style={{width: topbarWidth}}>
-                    <NetworkSwitcher /> 
-                    <SearchBar />
+            <div className='middle-bit'>
+                <div className='title'>
+                    <h1>Comedy Bang! Bang!</h1>
+                    <h2> Network Explorer</h2>
                 </div>
-                <Visualizer />
+                <div className='visualizer-container'>
+                    <div className="top-bar" style={{width: topbarWidth}}>
+                        <NetworkSwitcher /> 
+                        <SearchBar />
+                    </div>
+                    <Visualizer />
+                </div>
+                <Sidebar />
             </div>
-            <Sidebar />
         </div>
     );
 };
