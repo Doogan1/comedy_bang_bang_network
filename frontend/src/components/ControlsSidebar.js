@@ -1,10 +1,12 @@
-import React, { useEffect } from 'react';
+import React, { useEffect , useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { setForceStrength, setLinkDistance, setSidebarWidth, setCentrality, setRadiusRange, setTriggerZoomToFit , setTriggerZoomToSelection} from '../features/ui/uiSlice';
 import { fetchComponentsSummary } from '../features/characters/characterSlice';
 import { fetchGuestComponentsSummary , setSelectedGuestComponent} from '../features/guests/guestSlice';
 import Slider from 'rc-slider';
 import 'rc-slider/assets/index.css';
+import { BiInfoCircle } from "react-icons/bi";
+import { Modal , Button} from 'react-bootstrap';
 
 const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSummary }) => {
     const dispatch = useDispatch();
@@ -18,6 +20,22 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
 
     const characterComponentsSummary = useSelector(state => state.characters.componentsSummary);
     const guestComponentsSummary = useSelector(state => state.guests.componentsSummary);
+
+    const [isCentralityInfoOpen, setIsCentralityInfoOpen] = useState(false);
+    const [isForceStrengthInfoOpen, setIsForceStrengthInfoOpen] = useState(false);
+    const [isLinkDistanceInfoOpen, setIsLinkDistanceInfoOpen] = useState(false);
+
+    const toggleCentralityInfo = () => {
+        setIsCentralityInfoOpen(!isCentralityInfoOpen);
+      };
+
+    const toggleForceStrengthInfo = () => {
+        setIsForceStrengthInfoOpen(!isForceStrengthInfoOpen);
+      };
+
+    const toggleLinkDistanceInfo = () => {
+        setIsLinkDistanceInfoOpen(!isLinkDistanceInfoOpen);
+      };
 
     useEffect(() => {
         if (currentNetwork === 'characters') {
@@ -103,51 +121,154 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
     return (
         <div className="controls-sidebar" >
             <div className="controls-resizer"></div>
-            <div style={styles.container}>
-                <div  className="control-group">
-                    <h4>Current component: {currentComponent}</h4>
-                    <label htmlFor="component-selector" style={styles.label}>Select Component:</label>
-                    <select
-                        id="component-selector"
-                        value={selectedComponent}
-                        onChange={(e) => setSelectedComponent(Number(e.target.value))}
-                        style={styles.select}
-                    >
-                        {currentComponentsSummary.map((comp) => (
-                            <option key={comp.id} value={comp.id}>
-                                Component {comp.id} - Order: {comp.size} ({comp.percentage.toFixed(2)}%)
-                            </option>
-                        ))}
-                    </select>
+            <h3>Controls</h3>
+            <div className='click-explainer'>
+                <ul>
+                    <li>Click to select a node and view its details</li>
+                    <li>Ctrl + Click to select multiple nodes and view a shortest path between them</li>
+                </ul>
+            </div>
+            <hr />
+            <div  className="control-group">
+                <label htmlFor="component-selector" className='label'>Select Component</label>
+                <select
+                    id="component-selector"
+                    value={selectedComponent}
+                    onChange={(e) => setSelectedComponent(Number(e.target.value))}
+                    style={styles.select}
+                >
+                    {currentComponentsSummary.map((comp) => (
+                        <option key={comp.id} value={comp.id}>
+                            Component {comp.id} - Order: {comp.size} ({comp.percentage.toFixed(2)}%)
+                        </option>
+                    ))}
+                </select>
+            </div>
+            <hr />
+            <div className="control-group">
+                <div className="heading-info-question">
+                    <label htmlFor="chargeStrength" className='label'>Charge Strength: {forceStrength}</label>
+                    <BiInfoCircle onClick={toggleForceStrengthInfo} style={{cursor: 'pointer' }}/>
+                    <Modal show={isForceStrengthInfoOpen} onHide={toggleForceStrengthInfo}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Charge Strength</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <p>Charge strength in a force simulation controls the magnitude of the repulsive or attractive forces applied to the nodes. 
+                                A higher force strength results in stronger repulsion between nodes, causing them to spread out more, 
+                                while a lower force strength means weaker repulsion, allowing nodes to be closer together.
+                            </p>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={toggleForceStrengthInfo}>Close</Button>
+                        </Modal.Footer>
+                    </Modal>
                 </div>
-                <div className="control-group">
-                    <label htmlFor="chargeStrength" style={styles.label}>Charge Strength:</label>
-                    <input
-                        type="range"
-                        id="chargeStrength"
-                        min="0"
-                        max="10000"
-                        value={forceStrength}
-                        onChange={handleForceStrengthChange}
-                        style={styles.slider}
-                    />
-                    <span style={styles.value}>{forceStrength}</span>
+                <input
+                    type="range"
+                    id="chargeStrength"
+                    min="0"
+                    max="40000"
+                    value={forceStrength}
+                    onChange={handleForceStrengthChange}
+                    className='slider'
+                />
+            </div>
+            <hr />
+            <div className='control-group'>
+                <div className="heading-info-question">
+                    <label htmlFor="linkDistance" className='label'>Link Distance: {linkDistance} </label>
+                    <BiInfoCircle onClick={toggleLinkDistanceInfo} style={{cursor: 'pointer' }}/>
+                    <Modal show={isLinkDistanceInfoOpen} onHide={toggleLinkDistanceInfo}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Link Distance</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <p>Link distance in a force simulation is a setting that determines the optimal distance between connected nodes (or vertices) in a network visualization. 
+                                This distance influences how the nodes are spaced apart visually.</p>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={toggleLinkDistanceInfo}>Close</Button>
+                        </Modal.Footer>
+                    </Modal>
                 </div>
-                <div className='control-group'>
-                    <label htmlFor="linkDistance" style={styles.label}>Link Distance:</label>
-                    <input
-                        type="range"
-                        id="linkDistance"
-                        min="1"
-                        max="1000"
-                        value={linkDistance}
-                        onChange={handleLinkDistanceChange}
-                        style={styles.slider}
-                    />
-                    <span style={styles.value}>{linkDistance}</span>
-                </div>
+                <input
+                    type="range"
+                    id="linkDistance"
+                    min="1"
+                    max="2000"
+                    value={linkDistance}
+                    onChange={handleLinkDistanceChange}
+                    className='slider'
+                />
+            </div>
+            <hr />
+            <div className="node-sizing-container">
+                <h4>Node Sizing</h4>
                 <div className="centrality-container">
-                    <h3>Node Sizing</h3>
+                    <div className="heading-info-question">
+                        <h6>Size by Centrality Rank</h6>
+                        <BiInfoCircle onClick={toggleCentralityInfo} style={{cursor: 'pointer' }}/> 
+                        <Modal show={isCentralityInfoOpen} onHide={toggleCentralityInfo}>
+                            <Modal.Header closeButton>
+                                <Modal.Title>Centrality Info</Modal.Title>
+                            </Modal.Header>
+                            <Modal.Body>
+                                <p>
+                                    Centrality is a fundamental concept in network analysis that measures the importance or influence of individual nodes within a network. 
+                                    It helps identify the most significant nodes that can affect the overall structure and behavior of the network. 
+                                    There are several types of centrality metrics, each capturing different aspects of a node's prominence.
+                                </p>
+                                <p>
+                                    In the context of the Comedy Bang Bang network, centrality metrics are used to analyze and visualize the relationships and interactions between characters or between guests on the podcast. 
+                                    Read on for an overview of each type of centrality utilized here and what each means in the context of the Comedy Bang Bang network. 
+                                    For more detailed and extensive information on centrality measures, you can visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality">this website</a>.
+                                </p>
+                                <h5>Degree Centrality</h5>
+                                <p>
+                                    Degree centrality is the simplest centrality measure and is defined as the number of edges incident with the vertex which also corresponds to the number of neighbors of the node. 
+                                    For more information, see <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Degree_centrality">Degree Centrality</a>.
+                                </p>
+                                <p>
+                                    In the context of the Comedy Bang Bang Network character network, the degree of a node is the number of unique characters they've appeared with over all episodes.
+                                </p>
+                                <h5>Betweenness Centrality</h5>
+                                <p>
+                                    Betweenness centrality quantifies the number of times a node contributes to the shortest path between two other nodes. 
+                                    It is a measure of the influence a node has over the flow of information communicated or materials transfered between nodes. 
+                                    Nodes with high betweenness centrality lie on many shortest paths between nodes, so they play an important role in communication between nodes. 
+                                    For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Betweenness_centrality">Betweenness Centrality</a>.
+                                </p>
+                                <p>
+                                    In the context of the Comedy Bang Bang character network, vertices with high betweenness act as bridges between different groups, showing their role in connecting various parts of the network.
+                                </p>
+                                <h5>Eigenvector Centrality</h5>
+                                <p>
+                                    Eigenvector centrality measures the influence of a node within a network. 
+                                    It assigns relative scores to all nodes in the network based on the concept that connections to high-scoring nodes contribute more to the score of the node in question than equal connections to low-scoring nodes. 
+                                    This means that a node is considered more central if it is connected to many nodes that themselves are highly central. 
+                                    For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Eigenvector_centrality">Eigenvector Centrality</a>.
+                                </p>
+                                <p>
+                                    In the Comedy Bang Bang networks, nodes with high eigenvector centrality are important in the sense of influence as they appear in episodes with other characters/guests of high influence.
+                                </p>
+                                <h5>Closeness Centrality</h5>
+                                <p>
+                                    Closeness centrality measures how "close" (in terms of graphical distance) a node is to the rest of the nodes in the network. 
+                                    It is defined as the inverse of the sum of the shortest path distances from the node to all other nodes in the network. 
+                                    Nodes with high closeness centrality have shorter average distances to all other nodes, indicating they are closer to the center of the network. 
+                                    For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Closeness_centrality">Closeness Centrality</a>.
+                                </p>
+                                <p>
+                                    In the Comedy Bang Bang networks, characters/guests with high closeness require the least amount of steps to get to other characters/guests in the sense of coappearance chains.
+                                </p>
+                            </Modal.Body>
+                            <Modal.Footer>
+                                <Button variant="secondary" onClick={toggleCentralityInfo}>Close</Button>
+                            </Modal.Footer>
+                        </Modal>
+
+                    </div>
                     <div>
                         <input
                             type="radio"
@@ -204,44 +325,34 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                         <label htmlFor="closeness">Closeness</label>
                     </div>
                 </div>
+                <hr />
                 <div className="slider-range-container">
                     <label>Node Radius Range</label>
                     <Slider range
                         min={1}
-                        max={200}
+                        max={1000}
                         defaultValue={[radiusRange.minRadius, radiusRange.maxRadius]}
                         onChange={handleRadiusChange}
+                        className='slider'
                     />
                     <div>Min Radius: {radiusRange.minRadius}</div>
                     <div>Max Radius: {radiusRange.maxRadius}</div>
                 </div>
-                <button onClick={handleZoomToFit} style={styles.button}>Zoom to Fit</button>
-                <button onClick={handleZoomToSelection} style={styles.button}>Zoom to Selection</button>
-            </div>  
+            </div>
+            <hr />  
+            <button onClick={handleZoomToFit} style={styles.button}>Zoom to Fit</button>
+            <button onClick={handleZoomToSelection} style={styles.button}>Zoom to Selection</button> 
         </div>
     );
 };
 
 const styles = {
-    container: {
-        display: 'flex',
-        flexDirection: 'column',
-        padding: '20px',
-        backgroundColor: '#f9f9f9',
-        borderRadius: '8px',
-        boxShadow: '0 4px 8px rgba(0, 0, 0, 0.1)',
-        height: '100%',
-    },
     select: {
         width: '100%',
         padding: '8px',
         borderRadius: '4px',
         border: '1px solid #ccc',
         fontSize: '14px',
-    },
-    slider: {
-        width: '100%',
-        marginTop: '5px',
     },
     value: {
         display: 'block',
@@ -251,12 +362,12 @@ const styles = {
         fontSize: '14px',
     },
     button: {
-        marginTop: '20px',
-        padding: '10px',
-        backgroundColor: '#007bff',
-        color: '#fff',
+        marginTop: '5px',
+        padding: '5px',
+        backgroundColor: '#f6b813',
+        color: '#ba2216',
         border: 'none',
-        borderRadius: '4px',
+        borderRadius: '10px',
         cursor: 'pointer',
     },
 };

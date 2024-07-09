@@ -13,6 +13,9 @@ import { fetchGuests, updateGuestPositions } from '../features/guests/guestSlice
 
 const Visualizer = () => {
   const svgRef = useRef(null);
+  const containerRef = useRef(null);
+  const [containerWidth, setContainerWidth] = useState(0);
+
   const dispatch = useDispatch();
   const forceStrength = useSelector(state => state.ui.forceStrength);
   const linkDistance = useSelector(state => state.ui.linkDistance);
@@ -75,11 +78,13 @@ const Visualizer = () => {
 
   useEffect(() => {
     const handleResize = () => {
-      dispatch(setWindow({ width: window.innerWidth, height: window.innerHeight }));
+      console.log(`The containerRef.current.clientWidth is ${containerRef.current.clientWidth}`);
+      setContainerWidth(containerRef.current.clientWidth);
     };
     window.addEventListener('resize', handleResize);
+    handleResize(); // Set initial width
     return () => window.removeEventListener('resize', handleResize);
-  }, [dispatch]);
+  }, []);
 
   useEffect(() => {
     if (currentNetwork === 'characters') {
@@ -582,7 +587,7 @@ const Visualizer = () => {
     if (bounds.width === 0 && bounds.height === 0) {
       scale = .8;
     } else {
-      scale = 0.8 / Math.max(bounds.width / svgRef.current.clientWidth, bounds.height / svgRef.current.clientHeight);
+      scale = .8 / Math.max(bounds.width / svgRef.current.clientWidth, bounds.height / svgRef.current.clientHeight);
     }
     console.log(`The scale is ${scale}`);
     const translate = [
@@ -714,19 +719,18 @@ const Visualizer = () => {
   //   dispatch(setTriggerZoomToFit(true));
   // }, [currentComponent]);
 
-  const scaledWidth = 0.75 * windowWidth;
   const scaledHeight = 0.75 * windowHeight;
 
   const isLoading = loadingCharacters || loadingGuests;
 
   return (
-    <div id="visualizer-container" className='network-svg'>
+    <div className='visualizer-container' ref={containerRef}>
       { isLoading && (
         <div className="loading-spinner">
           <Vortex />
         </div>
       )}
-      <svg id='network' className='network-svg' ref={svgRef} style={{ width: scaledWidth, height: scaledHeight }}>
+      <svg id='network' className='network-svg' ref={svgRef} style={{ width: containerWidth, height: scaledHeight }}>
       </svg>
     </div>
   );

@@ -9,6 +9,7 @@ import Sidebar from './components/Sidebar';
 import ControlsSidebar from './components/ControlsSidebar';
 import NetworkSwitcher from './components/NetworkSwitcher';
 import SearchBar from './components/SearchBar';
+import { BiInfoCircle } from "react-icons/bi";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles.css';
 
@@ -29,6 +30,8 @@ const App = () => {
     const windowWidth = windowState.width;
     const topbarWidth = windowWidth * 0.75;
     const windowHeight = windowState.height;
+
+    const toggleCBBInfo = () => {};
     
     useEffect(() => {
         if (currentNetwork === 'characters') {
@@ -81,18 +84,26 @@ const App = () => {
 
 
     return (
-        <div className='container'>
+        <div className="full-width-container">
             <ControlsSidebar
             selectedComponent={currentComponent}
             setSelectedComponent={handleComponentChange}
             componentsSummary={componentsSummary}
             />
-            <div className='visualizer-container'>
-                <div className="top-bar" style={{width: topbarWidth}}>
-                    <NetworkSwitcher /> 
+            <div className="title">
+                <h1>Comedy Bang! Bang!</h1>
+                <h2> Network Explorer <span className='by-line'>by <a target="_blank" href='https://sites.google.com/view/drake-olejniczak/home'>Drake Olejniczak</a></span></h2>
+            </div>
+            <div className="visualizer-container-big">
+                <div className="top-bar">
+                    <NetworkSwitcher />
+                    <div>
+                    </div>
                     <SearchBar />
                 </div>
-                <Visualizer />
+                <div className="visualizer">
+                    <Visualizer />
+                </div>
             </div>
             <Sidebar />
         </div>
