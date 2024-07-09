@@ -22,10 +22,19 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
     const guestComponentsSummary = useSelector(state => state.guests.componentsSummary);
 
     const [isCentralityInfoOpen, setIsCentralityInfoOpen] = useState(false);
+    const [isForceStrengthInfoOpen, setIsForceStrengthInfoOpen] = useState(false);
+    const [isLinkDistanceInfoOpen, setIsLinkDistanceInfoOpen] = useState(false);
 
     const toggleCentralityInfo = () => {
         setIsCentralityInfoOpen(!isCentralityInfoOpen);
-        console.log(`You clicked the info button!  The current value of isCentralityInfoOpen after toggling is ${isCentralityInfoOpen}`);
+      };
+
+    const toggleForceStrengthInfo = () => {
+        setIsForceStrengthInfoOpen(!isForceStrengthInfoOpen);
+      };
+
+    const toggleLinkDistanceInfo = () => {
+        setIsLinkDistanceInfoOpen(!isLinkDistanceInfoOpen);
       };
 
     useEffect(() => {
@@ -113,6 +122,13 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
         <div className="controls-sidebar" >
             <div className="controls-resizer"></div>
             <h3>Controls</h3>
+            <div className='click-explainer'>
+                <ul>
+                    <li>Click to select a node and view its details</li>
+                    <li>Ctrl + Click to select multiple nodes and view a shortest path between them</li>
+                </ul>
+            </div>
+            <hr />
             <div  className="control-group">
                 <label htmlFor="component-selector" className='label'>Select Component</label>
                 <select
@@ -130,7 +146,24 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
             </div>
             <hr />
             <div className="control-group">
-                <label htmlFor="chargeStrength" className='label'>Charge Strength: {forceStrength}</label>
+                <div className="heading-info-question">
+                    <label htmlFor="chargeStrength" className='label'>Charge Strength: {forceStrength}</label>
+                    <BiInfoCircle onClick={toggleForceStrengthInfo} style={{cursor: 'pointer' }}/>
+                    <Modal show={isForceStrengthInfoOpen} onHide={toggleForceStrengthInfo}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Charge Strength</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <p>Charge strength in a force simulation controls the magnitude of the repulsive or attractive forces applied to the nodes. 
+                                A higher force strength results in stronger repulsion between nodes, causing them to spread out more, 
+                                while a lower force strength means weaker repulsion, allowing nodes to be closer together.
+                            </p>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={toggleForceStrengthInfo}>Close</Button>
+                        </Modal.Footer>
+                    </Modal>
+                </div>
                 <input
                     type="range"
                     id="chargeStrength"
@@ -140,11 +173,25 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                     onChange={handleForceStrengthChange}
                     className='slider'
                 />
-                
             </div>
             <hr />
             <div className='control-group'>
-                <label htmlFor="linkDistance" className='label'>Link Distance: {linkDistance}</label>
+                <div className="heading-info-question">
+                    <label htmlFor="linkDistance" className='label'>Link Distance: {linkDistance} </label>
+                    <BiInfoCircle onClick={toggleLinkDistanceInfo} style={{cursor: 'pointer' }}/>
+                    <Modal show={isLinkDistanceInfoOpen} onHide={toggleLinkDistanceInfo}>
+                        <Modal.Header closeButton>
+                            <Modal.Title>Link Distance</Modal.Title>
+                        </Modal.Header>
+                        <Modal.Body>
+                            <p>Link distance in a force simulation is a setting that determines the optimal distance between connected nodes (or vertices) in a network visualization. 
+                                This distance influences how the nodes are spaced apart visually.</p>
+                        </Modal.Body>
+                        <Modal.Footer>
+                            <Button variant="secondary" onClick={toggleLinkDistanceInfo}>Close</Button>
+                        </Modal.Footer>
+                    </Modal>
+                </div>
                 <input
                     type="range"
                     id="linkDistance"

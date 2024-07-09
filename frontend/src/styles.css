@@ -17,6 +17,13 @@ body {
     max-width: 1275px;
 }
 
+.title h1 , .title h2 {
+    margin-bottom: 0;
+}
+
+.title h1 {
+    font-size: 50px;
+}
 .centrality-container h6 {
     font-size: 13px;
     text-align: center;
@@ -60,7 +67,8 @@ body {
 
 .control-group label {
     font-weight: 500;
-    margin-bottom: 5px;
+    margin-bottom: 0;
+    margin-right: 5px;
 }
 
 
@@ -165,6 +173,7 @@ circle.dimmed {
     align-items: center;
     justify-content: center;
     text-align: center;
+    margin-bottom: 5px;
 }
 
 .circled-icon {
@@ -195,6 +204,8 @@ hr {
 
 .controls-sidebar hr {
     border-top: 3px solid rgb(186,34,22);
+    margin-top: 12px;
+    margin-bottom: 12px;
 }
 
 
@@ -205,6 +216,10 @@ hr {
     margin-bottom: 0;
     justify-content: center;
     align-items: center;
+}
+
+.node-sizing-container hr {
+    margin: 0;
 }
 
 .sidebar {
@@ -453,6 +468,7 @@ hr {
     display: flex;
     font-size: x-small;
     align-items: center;
+    text-align: left;
     justify-content: center;
 }
 
@@ -462,16 +478,17 @@ hr {
 }
 
 .search-bar-container {
+    margin: auto;
     position: relative;
     display: flex;
     align-items: center;
     left: 0;
-    width: 250px;
+    width: 90%;
   }
   
   .search-input {
     width: 100%;
-    padding: 8px;
+    padding: 3px;
     box-sizing: border-box;
   }
   
@@ -617,4 +634,9 @@ hr {
   
   .sidebar { grid-area: sidebar; }
   
-  
+  .cbb-info-button-container {
+    margin-top: auto;
+    margin-bottom: auto;
+    font-size: x-large;
+    left: 0;
+  }

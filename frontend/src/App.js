@@ -9,6 +9,7 @@ import Sidebar from './components/Sidebar';
 import ControlsSidebar from './components/ControlsSidebar';
 import NetworkSwitcher from './components/NetworkSwitcher';
 import SearchBar from './components/SearchBar';
+import { BiInfoCircle } from "react-icons/bi";
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles.css';
 
@@ -29,6 +30,8 @@ const App = () => {
     const windowWidth = windowState.width;
     const topbarWidth = windowWidth * 0.75;
     const windowHeight = windowState.height;
+
+    const toggleCBBInfo = () => {};
     
     useEffect(() => {
         if (currentNetwork === 'characters') {
@@ -93,14 +96,10 @@ const App = () => {
             </div>
             <div className="visualizer-container-big">
                 <div className="top-bar">
-                    <NetworkSwitcher /> 
-                    <SearchBar />
-                    <div className='click-explainer'>
-                        <ul>
-                            <li>Click to select a node and view its details</li>
-                            <li>Ctrl + Click to select multiple nodes and view a shortest path between them</li>
-                        </ul>
+                    <NetworkSwitcher />
+                    <div>
                     </div>
+                    <SearchBar />
                 </div>
                 <div className="visualizer">
                     <Visualizer />
