@@ -168,31 +168,53 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                                     <Modal.Title>Centrality Info</Modal.Title>
                                 </Modal.Header>
                                 <Modal.Body>
+                                    <p>
+                                        Centrality is a fundamental concept in network analysis that measures the importance or influence of individual nodes within a network. 
+                                        It helps identify the most significant nodes that can affect the overall structure and behavior of the network. 
+                                        There are several types of centrality metrics, each capturing different aspects of a node's prominence.
+                                    </p>
+                                    <p>
+                                        In the context of the Comedy Bang Bang network, centrality metrics are used to analyze and visualize the relationships and interactions between characters or between guests on the podcast. 
+                                        Read on for an overview of each type of centrality utilized here and what each means in the context of the Comedy Bang Bang network. 
+                                        For more detailed and extensive information on centrality measures, you can visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality">this website</a>.
+                                    </p>
                                     <h5>Degree Centrality</h5>
                                     <p>
-                                    Degree centrality is the simplest centrality measure and is defined as the number of edges incident with the vertex which also corresponds to the number of neighbors of the node. 
-                                    For more information, see <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Degree_centrality">Degree Centrality</a>.
+                                        Degree centrality is the simplest centrality measure and is defined as the number of edges incident with the vertex which also corresponds to the number of neighbors of the node. 
+                                        For more information, see <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Degree_centrality">Degree Centrality</a>.
+                                    </p>
+                                    <p>
+                                        In the context of the Comedy Bang Bang Network character network, the degree of a node is the number of unique characters they've appeared with over all episodes.
                                     </p>
                                     <h5>Betweenness Centrality</h5>
                                     <p>
-                                    Betweenness centrality quantifies the number of times a node contributes to the shortest path between two other nodes. 
-                                    It is a measure of the influence a node has over the flow of information, materials, or other substance communicated between nodes in a network assuming the substance takes the shortest path between nodes. 
-                                    Nodes with high betweenness centrality lie on many shortest paths between nodes, so they play an important role in communication between nodes. 
-                                    For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Betweenness_centrality">Betweenness Centrality</a>.
+                                        Betweenness centrality quantifies the number of times a node contributes to the shortest path between two other nodes. 
+                                        It is a measure of the influence a node has over the flow of information communicated or materials transfered between nodes. 
+                                        Nodes with high betweenness centrality lie on many shortest paths between nodes, so they play an important role in communication between nodes. 
+                                        For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Betweenness_centrality">Betweenness Centrality</a>.
+                                    </p>
+                                    <p>
+                                        In the context of the Comedy Bang Bang character network, vertices with high betweenness act as bridges between different groups, showing their role in connecting various parts of the network.
                                     </p>
                                     <h5>Eigenvector Centrality</h5>
                                     <p>
-                                    Eigenvector centrality measures the influence of a node within a network. 
-                                    It assigns relative scores to all nodes in the network based on the concept that connections to high-scoring nodes contribute more to the score of the node in question than equal connections to low-scoring nodes. 
-                                    This means that a node is considered more central if it is connected to many nodes that themselves are highly central. 
-                                    For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Eigenvector_centrality">Eigenvector Centrality</a>.
+                                        Eigenvector centrality measures the influence of a node within a network. 
+                                        It assigns relative scores to all nodes in the network based on the concept that connections to high-scoring nodes contribute more to the score of the node in question than equal connections to low-scoring nodes. 
+                                        This means that a node is considered more central if it is connected to many nodes that themselves are highly central. 
+                                        For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Eigenvector_centrality">Eigenvector Centrality</a>.
+                                    </p>
+                                    <p>
+                                        In the Comedy Bang Bang networks, nodes with high eigenvector centrality are important in the sense of influence as they appear in episodes with other characters/guests of high influence.
                                     </p>
                                     <h5>Closeness Centrality</h5>
                                     <p>
-                                    Closeness centrality measures how "close" (in terms of graphical distance) a node is to the rest of the nodes in the network. 
-                                    It is defined as the inverse of the sum of the shortest path distances from the node to all other nodes in the network. 
-                                    Nodes with high closeness centrality have shorter average distances to all other nodes, indicating they are closer to the center of the network. 
-                                    For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Closeness_centrality">Closeness Centrality</a>.
+                                        Closeness centrality measures how "close" (in terms of graphical distance) a node is to the rest of the nodes in the network. 
+                                        It is defined as the inverse of the sum of the shortest path distances from the node to all other nodes in the network. 
+                                        Nodes with high closeness centrality have shorter average distances to all other nodes, indicating they are closer to the center of the network. 
+                                        For more detailed information including how it is calculated, please visit <a target="_blank" href="https://en.wikipedia.org/wiki/Centrality#Closeness_centrality">Closeness Centrality</a>.
+                                    </p>
+                                    <p>
+                                        In the Comedy Bang Bang networks, characters/guests with high closeness require the least amount of steps to get to other characters/guests in the sense of coappearance chains.
                                     </p>
                                 </Modal.Body>
                                 <Modal.Footer>
