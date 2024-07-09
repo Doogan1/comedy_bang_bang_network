@@ -1,4 +1,4 @@
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback , useState } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchCharacters, setSelectedComponent as setSelectedCharacterComponent, fetchComponentsSummary as fetchCharacterComponentsSummary } from './features/characters/characterSlice';
 import { fetchGuests, setSelectedGuestComponent as setSelectedGuestComponent, fetchGuestComponentsSummary as fetchGuestComponentsSummary } from './features/guests/guestSlice';
@@ -10,6 +10,7 @@ import ControlsSidebar from './components/ControlsSidebar';
 import NetworkSwitcher from './components/NetworkSwitcher';
 import SearchBar from './components/SearchBar';
 import { BiInfoCircle } from "react-icons/bi";
+import { Modal , Button} from 'react-bootstrap';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './styles.css';
 
@@ -31,7 +32,11 @@ const App = () => {
     const topbarWidth = windowWidth * 0.75;
     const windowHeight = windowState.height;
 
-    const toggleCBBInfo = () => {};
+    const [isCBBInfoOpen, setIsCBBInfoOpen] = useState(false);
+
+    const toggleCBBInfo = () => {
+        setIsCBBInfoOpen(!isCBBInfoOpen);
+    };
     
     useEffect(() => {
         if (currentNetwork === 'characters') {
@@ -91,7 +96,37 @@ const App = () => {
             componentsSummary={componentsSummary}
             />
             <div className="title">
-                <h1>Comedy Bang! Bang!</h1>
+                <h1>Comedy Bang! Bang!<BiInfoCircle onClick={toggleCBBInfo} style={{cursor: 'pointer' }}/></h1>
+                <Modal show={isCBBInfoOpen} onHide={toggleCBBInfo}>
+                    <Modal.Header closeButton>
+                        <Modal.Title>Comedy Bang! Bang! Info</Modal.Title>
+                    </Modal.Header>
+                    <Modal.Body>
+                        <h6>The Podcast</h6>
+                        <p>
+                            Comedy Bing Bong is a popular weekly podcast hosted by Scott Aukerman. 
+                            It began in 2009 and is known for its unique blend of interviews, character-based improvisation, and absurdist humor. 
+                            Each episode typically features Aukerman engaging with comedians, actors, and musicians, alongside recurring fictional characters played by guest comedians. 
+                            The podcast has garnered a dedicated fan base and has been praised for its innovative approach to comedy and its ability to blend spontaneous humor with structured segments.
+                        </p>
+                        <h6>The Character Network</h6>
+                        <p>
+                            The character network in the Comedy Bang! Bang! project represents the relationships and interactions between the various fictional characters that have appeared on the podcast over the years. 
+                            These characters, often created and performed by guest comedians, form a rich tapestry of interconnected stories and running jokes. 
+                            By visualizing these connections, listeners can gain a deeper understanding of how different characters relate to one another and trace the evolution of recurring bits and storylines throughout the show's history.
+                        </p>
+                        <h6>The Guest Network</h6>
+                        <p>
+                            The guest network, on the other hand, focuses on the real-life guests who have appeared on Comedy Bang! Bang!. 
+                            This network illustrates the connections between guests based on their appearances in the same episodes. 
+                            By examining the guest network, fans can explore which comedians, actors, and musicians have frequently collaborated on the show, revealing patterns in guest appearances and highlighting the diverse range of talent that has contributed to the podcast's success.
+                        </p>
+                    </Modal.Body>
+                    <Modal.Footer>
+                        <Button variant="secondary" onClick={toggleCBBInfo}>Close</Button>
+                    </Modal.Footer>
+                </Modal>
+
                 <h2> Network Explorer <span className='by-line'>by <a target="_blank" href='https://sites.google.com/view/drake-olejniczak/home'>Drake Olejniczak</a></span></h2>
             </div>
             <div className="visualizer-container-big">

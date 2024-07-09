@@ -230,6 +230,7 @@ const Sidebar = () => {
   const closeSidebar = () => {
     setIsOpen(false);
     dispatch(selectNode(null));
+    dispatch(resetNodeSelection());
   };
 
   const getSharedEpisodes = (characterId) => {

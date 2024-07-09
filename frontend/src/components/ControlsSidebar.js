@@ -327,7 +327,7 @@ const ControlsSidebar = ({ selectedComponent, setSelectedComponent, componentsSu
                 </div>
                 <hr />
                 <div className="slider-range-container">
-                    <label>Node Radius Range</label>
+                    <h6>Node Radius Range</h6>
                     <Slider range
                         min={1}
                         max={1000}
