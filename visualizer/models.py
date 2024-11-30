@@ -2,6 +2,8 @@ from django.db import models
 import json
 import datetime
 
+class UpdateLog(models.Model):
+    update_date = models.DateField(auto_now=True)
 
 class CharacterComponent(models.Model):
     name = models.CharField(max_length=100)
